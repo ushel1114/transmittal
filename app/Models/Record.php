@@ -21,6 +21,7 @@ class Record extends Model
         'date_occurrence',
         'date_received',
         'remarks',
+        'control_number',
         'source',
         'transmittal_number',
         'admin_transmittal_number',

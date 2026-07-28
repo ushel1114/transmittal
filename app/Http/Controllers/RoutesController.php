@@ -311,6 +311,9 @@ class RoutesController extends Controller
                 ->withQueryString();
         }
 
+        // Get last used location from session for auto-population
+        $lastLocation = $request->session()->get('last_location_OD');
+
         return view('officer-of-the-day', [
             'records' => $records,
             'officerName' => $officerFullName,
@@ -334,6 +337,30 @@ class RoutesController extends Controller
             ->header('Content-Disposition', 'attachment; filename="od-records-' . date('Y-m-d') . '.csv"');
     }
 
+    public function exportOfficerCsvByDateRange(Request $request)
+    {
+        $officerName = $request->session()->get('officer_name');
+        if (!$officerName) { return redirect()->route('officer-of-the-day'); }
+
+        $request->validate([
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+        ]);
+
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        $query = Record::where('encoderName', $officerName)
+            ->where('source', 'OD')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->orderBy('id', 'asc');
+
+        $export = new \App\Exports\RecordsExport($query);
+        return response($export->toCsv())
+            ->header('Content-Type', 'text/csv')
+            ->header('Content-Disposition', 'attachment; filename="od-records-' . $startDate . '-to-' . $endDate . '.csv"');
+    }
+
     public function exportEmailCsv(Request $request)
     {
         $emailUserId = $request->session()->get('email_user_id');
@@ -350,6 +377,30 @@ class RoutesController extends Controller
             ->header('Content-Disposition', 'attachment; filename="email-records-' . date('Y-m-d') . '.csv"');
     }
 
+    public function exportEmailCsvByDateRange(Request $request)
+    {
+        $emailUserId = $request->session()->get('email_user_id');
+        if (!$emailUserId) { return redirect()->route('email-handler'); }
+
+        $request->validate([
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+        ]);
+
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        $query = Record::where('source', 'Email')
+            ->where('encoder_id', $emailUserId)
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->orderBy('id', 'asc');
+
+        $export = new \App\Exports\RecordsExport($query);
+        return response($export->toCsv())
+            ->header('Content-Type', 'text/csv')
+            ->header('Content-Disposition', 'attachment; filename="email-records-' . $startDate . '-to-' . $endDate . '.csv"');
+    }
+
     public function exportFacebookCsv(Request $request)
     {
         if (!$request->session()->get('facebook_logged_in')) { return redirect()->route('facebook-handler'); }
@@ -362,6 +413,28 @@ class RoutesController extends Controller
         return response($export->toCsv())
             ->header('Content-Type', 'text/csv')
             ->header('Content-Disposition', 'attachment; filename="facebook-records-' . date('Y-m-d') . '.csv"');
+    }
+
+    public function exportFacebookCsvByDateRange(Request $request)
+    {
+        if (!$request->session()->get('facebook_logged_in')) { return redirect()->route('facebook-handler'); }
+
+        $request->validate([
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+        ]);
+
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        $query = Record::where('source', 'Facebook')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->orderBy('id', 'asc');
+
+        $export = new \App\Exports\RecordsExport($query);
+        return response($export->toCsv())
+            ->header('Content-Type', 'text/csv')
+            ->header('Content-Disposition', 'attachment; filename="facebook-records-' . $startDate . '-to-' . $endDate . '.csv"');
     }
 
     public function showAdminLogin()
@@ -641,7 +714,7 @@ class RoutesController extends Controller
             }
         }
 
-        $dashProvinces = ['Nueva Ecija', 'Aurora'];
+        $dashProvinces = ['NUEVA ECIJA', 'AURORA', 'TARLAC'];
 
         $dashMunicipalitiesByProvince = Record::query()
             ->select('province', 'municipality')
@@ -673,8 +746,9 @@ class RoutesController extends Controller
         }
 
         $dashCountsByProvince = [
-            'Nueva Ecija' => [],
-            'Aurora' => [],
+            'NUEVA ECIJA' => [],
+            'AURORA' => [],
+            'TARLAC' => [],
         ];
         foreach ($dashProvinces as $province) {
             $municipalities = $dashMunicipalitiesByProvince[$province] ?? [];
@@ -718,6 +792,36 @@ class RoutesController extends Controller
         
         // Source counts should be unfiltered to show total records by source
         $recordsBySource = Record::selectRaw('source, count(*) as count')->groupBy('source')->orderByRaw('count(*) desc')->pluck('count', 'source');
+        
+        // Mode of payment counts
+        $recordsByModeOfPayment = Record::selectRaw('modeOfPayment, count(*) as count')
+            ->whereNotNull('modeOfPayment')
+            ->where('modeOfPayment', '!=', '')
+            ->groupBy('modeOfPayment')
+            ->orderByRaw('count(*) desc')
+            ->pluck('count', 'modeOfPayment');
+
+        // Highest municipalities per mode of payment grouped by province
+        $modeOfPaymentMunicipalityData = Record::selectRaw('modeOfPayment, province, municipality, count(*) as count')
+            ->whereNotNull('modeOfPayment')
+            ->where('modeOfPayment', '!=', '')
+            ->whereNotNull('municipality')
+            ->where('municipality', '!=', '')
+            ->whereIn('province', ['NUEVA ECIJA', 'AURORA', 'TARLAC'])
+            ->groupBy('modeOfPayment', 'province', 'municipality')
+            ->orderByRaw('modeOfPayment, province, count(*) desc')
+            ->get()
+            ->groupBy('modeOfPayment')
+            ->map(function ($modeGroup) {
+                return $modeGroup->groupBy('province')->map(function ($provinceGroup) {
+                    return $provinceGroup->take(5)->map(function ($item) {
+                        return [
+                            'municipality' => $item->municipality,
+                            'count' => (int) $item->count
+                        ];
+                    })->values();
+                });
+            });
         $recordsByMunicipality = $statsQuery
             ->selectRaw('municipality, count(*) as count')
             ->whereNotNull('municipality')
@@ -775,7 +879,8 @@ class RoutesController extends Controller
         // All available provinces - Hardcoded to match modal options exactly
         $allProvinces = [
             'Aurora',
-            'Nueva Ecija'
+            'Nueva Ecija',
+            'Tarlac'
         ];
 
         // All available provinces, municipalities, barangays
@@ -796,6 +901,8 @@ class RoutesController extends Controller
             'recordsByProgram' => $recordsByProgram,
             'recordsByLine' => $recordsByLine,
             'recordsBySource' => $recordsBySource,
+            'recordsByModeOfPayment' => $recordsByModeOfPayment,
+            'modeOfPaymentMunicipalityData' => $modeOfPaymentMunicipalityData,
             'recordsByMunicipality' => $recordsByMunicipality,
             'municipalityProgramCounts' => $municipalityProgramCounts,
             'dashCountsByProvince' => $dashCountsByProvince,
@@ -1391,9 +1498,9 @@ class RoutesController extends Controller
             $conditions['encoderName'] = $request->session()->get('officer_name');
         }
 
-        // Get records without transmittal_number
+        // Get records without control_number
         $query = Record::where('source', $conditions['source'])
-            ->whereNull('transmittal_number');
+            ->whereNull('control_number');
 
         if ($source === 'OD' && $conditions['encoderName']) {
             $query->where('encoderName', $conditions['encoderName']);
@@ -1429,8 +1536,8 @@ class RoutesController extends Controller
             // Find the latest transmittal for today and this source
             $searchPattern = $today . '-' . ($prefix ? $prefix : '') . '%';
             $latestTransmittal = Record::where('source', $source)
-                ->whereNotNull('transmittal_number')
-                ->where('transmittal_number', 'like', $searchPattern);
+                ->whereNotNull('control_number')
+                ->where('control_number', 'like', $searchPattern);
 
             if ($source === 'OD') {
                 $latestTransmittal = $latestTransmittal->where('encoderName', $conditions['encoderName']);
@@ -1441,7 +1548,7 @@ class RoutesController extends Controller
 
             if ($latest) {
                 // Extract number from format like "2026-0420-001", "2026-0420-F001", or "2026-0420-E001"
-                $parts = explode('-', $latest->transmittal_number);
+                $parts = explode('-', $latest->control_number);
                 if (count($parts) === 3) {
                     $lastPart = $parts[2];
                     // Remove prefix if present and get the numeric part
@@ -1460,9 +1567,9 @@ class RoutesController extends Controller
         }
         $transmittalNumber = $today . '-' . $prefix . $nextNumber;
 
-        // Update all records with the new transmittal number
+        // Update all records with the new control number
         Record::whereIn('id', $recordsToSubmit->pluck('id'))->update([
-            'transmittal_number' => $transmittalNumber,
+            'control_number' => $transmittalNumber,
         ]);
 
         $count = $recordsToSubmit->count();
@@ -2103,5 +2210,89 @@ class RoutesController extends Controller
         } else {
             return 'offline'; // More than 2 hours = offline
         }
+    }
+
+    public function encoderReport(Request $request)
+    {
+        // Check if admin is logged in
+        if (!$request->session()->has('admin_logged_in') || !$request->session()->get('admin_logged_in')) {
+            return redirect()->route('welcome');
+        }
+
+        $request->validate([
+            'user_id' => 'required|integer',
+            'from_date' => 'required|date',
+            'to_date' => 'required|date|after_or_equal:from_date'
+        ]);
+
+        $userId = $request->input('user_id');
+        $fromDate = $request->input('from_date');
+        $toDate = $request->input('to_date');
+
+        // Get the officer/user
+        $officer = Officer::find($userId);
+        if (!$officer) {
+            return redirect()->route('admin')->with('error', 'User not found');
+        }
+
+        // Query records encoded by the selected user within the date range
+        $records = Record::where('encoder_id', $userId)
+            ->whereBetween('created_at', [$fromDate . ' 00:00:00', $toDate . ' 23:59:59'])
+            ->orderBy('source', 'asc')
+            ->orderBy('id', 'desc')
+            ->get();
+
+        // Group records by date for daily breakdown
+        $recordsByDate = $records->groupBy(function($record) {
+            return $record->created_at->format('Y-m-d');
+        });
+
+        // Count total records
+        $totalRecords = $records->count();
+
+        return view('encoder-report', [
+            'officer' => $officer,
+            'fromDate' => $fromDate,
+            'toDate' => $toDate,
+            'recordsByDate' => $recordsByDate,
+            'totalRecords' => $totalRecords
+        ]);
+    }
+
+    public function transmittalReport(Request $request)
+    {
+        // Check if admin is logged in
+        if (!$request->session()->has('admin_logged_in') || !$request->session()->get('admin_logged_in')) {
+            return redirect()->route('welcome');
+        }
+
+        $request->validate([
+            'from_date' => 'required|date',
+            'to_date' => 'required|date|after_or_equal:from_date'
+        ]);
+
+        $fromDate = $request->input('from_date');
+        $toDate = $request->input('to_date');
+
+        // Query all records within the date range
+        $records = Record::whereBetween('created_at', [$fromDate . ' 00:00:00', $toDate . ' 23:59:59'])
+            ->orderBy('source', 'asc')
+            ->orderBy('id', 'desc')
+            ->get();
+
+        // Group records by date for daily breakdown
+        $recordsByDate = $records->groupBy(function($record) {
+            return $record->created_at->format('Y-m-d');
+        });
+
+        // Count total records
+        $totalRecords = $records->count();
+
+        return view('transmittal-report', [
+            'fromDate' => $fromDate,
+            'toDate' => $toDate,
+            'recordsByDate' => $recordsByDate,
+            'totalRecords' => $totalRecords
+        ]);
     }
 }

@@ -44,6 +44,8 @@ Route::post('/admin/clear-print-preview', [RoutesController::class, 'clearPrintP
 Route::get('/admin/export-preview-csv', [RoutesController::class, 'exportPreviewCsv'])->name('admin.export-preview-csv');
 Route::post('/admin/assign-transmittals', [RoutesController::class, 'assignTransmittals'])->name('admin.assign-transmittals');
 Route::get('/admin/api/pending-approvals', [RoutesController::class, 'pendingApprovalsApi'])->name('admin.api.pending-approvals');
+Route::get('/admin/encoder-report', [RoutesController::class, 'encoderReport'])->name('admin.encoder-report');
+Route::get('/admin/transmittal-report', [RoutesController::class, 'transmittalReport'])->name('admin.transmittal-report');
 
 
 // Auto-logout and activity tracking routes
@@ -59,9 +61,13 @@ Route::delete('/admin/officers/{id}', [RoutesController::class, 'deleteOfficer']
 
 Route::post('/records', [RecordsController::class, 'storeRecord'])->name('records');
 Route::post('/records/submit-transmittal', [RoutesController::class, 'submitTransmittal'])->name('records.submit-transmittal');
+Route::get('/records/latest', [RecordsController::class, 'getLatestRecord'])->name('records.latest');
 Route::get('/officer/export-csv', [RoutesController::class, 'exportOfficerCsv'])->name('officer.export-csv');
+Route::post('/officer/export-csv-by-date-range', [RoutesController::class, 'exportOfficerCsvByDateRange'])->name('officer.export-csv-by-date-range');
 Route::get('/email/export-csv', [RoutesController::class, 'exportEmailCsv'])->name('email.export-csv');
+Route::post('/email/export-csv-by-date-range', [RoutesController::class, 'exportEmailCsvByDateRange'])->name('email.export-csv-by-date-range');
 Route::get('/facebook/export-csv', [RoutesController::class, 'exportFacebookCsv'])->name('facebook.export-csv');
+Route::post('/facebook/export-csv-by-date-range', [RoutesController::class, 'exportFacebookCsvByDateRange'])->name('facebook.export-csv-by-date-range');
 
 Route::put('/records/{id}', [RecordsController::class, 'updateRecord'])->name('records.update');
 Route::delete('/records/{id}', [RecordsController::class, 'destroyRecord'])->name('records.destroy');

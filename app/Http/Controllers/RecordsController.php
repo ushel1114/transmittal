@@ -37,6 +37,7 @@ class RecordsController extends Controller
             'date_occurrence' => 'nullable|string|max:500',
             'date_received' => 'nullable|date',
             'remarks' => 'nullable|string|max:255',
+            'control_number' => 'nullable|string|max:255',
             'source' => 'nullable|string|in:OD,Email,Facebook',
         ]);
 
@@ -130,6 +131,14 @@ class RecordsController extends Controller
             }
             
             $record = Record::create($recordData);
+            
+            // Store last used location in session for auto-population
+            $sessionKey = 'last_location_' . $recordData['source'];
+            $request->session()->put($sessionKey, [
+                'province' => $recordData['province'],
+                'municipality' => $recordData['municipality'],
+                'barangay' => $recordData['barangay'],
+            ]);
             
             DB::commit();
             
@@ -276,6 +285,7 @@ class RecordsController extends Controller
             'date_occurrence' => 'nullable|string|max:500',
             'date_received' => 'nullable|date',
             'remarks' => 'nullable|string|max:255',
+            'control_number' => 'nullable|string|max:255',
             'transmittal_number' => 'nullable|string|max:255',
             'admin_transmittal_number' => 'nullable|string|max:255',
         ]);
@@ -420,6 +430,55 @@ class RecordsController extends Controller
             'success' => true,
             'duplicates' => $duplicateRecords,
             'message' => 'Potential duplicate records found'
+        ]);
+    }
+
+    public function getLatestRecord(Request $request)
+    {
+        $source = $request->input('source');
+        $encoderName = null;
+
+        // Get encoder name based on source
+        if ($source === 'OD') {
+            $encoderName = $request->session()->get('officer_name');
+        } elseif ($source === 'Email') {
+            $encoderName = $request->session()->get('email_user_name');
+        } elseif ($source === 'Facebook') {
+            $encoderName = $request->session()->get('facebook_user');
+        }
+
+        if (!$encoderName) {
+            return response()->json(['success' => false, 'message' => 'Not logged in'], 401);
+        }
+
+        // Get the most recent record for this user and source
+        $latestRecord = Record::where('source', $source)
+            ->where('encoderName', $encoderName)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if (!$latestRecord) {
+            return response()->json(['success' => false, 'message' => 'No records found']);
+        }
+
+        return response()->json([
+            'success' => true,
+            'record' => [
+                'farmerName' => $latestRecord->farmerName,
+                'province' => $latestRecord->province,
+                'municipality' => $latestRecord->municipality,
+                'barangay' => $latestRecord->barangay,
+                'line' => $latestRecord->line,
+                'program' => $latestRecord->program,
+                'causeOfDamage' => $latestRecord->causeOfDamage,
+                'modeOfPayment' => $latestRecord->modeOfPayment,
+                'accounts' => $latestRecord->accounts,
+                'facebook_page_url' => $latestRecord->facebook_page_url,
+                'date_occurrence' => $latestRecord->date_occurrence,
+                'date_received' => $latestRecord->date_received ? $latestRecord->date_received->format('Y-m-d') : '',
+                'remarks' => $latestRecord->remarks,
+                'control_number' => $latestRecord->control_number,
+            ]
         ]);
     }
 }

@@ -51,7 +51,7 @@
             <div class="px-6 py-5">
         <form action="{{ route('facebook.login') }}" method="POST" class="officerOfTheDayNames flex flex-col gap-3" id="facebookLoginForm">
             @csrf
-            <select name="facebook_user" id="facebook_user" required class="h-11 px-3 rounded-xl border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white">
+            <select name="facebook_user" id="facebook_user" required class="h-11 px-3 rounded-xl border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
                 <option value="">Select user</option>
                 @php
                     $officers = \App\Models\Officer::orderBy('name')->get();
@@ -124,6 +124,10 @@
                         Export CSV
                     </a>
                     @endif
+                    <button type="button" class="downloadOldRecordsButton h-10 rounded-xl bg-white border border-gray-200 text-gray-700 text-sm font-bold hover:bg-gray-50 transition-colors cursor-pointer flex items-center justify-center gap-2">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Download Old Records to CSV
+                    </button>
                 </div>
             </div>
 
@@ -135,38 +139,61 @@
                 <div class="p-4 overflow-x-auto">
                     <x-table :records="$records" :showDelete="false" :showCheckbox="false" :showSortableHeaders="false" :hideSourceColumn="true" :hideProvinceColumn="true" />
                     @if(method_exists($records, 'links'))
-                        <div class="pagination mt-3 flex justify-center">{{ $records->links() }}</div>
+                        <div class="no-print" style="margin: 10px 0; text-align: center;">
+                            <div id="pagination-container" style="display: flex; justify-content: center; align-items: center; gap: 12px;">
+                                @if ($records->onFirstPage())
+                                    <span style="padding: 8px 16px; border-radius: 8px; background: #f1f5f9; color: #94a3b8; font-size: 14px; font-weight: 500; border: 1px solid #e2e8f0;">Previous</span>
+                                @else
+                                    <a href="{{ $records->appends(request()->query())->previousPageUrl() }}" class="pagination-link" style="padding: 8px 16px; border-radius: 8px; background: linear-gradient(135deg, #006c35 0%, #008a43 100%); color: white; font-size: 14px; font-weight: 500; text-decoration: none; border: 1px solid #005a2d; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0, 108, 53, 0.1);">Previous</a>
+                                @endif
+
+                                <span style="margin: 0 16px; padding: 8px 16px; border-radius: 8px; background: #f8fafc; color: #475569; font-size: 14px; font-weight: 600; border: 1px solid #e2e8f0;">
+                                    Page {{ $records->currentPage() }} of {{ $records->lastPage() }}
+                                </span>
+
+                                @if ($records->hasMorePages())
+                                    <a href="{{ $records->appends(request()->query())->nextPageUrl() }}" class="pagination-link" style="padding: 8px 16px; border-radius: 8px; background: linear-gradient(135deg, #006c35 0%, #008a43 100%); color: white; font-size: 14px; font-weight: 500; text-decoration: none; border: 1px solid #005a2d; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0, 108, 53, 0.1);">Next</a>
+                                @else
+                                    <span style="padding: 8px 16px; border-radius: 8px; background: #f1f5f9; color: #94a3b8; font-size: 14px; font-weight: 500; border: 1px solid #e2e8f0;">Next</span>
+                                @endif
+                            </div>
+                        </div>
                     @endif
                 </div>
             </div>
         </div>
 
-        <dialog class="addRecordDialog rounded-2xl shadow-2xl bg-white backdrop:bg-black/40 p-0 w-[min(640px,calc(100vw-2rem))]">
-            <div class="px-5 pt-5 pb-3 border-b border-gray-100">
+        <!-- Backdrop -->
+        <div id="addRecordBackdrop" class="fixed inset-0 bg-gray-900/50 z-[9998] hidden" style="display: none;"></div>
+
+        <!-- Add Record Modal -->
+        <div id="addRecordDialog" class="addRecordDialog rounded-2xl shadow-2xl bg-white p-0 w-[min(640px,calc(100vw-2rem))] fixed z-[9999] hidden" style="display: none; position: fixed; z-index: 9999;">
+            <div id="addRecordDialogheader" class="px-5 pt-5 pb-3 border-b border-gray-100 cursor-move">
                 <h3 class="text-base font-black text-gray-900">Add Record</h3>
             </div>
-            <form action="{{ route('records') }}" method="POST" class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-3 px-5 py-4 items-center">
+            <form action="{{ route('records') }}" method="POST" class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-3 px-5 py-4 items-center" id="addRecordForm">
                 @csrf
                 <input type="hidden" name="source" value="Facebook">
             <label for="farmerName" class="text-xs font-bold text-gray-600 text-right">Farmer Name:</label>
             <input type="text" id="farmerName" name="farmerName" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
             <label for="province" class="text-xs font-bold text-gray-600 text-right">Province:</label>
-            <select name="province" id="province" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white">
+            <select name="province" id="province" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
                 <option value="">Select Province</option>
                 <option value="Aurora">Aurora</option>
                 <option value="Nueva Ecija">Nueva Ecija</option>
+                <option value="Tarlac">Tarlac</option>
             </select>
             <label for="municipality" class="text-xs font-bold text-gray-600 text-right">Municipality:</label>
-            <select name="municipality" id="municipality" required disabled class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-gray-50">
+            <select name="municipality" id="municipality" required disabled class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-gray-50 uppercase">
                 <option value="">Select Municipality</option>
             </select>
             <label for="barangay" class="text-xs font-bold text-gray-600 text-right">Barangay:</label>
-            <select name="barangay" id="barangay" required disabled class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-gray-50">
+            <select name="barangay" id="barangay" required disabled class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-gray-50 uppercase">
                 <option value="">Select Barangay</option>
             </select>
             <input type="hidden" name="address" id="addRecordAddress">
             <label for="line" class="text-xs font-bold text-gray-600 text-right">Line:</label>
-            <select name="line" id="line" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white">
+            <select name="line" id="line" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
                 <option value="">Select Line</option>
                 <option value="rice">rice</option>
                 <option value="corn">corn</option>
@@ -177,7 +204,7 @@
                 <option value="fisheries">Fisheries</option>
             </select>
             <label for="program" class="text-xs font-bold text-gray-600 text-right">Program:</label>
-            <select name="program" id="program" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white">
+            <select name="program" id="program" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
                 <option value="">Select Program</option>
                 <option value="RSBSA">RSBSA</option>
                 <option value="AGRI-SENSO">AGRI-SENSO</option>
@@ -196,7 +223,7 @@
             <label for="causeOfDamage" class="text-xs font-bold text-gray-600 text-right">Cause of Damage:</label>
             <input type="text" id="causeOfDamage" name="causeOfDamage" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
             <label for="modeOfPayment" class="text-xs font-bold text-gray-600 text-right">Mode of payment:</label>
-            <select name="modeOfPayment" id="modeOfPayment" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white">
+            <select name="modeOfPayment" id="modeOfPayment" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
                 <option value="">Select Mode of payment</option>
                 <option value="check">Check</option>
                 <option value="palawan">Palawan Pay</option>
@@ -215,7 +242,7 @@
                 <button type="button" class="closeAddRecordModal h-9 px-4 rounded-lg border border-gray-200 text-xs font-bold text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer">Close</button>
             </div>
         </form>
-    </dialog>
+    </div>
     <dialog class="editRecordDialog rounded-2xl shadow-2xl bg-white backdrop:bg-black/40 p-0 w-[min(640px,calc(100vw-2rem))]" id="recordEditDialog">
         <div class="px-5 pt-5 pb-3 border-b border-gray-100">
             <h3 class="text-base font-black text-gray-900">Edit Record</h3>
@@ -227,22 +254,23 @@
             <label for="farmerName" class="text-xs font-bold text-gray-600 text-right">Farmer Name:</label>
             <input type="text" id="farmerName" name="farmerName" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
             <label for="province" class="text-xs font-bold text-gray-600 text-right">Province:</label>
-            <select name="province" id="editProvince" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white">
+            <select name="province" id="editProvince" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
                 <option value="">Select Province</option>
                 <option value="Aurora">Aurora</option>
                 <option value="Nueva Ecija">Nueva Ecija</option>
+                <option value="Tarlac">Tarlac</option>
             </select>
             <label for="municipality" class="text-xs font-bold text-gray-600 text-right">Municipality:</label>
-            <select name="municipality" id="editMunicipality" required disabled class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-gray-50">
+            <select name="municipality" id="editMunicipality" required disabled class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-gray-50 uppercase">
                 <option value="">Select Municipality</option>
             </select>
             <label for="barangay" class="text-xs font-bold text-gray-600 text-right">Barangay:</label>
-            <select name="barangay" id="editBarangay" required disabled class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-gray-50">
+            <select name="barangay" id="editBarangay" required disabled class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-gray-50 uppercase">
                 <option value="">Select Barangay</option>
             </select>
             <input type="hidden" name="address" id="editRecordAddress">
             <label for="line" class="text-xs font-bold text-gray-600 text-right">Line:</label>
-            <select name="line" id="line" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white">
+            <select name="line" id="line" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
                 <option value="">Select Line</option>
                 <option value="rice">rice</option>
                 <option value="corn">corn</option>
@@ -253,7 +281,7 @@
                 <option value="fisheries">Fisheries</option>
             </select>
             <label for="program" class="text-xs font-bold text-gray-600 text-right">Program:</label>
-            <select name="program" id="program" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white">
+            <select name="program" id="program" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
                 <option value="">Select Program</option>
                 <option value="RSBSA">RSBSA</option>
                 <option value="AGRI-SENSO">AGRI-SENSO</option>
@@ -272,23 +300,19 @@
             <label for="causeOfDamage" class="text-xs font-bold text-gray-600 text-right">Cause of Damage:</label>
             <input type="text" id="causeOfDamage" name="causeOfDamage" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
             <label for="modeOfPayment" class="text-xs font-bold text-gray-600 text-right">Mode of payment:</label>
-            <select name="modeOfPayment" id="modeOfPayment" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white">
+            <select name="modeOfPayment" id="modeOfPayment" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
                 <option value="">Select Mode of payment</option>
                 <option value="check">Check</option>
                 <option value="palawan">Palawan Pay</option>
                 <option value="gcash">GCash</option>
                 <option value="not_indicated">Not indicated</option>
             </select>
-            <label for="accounts" class="text-xs font-bold text-gray-600 text-right">Account / page:</label>
-            <input type="text" id="accounts" name="accounts" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
-            <label for="facebook_page_url" class="text-xs font-bold text-gray-600 text-right">FB page link:</label>
-            <input type="url" id="facebook_page_url" name="facebook_page_url" placeholder="https://www.facebook.com/..." class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
             <label for="remarks" class="text-xs font-bold text-gray-600 text-right">Remarks - Care of:</label>
             <input type="text" id="remarks" name="remarks" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full ">
-            <label for="transmittal_number" class="text-xs font-bold text-gray-600 text-right">Control number:</label>
-            <input type="text" id="transmittal_number" name="transmittal_number" readonly class="h-9 px-3 rounded-lg border border-gray-200 bg-gray-50 text-sm w-full">
-            <label for="admin_transmittal_number" class="text-xs font-bold text-gray-600 text-right">Admin transmittal #:</label>
-            <input type="text" id="admin_transmittal_number" name="admin_transmittal_number" readonly class="h-9 px-3 rounded-lg border border-gray-200 bg-gray-50 text-sm w-full">
+            <label for="accounts" class="text-xs font-bold text-gray-600 text-right">Account / page:</label>
+            <input type="text" id="accounts" name="accounts" required placeholder="Name of Facebook page or account" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
+            <label for="facebook_page_url" class="text-xs font-bold text-gray-600 text-right">FB page link:</label>
+            <input type="url" id="facebook_page_url" name="facebook_page_url" placeholder="https://www.facebook.com/..." class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
             <div></div>
             <div class="flex gap-2 pt-1">
                 <button type="submit" class="h-9 px-4 rounded-lg bg-pcic-700 text-white text-xs font-bold hover:bg-pcic-800 transition-colors cursor-pointer">Update Record</button>
@@ -325,12 +349,6 @@ document.addEventListener('DOMContentLoaded', function() {
     var addRecordButton = document.querySelector('.addRecordButton');
     var addRecordDialog = document.querySelector('.addRecordDialog');
     var closeAddRecordModal = document.querySelector('.closeAddRecordModal');
-
-    if (addRecordButton && addRecordDialog) {
-        addRecordButton.addEventListener('click', function() {
-            addRecordDialog.showModal();
-        });
-    }
 
     if (closeAddRecordModal && addRecordDialog) {
         closeAddRecordModal.addEventListener('click', function() {
@@ -1357,7 +1375,868 @@ Gumabat,Baler,Aurora
 Poblacion,Baler,Aurora
 Simbahan,Baler,Aurora
 Umiray,Baler,Aurora
-Yapara,Baler,Aurora`;
+Yapara,Baler,Aurora
+Baguindoc,Anao,Tarlac
+Bantog,Anao,Tarlac
+Campos,Anao,Tarlac
+Carmen,Anao,Tarlac
+Casili,Anao,Tarlac
+Don Ramon,Anao,Tarlac
+Hernando,Anao,Tarlac
+Poblacion,Anao,Tarlac
+Rizal,Anao,Tarlac
+San Francisco East,Anao,Tarlac
+San Francisco West,Anao,Tarlac
+San Jose North,Anao,Tarlac
+San Jose South,Anao,Tarlac
+San Juan,Anao,Tarlac
+San Juan East,Anao,Tarlac
+San Juan West,Anao,Tarlac
+San Roque,Anao,Tarlac
+Santo Domingo,Anao,Tarlac
+Sibul,Anao,Tarlac
+Silab,Anao,Tarlac
+Timba,Anao,Tarlac
+Tinang,Anao,Tarlac
+Abang-Singit,Bamban,Tarlac
+Anupul,Bamban,Tarlac
+Banaba,Bamban,Tarlac
+Bangcu,Bamban,Tarlac
+Culubasa,Bamban,Tarlac
+Dela Cruz,Bamban,Tarlac
+Fatima,Bamban,Tarlac
+Invisible,Bamban,Tarlac
+La Paz,Bamban,Tarlac
+Lourdes,Bamban,Tarlac
+Maliwalo,Bamban,Tarlac
+Malonzo,Bamban,Tarlac
+Nagrambacan,Bamban,Tarlac
+San Nicolas,Bamban,Tarlac
+San Pedro,Bamban,Tarlac
+San Rafael,Bamban,Tarlac
+San Roque,Bamban,Tarlac
+San Vicente,Bamban,Tarlac
+Santo Niño,Bamban,Tarlac
+Virgen de la Paz,Bamban,Tarlac
+Anoling 1st,Camiling,Tarlac
+Anoling 2nd,Camiling,Tarlac
+Anoling 3rd,Camiling,Tarlac
+Bacabac,Camiling,Tarlac
+Bacsay,Camiling,Tarlac
+Bagbag,Camiling,Tarlac
+Bancay 1st,Camiling,Tarlac
+Bancay 2nd,Camiling,Tarlac
+Bilad,Camiling,Tarlac
+Birbira,Camiling,Tarlac
+Bobon 1st,Camiling,Tarlac
+Bobon 2nd,Camiling,Tarlac
+Bobon 3rd,Camiling,Tarlac
+Botol,Camiling,Tarlac
+Cablay,Camiling,Tarlac
+Cacatian,Camiling,Tarlac
+Calingcuan,Camiling,Tarlac
+Capataan,Camiling,Tarlac
+Coral 1st,Camiling,Tarlac
+Coral 2nd,Camiling,Tarlac
+Coral 3rd,Camiling,Tarlac
+Coral 4th,Camiling,Tarlac
+Coral 5th,Camiling,Tarlac
+Coral 6th,Camiling,Tarlac
+Coral 7th,Camiling,Tarlac
+Coral-Cristal,Camiling,Tarlac
+Culipat,Camiling,Tarlac
+Curibung,Camiling,Tarlac
+Dalayap,Camiling,Tarlac
+Del Pilar,Camiling,Tarlac
+Hacienda Mary,Camiling,Tarlac
+Iba,Camiling,Tarlac
+Libueg,Camiling,Tarlac
+Malacampa,Camiling,Tarlac
+Manupeg,Camiling,Tarlac
+Matadero,Camiling,Tarlac
+Nagmalitong 1st,Camiling,Tarlac
+Nagmalitong 2nd,Camiling,Tarlac
+Nagmalitong 3rd,Camiling,Tarlac
+Nagmalitong 4th,Camiling,Tarlac
+Nagmalitong 5th,Camiling,Tarlac
+Nagmalitong 6th,Camiling,Tarlac
+Nagrambacan,Camiling,Tarlac
+Nambalan,Camiling,Tarlac
+Padua,Camiling,Tarlac
+Palimbo Proper,Camiling,Tarlac
+Palimbo-Camiru,Camiling,Tarlac
+Parabur,Camiling,Tarlac
+Pindangan 1st,Camiling,Tarlac
+Pindangan 2nd,Camiling,Tarlac
+Pio,Camiling,Tarlac
+Poblacion A,Camiling,Tarlac
+Poblacion B,Camiling,Tarlac
+Poblacion C,Camiling,Tarlac
+Poblacion D,Camiling,Tarlac
+Poblacion E,Camiling,Tarlac
+Poblacion F,Camiling,Tarlac
+Poblacion G,Camiling,Tarlac
+Poblacion H,Camiling,Tarlac
+Poblacion I,Camiling,Tarlac
+Pogo,Camiling,Tarlac
+Rang-ayan,Camiling,Tarlac
+San Isidro,Camiling,Tarlac
+San Jose,Camiling,Tarlac
+San Juan,Camiling,Tarlac
+San Miguel,Camiling,Tarlac
+San Nicolas,Camiling,Tarlac
+Santo Niño,Camiling,Tarlac
+Sinait,Camiling,Tarlac
+Sinulatan,Camiling,Tarlac
+Subol,Camiling,Tarlac
+Tabacal,Camiling,Tarlac
+Buenavista,Capas,Tarlac
+Burgos,Capas,Tarlac
+Calibung,Capas,Tarlac
+Cubcub,Capas,Tarlac
+Cutcut 1st,Capas,Tarlac
+Cutcut 2nd,Capas,Tarlac
+Dadalay,Capas,Tarlac
+Desierto,Capas,Tarlac
+Dolores,Capas,Tarlac
+Estrada,Capas,Tarlac
+Fenas,Capas,Tarlac
+Iba,Capas,Tarlac
+Kinasang,Capas,Tarlac
+Lawy,Capas,Tarlac
+Mababanaba,Capas,Tarlac
+Maruglo,Capas,Tarlac
+O'Donnell,Capas,Tarlac
+Patling,Capas,Tarlac
+Poblacion Center,Capas,Tarlac
+Poblacion East,Capas,Tarlac
+Poblacion North,Capas,Tarlac
+Poblacion South,Capas,Tarlac
+Poblacion West,Capas,Tarlac
+San Antonio,Capas,Tarlac
+San Joaquin,Capas,Tarlac
+Santa Juliana,Capas,Tarlac
+Santa Lucia,Capas,Tarlac
+Santo Cristo,Capas,Tarlac
+Santo Domingo,Capas,Tarlac
+Santo Niño,Capas,Tarlac
+Talaga,Capas,Tarlac
+Trapiche,Capas,Tarlac
+Alfonso,Concepcion,Tarlac
+Balutu,Concepcion,Tarlac
+Cafe,Concepcion,Tarlac
+Calius Gueco,Concepcion,Tarlac
+Caluluan,Concepcion,Tarlac
+Calingcuan,Concepcion,Tarlac
+Camatbalon,Concepcion,Tarlac
+Concepcion Poblacion,Concepcion,Tarlac
+Corazon de Jesus,Concepcion,Tarlac
+Culaylay,Concepcion,Tarlac
+Dagat-dagat,Concepcion,Tarlac
+Dolores,Concepcion,Tarlac
+Iba,Concepcion,Tarlac
+Ilog Cabe,Concepcion,Tarlac
+Ilog Centro,Concepcion,Tarlac
+Ilog Norte,Concepcion,Tarlac
+Ilog Sur,Concepcion,Tarlac
+Juan Luna,Concepcion,Tarlac
+Lalo,Concepcion,Tarlac
+Mabilog,Concepcion,Tarlac
+Mabini,Concepcion,Tarlac
+Malupa,Concepcion,Tarlac
+Minane,Concepcion,Tarlac
+New Santa Barbara,Concepcion,Tarlac
+Paludpod,Concepcion,Tarlac
+Parang,Concepcion,Tarlac
+Parulang,Concepcion,Tarlac
+Pinili,Concepcion,Tarlac
+Plazang Toro,Concepcion,Tarlac
+Poblacion Norte,Concepcion,Tarlac
+Poblacion Sur,Concepcion,Tarlac
+San Juan Bautista,Concepcion,Tarlac
+San Martin,Concepcion,Tarlac
+San Nicolas,Concepcion,Tarlac
+San Vicente,Concepcion,Tarlac
+Santa Lucia,Concepcion,Tarlac
+Santa Monica,Concepcion,Tarlac
+Santa Rita,Concepcion,Tarlac
+Santo Cristo,Concepcion,Tarlac
+Santo Niño,Concepcion,Tarlac
+Sipat,Concepcion,Tarlac
+Abagon,Gerona,Tarlac
+Ablang Sapang,Gerona,Tarlac
+Aglipay,Gerona,Tarlac
+Amacalan,Gerona,Tarlac
+Amsic,Gerona,Tarlac
+Aplaya,Gerona,Tarlac
+Balite,Gerona,Tarlac
+Baybayabas,Gerona,Tarlac
+Buenavista,Gerona,Tarlac
+Cabuluan,Gerona,Tarlac
+Cadsalan,Gerona,Tarlac
+Calayaan,Gerona,Tarlac
+Camposanto,Gerona,Tarlac
+Caturay,Gerona,Tarlac
+Don Basilio,Gerona,Tarlac
+Gubat,Gerona,Tarlac
+Lambayan,Gerona,Tarlac
+Lomboy,Gerona,Tarlac
+Lusca,Gerona,Tarlac
+Mabini,Gerona,Tarlac
+Malayantoc,Gerona,Tarlac
+Mangga,Gerona,Tarlac
+Mangusing,Gerona,Tarlac
+Maticmatic,Gerona,Tarlac
+Nagwirong,Gerona,Tarlac
+Nagpandayan,Gerona,Tarlac
+Padapada,Gerona,Tarlac
+Palis,Gerona,Tarlac
+Paluka,Gerona,Tarlac
+Parang,Gerona,Tarlac
+Patag,Gerona,Tarlac
+Poblacion,Gerona,Tarlac
+Purok,Gerona,Tarlac
+Salapungan,Gerona,Tarlac
+San Agustin,Gerona,Tarlac
+San Antonio,Gerona,Tarlac
+San Bartolome,Gerona,Tarlac
+San Jose,Gerona,Tarlac
+San Juan,Gerona,Tarlac
+San Lucas,Gerona,Tarlac
+San Miguel,Gerona,Tarlac
+San Pedro,Gerona,Tarlac
+Santo Niño,Gerona,Tarlac
+Sibul,Gerona,Tarlac
+Sibul Malaki,Gerona,Tarlac
+Sibul Mangga,Gerona,Tarlac
+Silang,Gerona,Tarlac
+Sulipa,Gerona,Tarlac
+Sulo,Gerona,Tarlac
+Tagumbao,Gerona,Tarlac
+Target,Gerona,Tarlac
+Temperancia,Gerona,Tarlac
+Toclong,Gerona,Tarlac
+Toledo,Gerona,Tarlac
+Tres Marias,Gerona,Tarlac
+Villa Aglipay,Gerona,Tarlac
+Villa Aguas,Gerona,Tarlac
+Villa Flores,Gerona,Tarlac
+Villa Gavino,Gerona,Tarlac
+Villa Ramirez,Gerona,Tarlac
+Villa Rizal,Gerona,Tarlac
+Balanoy,La Paz,Tarlac
+Bantog-Carait,La Paz,Tarlac
+Bantog-Saluad,La Paz,Tarlac
+Barangay I (Pob.),La Paz,Tarlac
+Barangay II (Pob.),La Paz,Tarlac
+Barangay III (Pob.),La Paz,Tarlac
+Barangay IV (Pob.),La Paz,Tarlac
+Barangay V (Pob.),La Paz,Tarlac
+Barangay VI (Pob.),La Paz,Tarlac
+Cato,La Paz,Tarlac
+Colibangbang,La Paz,Tarlac
+Dagao,La Paz,Tarlac
+Dinep,La Paz,Tarlac
+K. Murillo,La Paz,Tarlac
+Labney,La Paz,Tarlac
+Mabul,La Paz,Tarlac
+Macalong,La Paz,Tarlac
+Mayang,La Paz,Tarlac
+Nagsulang,La Paz,Tarlac
+Paz,La Paz,Tarlac
+Rizal,La Paz,Tarlac
+Ambalingit,Mayantoc,Tarlac
+Baybayaoas,Mayantoc,Tarlac
+Bigbiga,Mayantoc,Tarlac
+Binbinaca,Mayantoc,Tarlac
+Calabmayan,Mayantoc,Tarlac
+Cabangiran,Mayantoc,Tarlac
+Cahabaan,Mayantoc,Tarlac
+Calipayan,Mayantoc,Tarlac
+Canabay,Mayantoc,Tarlac
+Comon,Mayantoc,Tarlac
+Gayonggayong,Mayantoc,Tarlac
+Guimba,Mayantoc,Tarlac
+Ibguit,Mayantoc,Tarlac
+Lalapangan,Mayantoc,Tarlac
+Lampitak,Mayantoc,Tarlac
+Libay,Mayantoc,Tarlac
+Mamonit,Mayantoc,Tarlac
+Mangolayon,Mayantoc,Tarlac
+Mayamat,Mayantoc,Tarlac
+Nambalan,Mayantoc,Tarlac
+Poblacion Norte,Mayantoc,Tarlac
+Poblacion Sur,Mayantoc,Tarlac
+San Bartolome,Mayantoc,Tarlac
+San Isidro,Mayantoc,Tarlac
+Abaga,Moncada,Tarlac
+Andarayan,Moncada,Tarlac
+Bangar,Moncada,Tarlac
+Cabuluan,Moncada,Tarlac
+Calitlitan,Moncada,Tarlac
+Calma,Moncada,Tarlac
+Camangaan East,Moncada,Tarlac
+Camangaan West,Moncada,Tarlac
+Camiling,Moncada,Tarlac
+Camposanto 1 Norte,Moncada,Tarlac
+Camposanto 1 Sur,Moncada,Tarlac
+Camposanto 2,Moncada,Tarlac
+Capao,Moncada,Tarlac
+Carcueva,Moncada,Tarlac
+Cawayan,Moncada,Tarlac
+Cawayan Bugtong,Moncada,Tarlac
+Central East,Moncada,Tarlac
+Central West,Moncada,Tarlac
+Concepcion,Moncada,Tarlac
+Dolores,Moncada,Tarlac
+Don Ramon,Moncada,Tarlac
+Hacienda,Moncada,Tarlac
+Lapnit,Moncada,Tarlac
+Longos,Moncada,Tarlac
+Lourdes,Moncada,Tarlac
+Mabini,Moncada,Tarlac
+Mabuhay,Moncada,Tarlac
+Malate,Moncada,Tarlac
+Manaois,Moncada,Tarlac
+Matam-is,Moncada,Tarlac
+Matanlang,Moncada,Tarlac
+Maysan,Moncada,Tarlac
+Nampalogan,Moncada,Tarlac
+Paso,Moncada,Tarlac
+Poblacion I,Moncada,Tarlac
+Poblacion II,Moncada,Tarlac
+Poblacion III,Moncada,Tarlac
+Poblacion IV,Moncada,Tarlac
+Poblacion V,Moncada,Tarlac
+Pula,Moncada,Tarlac
+Quezon,Moncada,Tarlac
+Rizal,Moncada,Tarlac
+San Andres,Moncada,Tarlac
+San Carlos,Moncada,Tarlac
+San Juan,Moncada,Tarlac
+San Leon,Moncada,Tarlac
+San Miguel,Moncada,Tarlac
+San Pedro,Moncada,Tarlac
+San Rafael,Moncada,Tarlac
+San Roque,Moncada,Tarlac
+Santa Lucia,Moncada,Tarlac
+Santa Maria,Moncada,Tarlac
+Santo Niño,Moncada,Tarlac
+Santo Tomas,Moncada,Tarlac
+Sapang Maragul,Moncada,Tarlac
+Tapiat,Moncada,Tarlac
+Toledo,Moncada,Tarlac
+Tubigan,Moncada,Tarlac
+Villa Hermosa,Moncada,Tarlac
+Villa Ilang-Ilang,Moncada,Tarlac
+Villa Rizal,Moncada,Tarlac
+Abogado,Paniqui,Tarlac
+Alcalde,Paniqui,Tarlac
+Bacnar,Paniqui,Tarlac
+Bagong Bayan,Paniqui,Tarlac
+Balanti,Paniqui,Tarlac
+Bamban,Paniqui,Tarlac
+Bantog,Paniqui,Tarlac
+Bisaya,Paniqui,Tarlac
+Bobon,Paniqui,Tarlac
+Buenavista,Paniqui,Tarlac
+Cabayaoasan,Paniqui,Tarlac
+Cabuluan,Paniqui,Tarlac
+Calingcuan,Paniqui,Tarlac
+Camias,Paniqui,Tarlac
+Canan,Paniqui,Tarlac
+Carino,Paniqui,Tarlac
+Carosalesan,Paniqui,Tarlac
+Cayao,Paniqui,Tarlac
+Colibangbang,Paniqui,Tarlac
+Dumarais,Paniqui,Tarlac
+Galeran,Paniqui,Tarlac
+Garcia,Paniqui,Tarlac
+Herrera,Paniqui,Tarlac
+Igang,Paniqui,Tarlac
+Isla,Paniqui,Tarlac
+Lanting,Paniqui,Tarlac
+Lomboy,Paniqui,Tarlac
+Mabini,Paniqui,Tarlac
+Malasa,Paniqui,Tarlac
+Mangilaya,Paniqui,Tarlac
+Matanlang,Paniqui,Tarlac
+Nancamarinan,Paniqui,Tarlac
+Naranjo,Paniqui,Tarlac
+Padilla,Paniqui,Tarlac
+Pagsaluhan,Paniqui,Tarlac
+Pambar,Paniqui,Tarlac
+Parungao,Paniqui,Tarlac
+Poblacion Norte,Paniqui,Tarlac
+Poblacion Sur,Paniqui,Tarlac
+Ramos,Paniqui,Tarlac
+Rizal,Paniqui,Tarlac
+Salapungan,Paniqui,Tarlac
+San Agustin,Paniqui,Tarlac
+San Andres,Paniqui,Tarlac
+San Benito,Paniqui,Tarlac
+San Francisco,Paniqui,Tarlac
+San Isidro,Paniqui,Tarlac
+San Jose,Paniqui,Tarlac
+San Juan de Regla,Paniqui,Tarlac
+San Miguel,Paniqui,Tarlac
+San Pedro,Paniqui,Tarlac
+San Roque,Paniqui,Tarlac
+San Vicente,Paniqui,Tarlac
+Santa Barbara,Paniqui,Tarlac
+Santa Cruz,Paniqui,Tarlac
+Santa Rita,Paniqui,Tarlac
+Santo Niño,Paniqui,Tarlac
+Santo Rosario,Paniqui,Tarlac
+Sapa,Paniqui,Tarlac
+Sinulatan,Paniqui,Tarlac
+Sulib,Paniqui,Tarlac
+Tablang,Paniqui,Tarlac
+Tagpos,Paniqui,Tarlac
+Tibag,Paniqui,Tarlac
+Tinang,Paniqui,Tarlac
+Villa,Paniqui,Tarlac
+Villaflores,Paniqui,Tarlac
+Villanueva,Paniqui,Tarlac
+Linao,Pura,Tarlac
+Mabilog,Pura,Tarlac
+Maasin,Pura,Tarlac
+Naya,Pura,Tarlac
+Nilasin 1st,Pura,Tarlac
+Nilasin 2nd,Pura,Tarlac
+Poblacion 1,Pura,Tarlac
+Poblacion 2,Pura,Tarlac
+Poblacion 3,Pura,Tarlac
+Poroc,Pura,Tarlac
+Rizal,Pura,Tarlac
+Samput,Pura,Tarlac
+Singat,Pura,Tarlac
+Santo Niño 1st,Pura,Tarlac
+Santo Niño 2nd,Pura,Tarlac
+Santo Rosario,Pura,Tarlac
+Talimundoc,Pura,Tarlac
+Calilayan,Ramos,Tarlac
+Comillas,Ramos,Tarlac
+Guevara,Ramos,Tarlac
+Kalang,Ramos,Tarlac
+Lapnit,Ramos,Tarlac
+Poblacion Center,Ramos,Tarlac
+San Juan,Ramos,Tarlac
+San Miguel,Ramos,Tarlac
+San Sebastian,Ramos,Tarlac
+Anonang Norte,San Clemente,Tarlac
+Anonang Sur,San Clemente,Tarlac
+Bagbag,San Clemente,Tarlac
+Bamban,San Clemente,Tarlac
+Casecnan,San Clemente,Tarlac
+Cuenca,San Clemente,Tarlac
+Mangandingay,San Clemente,Tarlac
+Masic,San Clemente,Tarlac
+Maasin,San Clemente,Tarlac
+Pili,San Clemente,Tarlac
+Poblacion Norte,San Clemente,Tarlac
+Poblacion Sur,San Clemente,Tarlac
+San Isidro,San Clemente,Tarlac
+San Marcos,San Clemente,Tarlac
+San Pablo,San Clemente,Tarlac
+Santa Rosa,San Clemente,Tarlac
+Santo Niño,San Clemente,Tarlac
+Aguilar,San Jose,Tarlac
+Burgos,San Jose,Tarlac
+Burgos II,San Jose,Tarlac
+Burgos III,San Jose,Tarlac
+Calaitan,San Jose,Tarlac
+Cambing,San Jose,Tarlac
+Cameron,San Jose,Tarlac
+Candelaria,San Jose,Tarlac
+Canrubang,San Jose,Tarlac
+Casilagan,San Jose,Tarlac
+Corazon,San Jose,Tarlac
+Fianza,San Jose,Tarlac
+Iba,San Jose,Tarlac
+La Consolacion,San Jose,Tarlac
+Lanete,San Jose,Tarlac
+Luna,San Jose,Tarlac
+Mabuhay,San Jose,Tarlac
+Malacampa,San Jose,Tarlac
+Mangalit,San Jose,Tarlac
+Maqueb,San Jose,Tarlac
+Maturanoc,San Jose,Tarlac
+Nambalan,San Jose,Tarlac
+Pinaripad,San Jose,Tarlac
+Poblacion,San Jose,Tarlac
+Pulong,San Jose,Tarlac
+Rizal,San Jose,Tarlac
+San Agustin,San Jose,Tarlac
+San Andres,San Jose,Tarlac
+San Antonio,San Jose,Tarlac
+San Bartolome,San Jose,Tarlac
+San Fernando,San Jose,Tarlac
+San Francisco,San Jose,Tarlac
+San Gabriel,San Jose,Tarlac
+San Isidro,San Jose,Tarlac
+San Juan,San Jose,Tarlac
+San Juan Bautista,San Jose,Tarlac
+San Juan de Dios,San Jose,Tarlac
+San Lorenzo,San Jose,Tarlac
+San Luis,San Jose,Tarlac
+San Manuel,San Jose,Tarlac
+San Miguel,San Jose,Tarlac
+San Nicolas,San Jose,Tarlac
+San Pablo,San Jose,Tarlac
+San Pascual,San Jose,Tarlac
+San Pedro,San Jose,Tarlac
+San Rafael,San Jose,Tarlac
+San Roque,San Jose,Tarlac
+San Sebastian,San Jose,Tarlac
+San Vicente,San Jose,Tarlac
+Santa Catalina,San Jose,Tarlac
+Santa Cruz,San Jose,Tarlac
+Santa Elena,San Jose,Tarlac
+Santa Lucia,San Jose,Tarlac
+Santa Maria,San Jose,Tarlac
+Santa Rita,San Jose,Tarlac
+Santo Cristo,San Jose,Tarlac
+Santo Niño,San Jose,Tarlac
+Santo Tomas,San Jose,Tarlac
+Sapa,San Jose,Tarlac
+Sibul,San Jose,Tarlac
+Sinigpit,San Jose,Tarlac
+Tabao,San Jose,Tarlac
+Tagumbao,San Jose,Tarlac
+Tibag,San Jose,Tarlac
+Tubigan,San Jose,Tarlac
+Unib,San Jose,Tarlac
+Vietnamburgos,San Jose,Tarlac
+Villa Aglipay,San Jose,Tarlac
+Villa Concepcion,San Jose,Tarlac
+Villa Estrella,San Jose,Tarlac
+Villa Gonzalez,San Jose,Tarlac
+Villa Maria,San Jose,Tarlac
+Villa Nizza,San Jose,Tarlac
+Villa Rosario,San Jose,Tarlac
+Villa San Jose,San Jose,Tarlac
+Abot,San Manuel,Tarlac
+Aguso,San Manuel,Tarlac
+Alang-alang,San Manuel,Tarlac
+Baluyut,San Manuel,Tarlac
+Calbalete,San Manuel,Tarlac
+Calsib,San Manuel,Tarlac
+Canite,San Manuel,Tarlac
+Canao,San Manuel,Tarlac
+Cayanga,San Manuel,Tarlac
+Colibangbang,San Manuel,Tarlac
+Garcia,San Manuel,Tarlac
+Guevarra,San Manuel,Tarlac
+Laruan,San Manuel,Tarlac
+Lourdes,San Manuel,Tarlac
+Manaoag,San Manuel,Tarlac
+Masantol,San Manuel,Tarlac
+Nabu,San Manuel,Tarlac
+Padapada,San Manuel,Tarlac
+Panday Pira,San Manuel,Tarlac
+Pannaratan,San Manuel,Tarlac
+Poblacion,San Manuel,Tarlac
+Radiw,San Manuel,Tarlac
+Ramos,San Manuel,Tarlac
+Rizam,San Manuel,Tarlac
+Salapungan,San Manuel,Tarlac
+San Cristobal,San Manuel,Tarlac
+San Felipe,San Manuel,Tarlac
+San Gregorio,San Manuel,Tarlac
+San Isidro,San Manuel,Tarlac
+San Jose,San Manuel,Tarlac
+San Juan,San Manuel,Tarlac
+San Lucas,San Manuel,Tarlac
+San Marcelino,San Manuel,Tarlac
+San Martin,San Manuel,Tarlac
+San Mateo,San Manuel,Tarlac
+San Miguel,San Manuel,Tarlac
+San Nicolas,San Manuel,Tarlac
+San Pablo,San Manuel,Tarlac
+San Pedro,San Manuel,Tarlac
+San Rafael,San Manuel,Tarlac
+San Roque,San Manuel,Tarlac
+San Vicente,San Manuel,Tarlac
+Santa Ana,San Manuel,Tarlac
+Santa Barbara,San Manuel,Tarlac
+Santa Cruz,San Manuel,Tarlac
+Santa Elena,San Manuel,Tarlac
+Santa Fe,San Manuel,Tarlac
+Santa Isabel,San Manuel,Tarlac
+Santa Lucia,San Manuel,Tarlac
+Santa Maria,San Manuel,Tarlac
+Santa Monica,San Manuel,Tarlac
+Santa Rita,San Manuel,Tarlac
+Santa Rosa,San Manuel,Tarlac
+Santo Cristo,San Manuel,Tarlac
+Santo Domingo,San Manuel,Tarlac
+Santo Niño,San Manuel,Tarlac
+Santo Tomas,San Manuel,Tarlac
+Sinait,San Manuel,Tarlac
+Sison,San Manuel,Tarlac
+Tabar,San Manuel,Tarlac
+Tagabo,San Manuel,Tarlac
+Tagumbao,San Manuel,Tarlac
+Talimundoc,San Manuel,Tarlac
+Tampaan,San Manuel,Tarlac
+Tawiran,San Manuel,Tarlac
+Toledo,San Manuel,Tarlac
+Ugad,San Manuel,Tarlac
+Uyong,San Manuel,Tarlac
+Villa Aglipay,San Manuel,Tarlac
+Villa Cadia,San Manuel,Tarlac
+Villa Concepcion,San Manuel,Tarlac
+Villa Corazon,San Manuel,Tarlac
+Villa Flores,San Manuel,Tarlac
+Villa Grace,San Manuel,Tarlac
+Villa Leonor,San Manuel,Tarlac
+Villa Luz,San Manuel,Tarlac
+Villa Paz,San Manuel,Tarlac
+Villa Rita,San Manuel,Tarlac
+Villa Rosario,San Manuel,Tarlac
+Villa Teresa,San Manuel,Tarlac
+Villa Victoria,San Manuel,Tarlac
+Baldios,Santa Ignacia,Tarlac
+Botbotones,Santa Ignacia,Tarlac
+Caanamongan,Santa Ignacia,Tarlac
+Cabaruan,Santa Ignacia,Tarlac
+Cabugbugan,Santa Ignacia,Tarlac
+Caduldulaoan,Santa Ignacia,Tarlac
+Calipayan,Santa Ignacia,Tarlac
+Macaguing,Santa Ignacia,Tarlac
+Nambalan,Santa Ignacia,Tarlac
+Padapada,Santa Ignacia,Tarlac
+Poblacion East,Santa Ignacia,Tarlac
+Poblacion West,Santa Ignacia,Tarlac
+San Agustin,Santa Ignacia,Tarlac
+San Antonio,Santa Ignacia,Tarlac
+San Francisco,Santa Ignacia,Tarlac
+San Juan,Santa Ignacia,Tarlac
+San Lorenzo,Santa Ignacia,Tarlac
+San Vicente,Santa Ignacia,Tarlac
+Santa Ines,Santa Ignacia,Tarlac
+Santa Maria,Santa Ignacia,Tarlac
+Santa Rita,Santa Ignacia,Tarlac
+Santo Niño,Santa Ignacia,Tarlac
+Santo Tomas,Santa Ignacia,Tarlac
+Sinalbagan,Santa Ignacia,Tarlac
+Aguso,City of Tarlac,Tarlac
+Alvindia,City of Tarlac,Tarlac
+Amucao,City of Tarlac,Tarlac
+Armenia,City of Tarlac,Tarlac
+Asturias,City of Tarlac,Tarlac
+Balete,City of Tarlac,Tarlac
+Balibay I,City of Tarlac,Tarlac
+Balibay II,City of Tarlac,Tarlac
+Balingcanaway,City of Tarlac,Tarlac
+Banaba,City of Tarlac,Tarlac
+Bantog,City of Tarlac,Tarlac
+Baras-Baras,City of Tarlac,Tarlac
+Batang-Batang,City of Tarlac,Tarlac
+Buenavista,City of Tarlac,Tarlac
+Buscay,City of Tarlac,Tarlac
+Calingcuan,City of Tarlac,Tarlac
+Camat,City of Tarlac,Tarlac
+Capao,City of Tarlac,Tarlac
+Cardona,City of Tarlac,Tarlac
+Caribang,City of Tarlac,Tarlac
+Caringtbucal,City of Tarlac,Tarlac
+Carosales,City of Tarlac,Tarlac
+Castañeda,City of Tarlac,Tarlac
+Concepcion,City of Tarlac,Tarlac
+Cristo Rey,City of Tarlac,Tarlac
+Cutcut,City of Tarlac,Tarlac
+Cutud,City of Tarlac,Tarlac
+Dao,City of Tarlac,Tarlac
+Dela Paz,City of Tarlac,Tarlac
+Embarcadero,City of Tarlac,Tarlac
+Faldes,City of Tarlac,Tarlac
+Falle,City of Tarlac,Tarlac
+Fructuosa,City of Tarlac,Tarlac
+Fulo,City of Tarlac,Tarlac
+Green Village,City of Tarlac,Tarlac
+Hacienda Dolores,City of Tarlac,Tarlac
+Hacienda San Bartolome,City of Tarlac,Tarlac
+Hacienda San Guillermo,City of Tarlac,Tarlac
+Hacienda San Juan,City of Tarlac,Tarlac
+Hacienda San Miguel,City of Tarlac,Tarlac
+Hacienda Santa Elena,City of Tarlac,Tarlac
+Hacienda Santa Ines,City of Tarlac,Tarlac
+Hacienda Santa Lucia,City of Tarlac,Tarlac
+Hacienda Santa Maria,City of Tarlac,Tarlac
+Hacienda Santiago,City of Tarlac,Tarlac
+Iba,City of Tarlac,Tarlac
+Iba Este,City of Tarlac,Tarlac
+Iba Oeste,City of Tarlac,Tarlac
+La Paz,City of Tarlac,Tarlac
+Laoag,City of Tarlac,Tarlac
+Lapun Lapun,City of Tarlac,Tarlac
+Lomboy,City of Tarlac,Tarlac
+Lourdes,City of Tarlac,Tarlac
+Lubigan,City of Tarlac,Tarlac
+Luna,City of Tarlac,Tarlac
+Lutao,City of Tarlac,Tarlac
+Mabalot,City of Tarlac,Tarlac
+Mabini,City of Tarlac,Tarlac
+Mabilog,City of Tarlac,Tarlac
+Macalino,City of Tarlac,Tarlac
+Macamias,City of Tarlac,Tarlac
+Maliwalo,City of Tarlac,Tarlac
+Matatalaib,City of Tarlac,Tarlac
+Mining,City of Tarlac,Tarlac
+Nancamarinan,City of Tarlac,Tarlac
+Ngoyog,City of Tarlac,Tarlac
+Oapal,City of Tarlac,Tarlac
+Paludpod,City of Tarlac,Tarlac
+Parang,City of Tarlac,Tarlac
+Parlas,City of Tarlac,Tarlac
+Pitombayog,City of Tarlac,Tarlac
+Pob. Block 1,City of Tarlac,Tarlac
+Pob. Block 2,City of Tarlac,Tarlac
+Pob. Block 3,City of Tarlac,Tarlac
+Pob. Block 4,City of Tarlac,Tarlac
+Pob. Block 5,City of Tarlac,Tarlac
+Pob. Block 6,City of Tarlac,Tarlac
+Pob. Block 7,City of Tarlac,Tarlac
+Pob. Block 8,City of Tarlac,Tarlac
+Pob. Block 9,City of Tarlac,Tarlac
+Pob. Block 10,City of Tarlac,Tarlac
+Pob. Block 11,City of Tarlac,Tarlac
+Pob. Block 12,City of Tarlac,Tarlac
+Pob. Block 13,City of Tarlac,Tarlac
+Pob. Block 14,City of Tarlac,Tarlac
+Pob. Block 15,City of Tarlac,Tarlac
+Pob. Block 16,City of Tarlac,Tarlac
+Pob. Block 17,City of Tarlac,Tarlac
+Pob. Block 18,City of Tarlac,Tarlac
+Pob. Block 19,City of Tarlac,Tarlac
+Pob. Block 20,City of Tarlac,Tarlac
+Pob. Block 21,City of Tarlac,Tarlac
+Pob. Block 22,City of Tarlac,Tarlac
+Pob. Block 23,City of Tarlac,Tarlac
+Pob. Block 24,City of Tarlac,Tarlac
+Pob. Block 25,City of Tarlac,Tarlac
+Pob. Block 26,City of Tarlac,Tarlac
+Pob. Block 27,City of Tarlac,Tarlac
+Pob. Block 28,City of Tarlac,Tarlac
+Pob. Block 29,City of Tarlac,Tarlac
+Pob. Block 30,City of Tarlac,Tarlac
+Pula,City of Tarlac,Tarlac
+Ramirez,City of Tarlac,Tarlac
+Rexville,City of Tarlac,Tarlac
+Salapungan,City of Tarlac,Tarlac
+San Carlos,City of Tarlac,Tarlac
+San Francisco,City of Tarlac,Tarlac
+San Isidro,City of Tarlac,Tarlac
+San Jose,City of Tarlac,Tarlac
+San Juan Bautista,City of Tarlac,Tarlac
+San Juan de Mata,City of Tarlac,Tarlac
+San Manuel,City of Tarlac,Tarlac
+San Matias,City of Tarlac,Tarlac
+San Miguel,City of Tarlac,Tarlac
+San Nicolas,City of Tarlac,Tarlac
+San Pablo,City of Tarlac,Tarlac
+San Pedro,City of Tarlac,Tarlac
+San Rafael,City of Tarlac,Tarlac
+San Roque,City of Tarlac,Tarlac
+San Sebastian,City of Tarlac,Tarlac
+San Vicente,City of Tarlac,Tarlac
+Santa Cruz,City of Tarlac,Tarlac
+Santa Maria,City of Tarlac,Tarlac
+Santa Rita,City of Tarlac,Tarlac
+Santo Cristo,City of Tarlac,Tarlac
+Santo Niño,City of Tarlac,Tarlac
+Sapang Bato,City of Tarlac,Tarlac
+Sapang Tagalog,City of Tarlac,Tarlac
+Sepung Bulaon,City of Tarlac,Tarlac
+Sepung Gubat,City of Tarlac,Tarlac
+Sinait,City of Tarlac,Tarlac
+Sisilang,City of Tarlac,Tarlac
+Solo,City of Tarlac,Tarlac
+Tancate,City of Tarlac,Tarlac
+Tibag,City of Tarlac,Tarlac
+Toledo,City of Tarlac,Tarlac
+Ugad,City of Tarlac,Tarlac
+Ungot,City of Tarlac,Tarlac
+Villa Elena,City of Tarlac,Tarlac
+Villa Esmeralda,City of Tarlac,Tarlac
+Villa Lourdes,City of Tarlac,Tarlac
+Villa Rosario,City of Tarlac,Tarlac
+Villapaz,City of Tarlac,Tarlac
+Bacungan,Victoria,Tarlac
+Baluart,Victoria,Tarlac
+Bangar,Victoria,Tarlac
+Bantog,Victoria,Tarlac
+Bayanbayanan,Victoria,Tarlac
+Calibungan,Victoria,Tarlac
+Canarem,Victoria,Tarlac
+Cariño,Victoria,Tarlac
+Casantolan,Victoria,Tarlac
+Concepcion,Victoria,Tarlac
+Culubasa,Victoria,Tarlac
+Estacion,Victoria,Tarlac
+Gubat,Victoria,Tarlac
+Lalapac,Victoria,Tarlac
+Mabini,Victoria,Tarlac
+Mangolago,Victoria,Tarlac
+Malabago,Victoria,Tarlac
+Malorena,Victoria,Tarlac
+Malvar,Victoria,Tarlac
+Mapandan,Victoria,Tarlac
+Merrising,Victoria,Tarlac
+Militar,Victoria,Tarlac
+Mozzozzin,Victoria,Tarlac
+Nagrebcan,Victoria,Tarlac
+Old Pagaspas,Victoria,Tarlac
+Pagaspas,Victoria,Tarlac
+Poblacion,Victoria,Tarlac
+Quirino,Victoria,Tarlac
+Rizal,Victoria,Tarlac
+San Antonio,Victoria,Tarlac
+San Bartolome,Victoria,Tarlac
+San Francisco,Victoria,Tarlac
+San Gabriel,Victoria,Tarlac
+San Isidro,Victoria,Tarlac
+San Jose,Victoria,Tarlac
+San Juan,Victoria,Tarlac
+San Luis,Victoria,Tarlac
+San Marcelino,Victoria,Tarlac
+San Mateo,Victoria,Tarlac
+San Miguel,Victoria,Tarlac
+San Nicolas,Victoria,Tarlac
+San Pablo,Victoria,Tarlac
+San Pedro,Victoria,Tarlac
+San Rafael,Victoria,Tarlac
+San Roque,Victoria,Tarlac
+San Sebastian,Victoria,Tarlac
+San Vicente,Victoria,Tarlac
+Santa Catalina,Victoria,Tarlac
+Santa Cruz,Victoria,Tarlac
+Santa Elena,Victoria,Tarlac
+Santa Lucia,Victoria,Tarlac
+Santa Maria,Victoria,Tarlac
+Santa Monica,Victoria,Tarlac
+Santa Rita,Victoria,Tarlac
+Santo Cristo,Victoria,Tarlac
+Santo Domingo,Victoria,Tarlac
+Santo Niño,Victoria,Tarlac
+Santo Rosario,Victoria,Tarlac
+Sapa,Victoria,Tarlac
+Sinait,Victoria,Tarlac
+Sulib,Victoria,Tarlac
+Tabug,Victoria,Tarlac
+Taguing,Victoria,Tarlac
+Talimundoc,Victoria,Tarlac
+Tambac,Victoria,Tarlac
+Tambang,Victoria,Tarlac
+Toledo,Victoria,Tarlac
+Tubuan,Victoria,Tarlac
+Ubando,Victoria,Tarlac
+Villa Aglipay,Victoria,Tarlac
+Villa Concepcion,Victoria,Tarlac
+Villa Marcos,Victoria,Tarlac
+Villa Rosario,Victoria,Tarlac`;
 
     function parseCsvLine(line) {
         var values = [];
@@ -1464,6 +2343,55 @@ Yapara,Baler,Aurora`;
         });
     }
 
+    // Restore location values on page load (after successful submission)
+    document.addEventListener('DOMContentLoaded', function() {
+        var province = document.getElementById('province');
+        var municipality = document.getElementById('municipality');
+        var barangay = document.getElementById('barangay');
+        
+        if (province && municipality && barangay) {
+            var savedProvince = localStorage.getItem('facebook_province');
+            var savedMunicipality = localStorage.getItem('facebook_municipality');
+            var savedBarangay = localStorage.getItem('facebook_barangay');
+            
+            console.log('Restoring location values:', savedProvince, savedMunicipality, savedBarangay);
+            
+            if (savedProvince) {
+                province.value = savedProvince;
+                // Enable municipality dropdown
+                municipality.disabled = false;
+                municipality.classList.remove('bg-gray-50');
+                municipality.classList.add('bg-white');
+                
+                // Trigger change event to populate municipalities
+                var event = new Event('change');
+                province.dispatchEvent(event);
+                
+                // After municipalities are loaded, set the saved value
+                setTimeout(function() {
+                    if (savedMunicipality) {
+                        municipality.value = savedMunicipality;
+                        // Enable barangay dropdown
+                        barangay.disabled = false;
+                        barangay.classList.remove('bg-gray-50');
+                        barangay.classList.add('bg-white');
+                        
+                        // Trigger change event to populate barangays
+                        var municipalityEvent = new Event('change');
+                        municipality.dispatchEvent(municipalityEvent);
+                        
+                        // After barangays are loaded, set the saved value
+                        setTimeout(function() {
+                            if (savedBarangay) {
+                                barangay.value = savedBarangay;
+                            }
+                        }, 100);
+                    }
+                }, 100);
+            }
+        }
+    });
+
     // Edit record form cascading dropdowns
     var editProvince = document.getElementById('editProvince');
     var editMunicipality = document.getElementById('editMunicipality');
@@ -1497,6 +2425,253 @@ Yapara,Baler,Aurora`;
         });
     }
 });
+</script>
+
+<script>
+// Add Record Modal Functionality
+(function() {
+    var addRecordDialog = document.getElementById('addRecordDialog');
+    var addRecordBackdrop = document.getElementById('addRecordBackdrop');
+    var closeAddRecordModal = document.querySelector('.closeAddRecordModal');
+    
+    // Function to fetch and populate latest record
+    function populateFormWithLatestRecord() {
+        fetch('{{ route('records.latest') }}?source=Facebook')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.record) {
+                    const form = addRecordDialog ? addRecordDialog.querySelector('form') : null;
+                    if (form) {
+                        // Clear all fields first
+                        if (form.querySelector('#farmerName')) form.querySelector('#farmerName').value = '';
+                        if (form.querySelector('#line')) form.querySelector('#line').value = '';
+                        if (form.querySelector('#program')) form.querySelector('#program').value = '';
+                        if (form.querySelector('#causeOfDamage')) form.querySelector('#causeOfDamage').value = '';
+                        if (form.querySelector('#date_occurrence')) form.querySelector('#date_occurrence').value = '';
+                        if (form.querySelector('#remarks')) form.querySelector('#remarks').value = '';
+                        if (form.querySelector('#controlNumber')) form.querySelector('#controlNumber').value = '';
+                        
+                        // Only populate location, mode of payment, date received, account, and fb link
+                        if (form.querySelector('#province')) {
+                            form.querySelector('#province').value = data.record.province || '';
+                            // Trigger change to enable municipality
+                            form.querySelector('#province').dispatchEvent(new Event('change'));
+                        }
+                        if (form.querySelector('#modeOfPayment')) form.querySelector('#modeOfPayment').value = data.record.modeOfPayment || '';
+                        if (form.querySelector('#date_received')) form.querySelector('#date_received').value = data.record.date_received || '';
+                        if (form.querySelector('#accounts')) form.querySelector('#accounts').value = data.record.accounts || '';
+                        if (form.querySelector('#facebook_page_url')) form.querySelector('#facebook_page_url').value = data.record.facebook_page_url || '';
+                        
+                        // Handle municipality and barangay after province change
+                        setTimeout(() => {
+                            if (form.querySelector('#municipality') && data.record.municipality) {
+                                form.querySelector('#municipality').value = data.record.municipality;
+                                form.querySelector('#municipality').dispatchEvent(new Event('change'));
+                            }
+                            setTimeout(() => {
+                                if (form.querySelector('#barangay') && data.record.barangay) {
+                                    form.querySelector('#barangay').value = data.record.barangay;
+                                }
+                            }, 100);
+                        }, 100);
+                    }
+                }
+            })
+            .catch(error => console.error('Error fetching latest record:', error));
+    }
+    
+    // Function to show modal
+    function showAddRecordModal() {
+        console.log('Opening modal');
+        if (addRecordDialog && addRecordBackdrop) {
+            // Center the modal
+            var viewportWidth = window.innerWidth;
+            var viewportHeight = window.innerHeight;
+            var dialogWidth = Math.min(640, viewportWidth - 32);
+            var dialogHeight = Math.min(500, viewportHeight - 32);
+            
+            var left = Math.max(16, (viewportWidth - dialogWidth) / 2);
+            var top = Math.max(16, (viewportHeight - dialogHeight) / 2);
+            
+            addRecordDialog.style.left = left + 'px';
+            addRecordDialog.style.top = top + 'px';
+            addRecordDialog.style.width = dialogWidth + 'px';
+            addRecordDialog.style.display = 'block';
+            addRecordBackdrop.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            document.documentElement.style.overflow = 'hidden';
+            
+            // Fetch and populate with latest record
+            populateFormWithLatestRecord();
+        }
+    }
+    
+    // Function to hide modal
+    function hideAddRecordModal() {
+        if (addRecordDialog && addRecordBackdrop) {
+            addRecordDialog.style.display = 'none';
+            addRecordBackdrop.style.display = 'none';
+            document.body.style.overflow = '';
+            document.documentElement.style.overflow = '';
+            
+            // Clear saved location values when manually closing
+            clearLocationValues();
+        }
+    }
+    
+    // Save location values to localStorage
+    function saveLocationValues() {
+        var province = document.getElementById('province');
+        var municipality = document.getElementById('municipality');
+        var barangay = document.getElementById('barangay');
+        
+        if (province && municipality && barangay) {
+            console.log('Saving location values:', province.value, municipality.value, barangay.value);
+            localStorage.setItem('facebook_province', province.value);
+            localStorage.setItem('facebook_municipality', municipality.value);
+            localStorage.setItem('facebook_barangay', barangay.value);
+        }
+    }
+    
+    // Clear location values from localStorage
+    function clearLocationValues() {
+        localStorage.removeItem('facebook_province');
+        localStorage.removeItem('facebook_municipality');
+        localStorage.removeItem('facebook_barangay');
+    }
+    
+    // Add form submission handler to save location values
+    var addRecordForm = addRecordDialog ? addRecordDialog.querySelector('form[action="{{ route('records') }}"]') : null;
+    if (addRecordForm) {
+        addRecordForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            console.log('Form submit event triggered');
+            
+            // Save current form values before submission
+            var dateReceivedValue = addRecordForm.querySelector('#date_received') ? addRecordForm.querySelector('#date_received').value : '';
+            var modeOfPaymentValue = addRecordForm.querySelector('#modeOfPayment') ? addRecordForm.querySelector('#modeOfPayment').value : '';
+            var provinceValue = addRecordForm.querySelector('#province') ? addRecordForm.querySelector('#province').value : '';
+            var municipalityValue = addRecordForm.querySelector('#municipality') ? addRecordForm.querySelector('#municipality').value : '';
+            var barangayValue = addRecordForm.querySelector('#barangay') ? addRecordForm.querySelector('#barangay').value : '';
+            var accountsValue = addRecordForm.querySelector('#accounts') ? addRecordForm.querySelector('#accounts').value : '';
+            var facebookPageUrlValue = addRecordForm.querySelector('#facebook_page_url') ? addRecordForm.querySelector('#facebook_page_url').value : '';
+            
+            var formData = new FormData(addRecordForm);
+            var submitBtn = addRecordForm.querySelector('button[type="submit"]');
+            
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Adding...';
+            }
+            
+            fetch(addRecordForm.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showModalMessage(data.message, 'success');
+                    // Restore retained values
+                    if (addRecordForm.querySelector('#date_received')) addRecordForm.querySelector('#date_received').value = dateReceivedValue;
+                    if (addRecordForm.querySelector('#modeOfPayment')) addRecordForm.querySelector('#modeOfPayment').value = modeOfPaymentValue;
+                    if (addRecordForm.querySelector('#province')) addRecordForm.querySelector('#province').value = provinceValue;
+                    if (addRecordForm.querySelector('#municipality')) addRecordForm.querySelector('#municipality').value = municipalityValue;
+                    if (addRecordForm.querySelector('#barangay')) addRecordForm.querySelector('#barangay').value = barangayValue;
+                    if (addRecordForm.querySelector('#accounts')) addRecordForm.querySelector('#accounts').value = accountsValue;
+                    if (addRecordForm.querySelector('#facebook_page_url')) addRecordForm.querySelector('#facebook_page_url').value = facebookPageUrlValue;
+                    
+                    // Clear other fields
+                    if (addRecordForm.querySelector('#farmerName')) addRecordForm.querySelector('#farmerName').value = '';
+                    if (addRecordForm.querySelector('#line')) addRecordForm.querySelector('#line').value = '';
+                    if (addRecordForm.querySelector('#program')) addRecordForm.querySelector('#program').value = '';
+                    if (addRecordForm.querySelector('#causeOfDamage')) addRecordForm.querySelector('#causeOfDamage').value = '';
+                    if (addRecordForm.querySelector('#date_occurrence')) addRecordForm.querySelector('#date_occurrence').value = '';
+                    if (addRecordForm.querySelector('#remarks')) addRecordForm.querySelector('#remarks').value = '';
+                    if (addRecordForm.querySelector('#controlNumber')) addRecordForm.querySelector('#controlNumber').value = '';
+                } else {
+                    showModalMessage(data.message || 'Error adding record', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showModalMessage('Error adding record', 'error');
+            })
+            .finally(() => {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Add Record';
+                }
+            });
+        });
+    }
+    
+    // Close button functionality
+    if (closeAddRecordModal) {
+        closeAddRecordModal.addEventListener('click', hideAddRecordModal);
+    }
+    
+    // Close on backdrop click
+    if (addRecordBackdrop) {
+        addRecordBackdrop.addEventListener('click', hideAddRecordModal);
+    }
+    
+    // Close on ESC key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && addRecordDialog && addRecordDialog.style.display === 'block') {
+            hideAddRecordModal();
+        }
+    });
+    
+    // Make showAddRecordModal available globally
+    window.showAddRecordModal = showAddRecordModal;
+    
+    // Add event listener to the add record button
+    var addRecordButton = document.querySelector('.addRecordButton');
+    if (addRecordButton) {
+        addRecordButton.addEventListener('click', showAddRecordModal);
+    }
+})();
+
+// Make the DIV element draggagle (W3Schools approach)
+dragElement(document.getElementById("addRecordDialog"));
+
+function dragElement(elmnt) {
+  var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+  if (document.getElementById(elmnt.id + "header")) {
+    document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
+  } else {
+    elmnt.onmousedown = dragMouseDown;
+  }
+
+  function dragMouseDown(e) {
+    e = e || window.event;
+    e.preventDefault();
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    document.onmouseup = closeDragElement;
+    document.onmousemove = elementDrag;
+  }
+
+  function elementDrag(e) {
+    e = e || window.event;
+    e.preventDefault();
+    pos1 = pos3 - e.clientX;
+    pos2 = pos4 - e.clientY;
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+  }
+
+  function closeDragElement() {
+    document.onmouseup = null;
+    document.onmousemove = null;
+  }
+}
 </script>
 @endpush
 

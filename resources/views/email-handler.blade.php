@@ -51,7 +51,7 @@
             <div class="px-6 py-5">
         <form action="{{ route('email.login') }}" method="POST" class="officerOfTheDayNames flex flex-col gap-3" id="emailLoginForm">
             @csrf
-            <select name="email_user" id="email_user" required class="h-11 px-3 rounded-xl border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white">
+            <select name="email_user" id="email_user" required class="h-11 px-3 rounded-xl border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
                 <option value="">Select user</option>
                 @php
                     $officers = \App\Models\Officer::orderBy('name')->get();
@@ -124,6 +124,10 @@
                             Export CSV
                         </a>
                         @endif
+                        <button type="button" class="downloadOldRecordsButton h-10 rounded-xl bg-white border border-gray-200 text-gray-700 text-sm font-bold hover:bg-gray-50 transition-colors cursor-pointer flex items-center justify-center gap-2">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            Download Old Records to CSV
+                        </button>
                 </div>
             </div>
 
@@ -135,38 +139,61 @@
                 <div class="p-4 overflow-x-auto">
                     <x-table :records="$records" :showDelete="false" :showCheckbox="false" :showSortableHeaders="false" :hideSourceColumn="true" :hideProvinceColumn="true" />
                     @if(method_exists($records, 'links'))
-                        <div class="pagination mt-3 flex justify-center">{{ $records->links() }}</div>
+                        <div class="no-print" style="margin: 10px 0; text-align: center;">
+                            <div id="pagination-container" style="display: flex; justify-content: center; align-items: center; gap: 12px;">
+                                @if ($records->onFirstPage())
+                                    <span style="padding: 8px 16px; border-radius: 8px; background: #f1f5f9; color: #94a3b8; font-size: 14px; font-weight: 500; border: 1px solid #e2e8f0;">Previous</span>
+                                @else
+                                    <a href="{{ $records->appends(request()->query())->previousPageUrl() }}" class="pagination-link" style="padding: 8px 16px; border-radius: 8px; background: linear-gradient(135deg, #006c35 0%, #008a43 100%); color: white; font-size: 14px; font-weight: 500; text-decoration: none; border: 1px solid #005a2d; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0, 108, 53, 0.1);">Previous</a>
+                                @endif
+
+                                <span style="margin: 0 16px; padding: 8px 16px; border-radius: 8px; background: #f8fafc; color: #475569; font-size: 14px; font-weight: 600; border: 1px solid #e2e8f0;">
+                                    Page {{ $records->currentPage() }} of {{ $records->lastPage() }}
+                                </span>
+
+                                @if ($records->hasMorePages())
+                                    <a href="{{ $records->appends(request()->query())->nextPageUrl() }}" class="pagination-link" style="padding: 8px 16px; border-radius: 8px; background: linear-gradient(135deg, #006c35 0%, #008a43 100%); color: white; font-size: 14px; font-weight: 500; text-decoration: none; border: 1px solid #005a2d; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0, 108, 53, 0.1);">Next</a>
+                                @else
+                                    <span style="padding: 8px 16px; border-radius: 8px; background: #f1f5f9; color: #94a3b8; font-size: 14px; font-weight: 500; border: 1px solid #e2e8f0;">Next</span>
+                                @endif
+                            </div>
+                        </div>
                     @endif
                 </div>
             </div>
         </div>
 
-        <dialog class="addRecordDialog rounded-2xl shadow-2xl bg-white backdrop:bg-black/40 p-0 w-[min(640px,calc(100vw-2rem))]">
-            <div class="px-5 pt-5 pb-3 border-b border-gray-100">
+        <!-- Backdrop -->
+        <div id="addRecordBackdrop" class="fixed inset-0 bg-gray-900/50 z-[9998] hidden" style="display: none;"></div>
+
+        <!-- Add Record Modal -->
+        <div id="addRecordDialog" class="addRecordDialog rounded-2xl shadow-2xl bg-white p-0 w-[min(640px,calc(100vw-2rem))] fixed z-[9999] hidden" style="display: none; position: absolute; z-index: 9999;">
+            <div id="addRecordDialogheader" class="px-5 pt-5 pb-3 border-b border-gray-100 cursor-move">
                 <h3 class="text-base font-black text-gray-900">Add Record</h3>
             </div>
-            <form action="{{ route('records') }}" method="POST" class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-3 px-5 py-4 items-center">
+            <form action="{{ route('records') }}" method="POST" class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-3 px-5 py-4 items-center" id="addRecordForm">
                 @csrf
                 <input type="hidden" name="source" value="Email">
             <label for="farmerName" class="text-xs font-bold text-gray-600 text-right">Farmer Name:</label>
             <input type="text" id="farmerName" name="farmerName" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full ">
             <label for="province" class="text-xs font-bold text-gray-600 text-right">Province:</label>
-            <select name="province" id="province" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white">
+            <select name="province" id="province" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
                 <option value="">Select Province</option>
                 <option value="Aurora">Aurora</option>
                 <option value="Nueva Ecija">Nueva Ecija</option>
+                <option value="Tarlac">Tarlac</option>
             </select>
             <label for="municipality" class="text-xs font-bold text-gray-600 text-right">Municipality:</label>
-            <select name="municipality" id="municipality" required disabled class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-gray-50">
+            <select name="municipality" id="municipality" required disabled class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-gray-50 uppercase">
                 <option value="">Select Municipality</option>
             </select>
             <label for="barangay" class="text-xs font-bold text-gray-600 text-right">Barangay:</label>
-            <select name="barangay" id="barangay" required disabled class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-gray-50">
+            <select name="barangay" id="barangay" required disabled class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-gray-50 uppercase">
                 <option value="">Select Barangay</option>
             </select>
             <input type="hidden" name="address" id="addRecordAddress">
             <label for="line" class="text-xs font-bold text-gray-600 text-right">Line:</label>
-            <select name="line" id="line" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white">
+            <select name="line" id="line" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
                 <option value="">Select Line</option>
                 <option value="rice">rice</option>
                 <option value="corn">corn</option>
@@ -177,7 +204,7 @@
                 <option value="fisheries">Fisheries</option>
             </select>
             <label for="program" class="text-xs font-bold text-gray-600 text-right">Program:</label>
-            <select name="program" id="program" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white">
+            <select name="program" id="program" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
                 <option value="">Select Program</option>
                 <option value="RSBSA">RSBSA</option>
                 <option value="AGRI-SENSO">AGRI-SENSO</option>
@@ -196,7 +223,7 @@
             <label for="causeOfDamage" class="text-xs font-bold text-gray-600 text-right">Cause of Damage:</label>
             <input type="text" id="causeOfDamage" name="causeOfDamage" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full ">
             <label for="modeOfPayment" class="text-xs font-bold text-gray-600 text-right">Mode of payment:</label>
-            <select name="modeOfPayment" id="modeOfPayment" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white">
+            <select name="modeOfPayment" id="modeOfPayment" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
                 <option value="">Select Mode of payment</option>
                 <option value="check">Check</option>
                 <option value="palawan">Palawan Pay</option>
@@ -213,7 +240,7 @@
                 <button type="button" class="closeAddRecordModal h-9 px-4 rounded-lg border border-gray-200 text-xs font-bold text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer">Close</button>
             </div>
         </form>
-    </dialog>
+    </div>
     <dialog class="editRecordDialog rounded-2xl shadow-2xl bg-white backdrop:bg-black/40 p-0 w-[min(640px,calc(100vw-2rem))]" id="recordEditDialog">
         <div class="px-5 pt-5 pb-3 border-b border-gray-100">
             <h3 class="text-base font-black text-gray-900">Edit Record</h3>
@@ -225,22 +252,23 @@
             <label for="farmerName" class="text-xs font-bold text-gray-600 text-right">Farmer Name:</label>
             <input type="text" id="farmerName" name="farmerName" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
             <label for="province" class="text-xs font-bold text-gray-600 text-right">Province:</label>
-            <select name="province" id="editProvince" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white">
+            <select name="province" id="editProvince" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
                 <option value="">Select Province</option>
                 <option value="Aurora">Aurora</option>
                 <option value="Nueva Ecija">Nueva Ecija</option>
+                <option value="Tarlac">Tarlac</option>
             </select>
             <label for="municipality" class="text-xs font-bold text-gray-600 text-right">Municipality:</label>
-            <select name="municipality" id="editMunicipality" required disabled class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-gray-50">
+            <select name="municipality" id="editMunicipality" required disabled class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-gray-50 uppercase">
                 <option value="">Select Municipality</option>
             </select>
             <label for="barangay" class="text-xs font-bold text-gray-600 text-right">Barangay:</label>
-            <select name="barangay" id="editBarangay" required disabled class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-gray-50">
+            <select name="barangay" id="editBarangay" required disabled class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-gray-50 uppercase">
                 <option value="">Select Barangay</option>
             </select>
             <input type="hidden" name="address" id="editRecordAddress">
             <label for="line" class="text-xs font-bold text-gray-600 text-right">Line:</label>
-            <select name="line" id="line" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white">
+            <select name="line" id="line" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
                 <option value="">Select Line</option>
                 <option value="rice">rice</option>
                 <option value="corn">corn</option>
@@ -251,7 +279,7 @@
                 <option value="fisheries">Fisheries</option>
             </select>
             <label for="program" class="text-xs font-bold text-gray-600 text-right">Program:</label>
-            <select name="program" id="program" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white">
+            <select name="program" id="program" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
                 <option value="">Select Program</option>
                 <option value="RSBSA">RSBSA</option>
                 <option value="AGRI-SENSO">AGRI-SENSO</option>
@@ -270,23 +298,17 @@
             <label for="causeOfDamage" class="text-xs font-bold text-gray-600 text-right">Cause of Damage:</label>
             <input type="text" id="causeOfDamage" name="causeOfDamage" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
             <label for="modeOfPayment" class="text-xs font-bold text-gray-600 text-right">Mode of payment:</label>
-            <select name="modeOfPayment" id="modeOfPayment" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white">
+            <select name="modeOfPayment" id="modeOfPayment" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
                 <option value="">Select Mode of payment</option>
                 <option value="check">Check</option>
                 <option value="palawan">Palawan Pay</option>
                 <option value="gcash">GCash</option>
                 <option value="not_indicated">Not indicated</option>
             </select>
-            <label for="accounts" class="text-xs font-bold text-gray-600 text-right">Account (email):</label>
-            <input type="text" id="accounts" name="accounts" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
-            <label for="facebook_page_url" class="text-xs font-bold text-gray-600 text-right">FB link:</label>
-            <input type="url" id="facebook_page_url" name="facebook_page_url" placeholder="https://www.facebook.com/..." class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
             <label for="remarks" class="text-xs font-bold text-gray-600 text-right">Remarks - Care of:</label>
             <input type="text" id="remarks" name="remarks" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full ">
-            <label for="transmittal_number" class="text-xs font-bold text-gray-600 text-right">Control number:</label>
-            <input type="text" id="transmittal_number" name="transmittal_number" readonly class="h-9 px-3 rounded-lg border border-gray-200 bg-gray-50 text-sm w-full">
-            <label for="admin_transmittal_number" class="text-xs font-bold text-gray-600 text-right">Admin transmittal #:</label>
-            <input type="text" id="admin_transmittal_number" name="admin_transmittal_number" readonly class="h-9 px-3 rounded-lg border border-gray-200 bg-gray-50 text-sm w-full">
+            <label for="accounts" class="text-xs font-bold text-gray-600 text-right">Account (email):</label>
+            <input type="text" id="accounts" name="accounts" placeholder="Email address or username" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full ">
             <div></div>
             <div class="flex gap-2 pt-1">
                 <button type="submit" class="h-9 px-4 rounded-lg bg-pcic-700 text-white text-xs font-bold hover:bg-pcic-800 transition-colors cursor-pointer">Update Record</button>
@@ -610,6 +632,294 @@ document.addEventListener('DOMContentLoaded', function() {
         updateDateEncodedToggle();
     }
 });
+</script>
+
+<script>
+// Add Record Modal Functionality
+(function() {
+    var addRecordDialog = document.getElementById('addRecordDialog');
+    var addRecordBackdrop = document.getElementById('addRecordBackdrop');
+    var closeAddRecordModal = document.querySelector('.closeAddRecordModal');
+    
+    // Function to fetch and populate latest record
+    function populateFormWithLatestRecord() {
+        fetch('{{ route('records.latest') }}?source=Email')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.record) {
+                    const form = addRecordDialog ? addRecordDialog.querySelector('form') : null;
+                    if (form) {
+                        // Clear all fields first
+                        if (form.querySelector('#farmerName')) form.querySelector('#farmerName').value = '';
+                        if (form.querySelector('#line')) form.querySelector('#line').value = '';
+                        if (form.querySelector('#program')) form.querySelector('#program').value = '';
+                        if (form.querySelector('#causeOfDamage')) form.querySelector('#causeOfDamage').value = '';
+                        if (form.querySelector('#date_occurrence')) form.querySelector('#date_occurrence').value = '';
+                        if (form.querySelector('#remarks')) form.querySelector('#remarks').value = '';
+                        if (form.querySelector('#controlNumber')) form.querySelector('#controlNumber').value = '';
+                        
+                        // Only populate location, mode of payment, date received, and account
+                        if (form.querySelector('#province')) {
+                            form.querySelector('#province').value = data.record.province || '';
+                            // Trigger change to enable municipality
+                            form.querySelector('#province').dispatchEvent(new Event('change'));
+                        }
+                        if (form.querySelector('#modeOfPayment')) form.querySelector('#modeOfPayment').value = data.record.modeOfPayment || '';
+                        if (form.querySelector('#date_received')) form.querySelector('#date_received').value = data.record.date_received || '';
+                        if (form.querySelector('#accounts')) form.querySelector('#accounts').value = data.record.accounts || '';
+                        
+                        // Handle municipality and barangay after province change
+                        setTimeout(() => {
+                            if (form.querySelector('#municipality') && data.record.municipality) {
+                                form.querySelector('#municipality').value = data.record.municipality;
+                                form.querySelector('#municipality').dispatchEvent(new Event('change'));
+                            }
+                            setTimeout(() => {
+                                if (form.querySelector('#barangay') && data.record.barangay) {
+                                    form.querySelector('#barangay').value = data.record.barangay;
+                                }
+                            }, 100);
+                        }, 100);
+                    }
+                }
+            })
+            .catch(error => console.error('Error fetching latest record:', error));
+    }
+    
+    // Function to show modal
+    function showAddRecordModal() {
+        if (addRecordDialog && addRecordBackdrop) {
+            // Center the modal
+            var viewportWidth = window.innerWidth;
+            var viewportHeight = window.innerHeight;
+            var dialogWidth = Math.min(640, viewportWidth - 32);
+            var dialogHeight = Math.min(500, viewportHeight - 32);
+            
+            var left = Math.max(16, (viewportWidth - dialogWidth) / 2);
+            var top = Math.max(16, (viewportHeight - dialogHeight) / 2);
+            
+            addRecordDialog.style.left = left + 'px';
+            addRecordDialog.style.top = top + 'px';
+            addRecordDialog.style.width = dialogWidth + 'px';
+            addRecordDialog.style.display = 'block';
+            addRecordBackdrop.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            document.documentElement.style.overflow = 'hidden';
+            
+            // Fetch and populate with latest record
+            populateFormWithLatestRecord();
+        }
+    }
+    
+    // Function to hide modal
+    function hideAddRecordModal() {
+        if (addRecordDialog && addRecordBackdrop) {
+            addRecordDialog.style.display = 'none';
+            addRecordBackdrop.style.display = 'none';
+            document.body.style.overflow = '';
+            document.documentElement.style.overflow = '';
+            
+            // Clear saved location values when manually closing
+            clearLocationValues();
+        }
+    }
+    
+    // Save location values to localStorage
+    function saveLocationValues() {
+        var province = document.getElementById('province');
+        var municipality = document.getElementById('municipality');
+        var barangay = document.getElementById('barangay');
+        
+        if (province && municipality && barangay) {
+            localStorage.setItem('email_province', province.value);
+            localStorage.setItem('email_municipality', municipality.value);
+            localStorage.setItem('email_barangay', barangay.value);
+        }
+    }
+    
+    // Restore location values from localStorage
+    function restoreLocationValues() {
+        var province = document.getElementById('province');
+        var municipality = document.getElementById('municipality');
+        var barangay = document.getElementById('barangay');
+        
+        if (province && municipality && barangay) {
+            var savedProvince = localStorage.getItem('email_province');
+            var savedMunicipality = localStorage.getItem('email_municipality');
+            var savedBarangay = localStorage.getItem('email_barangay');
+            
+            if (savedProvince) {
+                province.value = savedProvince;
+                // Enable municipality dropdown
+                municipality.disabled = false;
+                municipality.classList.remove('bg-gray-50');
+                municipality.classList.add('bg-white');
+                
+                // Trigger change event to populate municipalities
+                var event = new Event('change');
+                province.dispatchEvent(event);
+                
+                // After municipalities are loaded, set the saved value
+                setTimeout(function() {
+                    if (savedMunicipality) {
+                        municipality.value = savedMunicipality;
+                        // Enable barangay dropdown
+                        barangay.disabled = false;
+                        barangay.classList.remove('bg-gray-50');
+                        barangay.classList.add('bg-white');
+                        
+                        // Trigger change event to populate barangays
+                        var municipalityEvent = new Event('change');
+                        municipality.dispatchEvent(municipalityEvent);
+                        
+                        // After barangays are loaded, set the saved value
+                        setTimeout(function() {
+                            if (savedBarangay) {
+                                barangay.value = savedBarangay;
+                            }
+                        }, 100);
+                    }
+                }, 100);
+            }
+        }
+    }
+    
+    // Clear location values from localStorage
+    function clearLocationValues() {
+        localStorage.removeItem('email_province');
+        localStorage.removeItem('email_municipality');
+        localStorage.removeItem('email_barangay');
+    }
+    
+    // Add form submission handler to save location values
+    var addRecordForm = addRecordDialog ? addRecordDialog.querySelector('form[action="{{ route('records') }}"]') : null;
+    if (addRecordForm) {
+        addRecordForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Save current form values before submission
+            var dateReceivedValue = addRecordForm.querySelector('#date_received') ? addRecordForm.querySelector('#date_received').value : '';
+            var modeOfPaymentValue = addRecordForm.querySelector('#modeOfPayment') ? addRecordForm.querySelector('#modeOfPayment').value : '';
+            var provinceValue = addRecordForm.querySelector('#province') ? addRecordForm.querySelector('#province').value : '';
+            var municipalityValue = addRecordForm.querySelector('#municipality') ? addRecordForm.querySelector('#municipality').value : '';
+            var barangayValue = addRecordForm.querySelector('#barangay') ? addRecordForm.querySelector('#barangay').value : '';
+            var accountsValue = addRecordForm.querySelector('#accounts') ? addRecordForm.querySelector('#accounts').value : '';
+            
+            var formData = new FormData(addRecordForm);
+            var submitBtn = addRecordForm.querySelector('button[type="submit"]');
+            
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Adding...';
+            }
+            
+            fetch(addRecordForm.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showModalMessage(data.message, 'success');
+                    // Restore retained values
+                    if (addRecordForm.querySelector('#date_received')) addRecordForm.querySelector('#date_received').value = dateReceivedValue;
+                    if (addRecordForm.querySelector('#modeOfPayment')) addRecordForm.querySelector('#modeOfPayment').value = modeOfPaymentValue;
+                    if (addRecordForm.querySelector('#province')) addRecordForm.querySelector('#province').value = provinceValue;
+                    if (addRecordForm.querySelector('#municipality')) addRecordForm.querySelector('#municipality').value = municipalityValue;
+                    if (addRecordForm.querySelector('#barangay')) addRecordForm.querySelector('#barangay').value = barangayValue;
+                    if (addRecordForm.querySelector('#accounts')) addRecordForm.querySelector('#accounts').value = accountsValue;
+                    
+                    // Clear other fields
+                    if (addRecordForm.querySelector('#farmerName')) addRecordForm.querySelector('#farmerName').value = '';
+                    if (addRecordForm.querySelector('#line')) addRecordForm.querySelector('#line').value = '';
+                    if (addRecordForm.querySelector('#program')) addRecordForm.querySelector('#program').value = '';
+                    if (addRecordForm.querySelector('#causeOfDamage')) addRecordForm.querySelector('#causeOfDamage').value = '';
+                    if (addRecordForm.querySelector('#date_occurrence')) addRecordForm.querySelector('#date_occurrence').value = '';
+                    if (addRecordForm.querySelector('#remarks')) addRecordForm.querySelector('#remarks').value = '';
+                    if (addRecordForm.querySelector('#controlNumber')) addRecordForm.querySelector('#controlNumber').value = '';
+                } else {
+                    showModalMessage(data.message || 'Error adding record', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showModalMessage('Error adding record', 'error');
+            })
+            .finally(() => {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Add Record';
+                }
+            });
+        });
+    }
+    
+    // Close button functionality
+    if (closeAddRecordModal) {
+        closeAddRecordModal.addEventListener('click', hideAddRecordModal);
+    }
+    
+    // Close on backdrop click
+    if (addRecordBackdrop) {
+        addRecordBackdrop.addEventListener('click', hideAddRecordModal);
+    }
+    
+    // Close on ESC key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && addRecordDialog && addRecordDialog.style.display === 'block') {
+            hideAddRecordModal();
+        }
+    });
+    
+    // Make showAddRecordModal available globally
+    window.showAddRecordModal = showAddRecordModal;
+    
+    // Add event listener to the add record button
+    var addRecordButton = document.querySelector('.addRecordButton');
+    if (addRecordButton) {
+        addRecordButton.addEventListener('click', showAddRecordModal);
+    }
+})();
+
+// Make the DIV element draggagle (W3Schools approach)
+dragElement(document.getElementById("addRecordDialog"));
+
+function dragElement(elmnt) {
+  var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+  if (document.getElementById(elmnt.id + "header")) {
+    document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
+  } else {
+    elmnt.onmousedown = dragMouseDown;
+  }
+
+  function dragMouseDown(e) {
+    e = e || window.event;
+    e.preventDefault();
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    document.onmouseup = closeDragElement;
+    document.onmousemove = elementDrag;
+  }
+
+  function elementDrag(e) {
+    e = e || window.event;
+    e.preventDefault();
+    pos1 = pos3 - e.clientX;
+    pos2 = pos4 - e.clientY;
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+  }
+
+  function closeDragElement() {
+    document.onmouseup = null;
+    document.onmousemove = null;
+  }
+}
 </script>
 
 <script>

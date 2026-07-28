@@ -20,7 +20,7 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'channel' => 'required|string|in:OD,Email,Facebook',
+            'channel' => 'required|string|in:OD,Email,Facebook,admin',
             'username' => 'required|string',
             'password' => 'required|string',
         ]);
@@ -36,6 +36,8 @@ class AuthController extends Controller
                 return $this->loginEmail($request, $username, $password);
             case 'Facebook':
                 return $this->loginFacebook($request, $username, $password);
+            case 'admin':
+                return $this->loginAdmin($request, $username, $password);
             default:
                 return back()->with('error', 'Invalid channel');
         }
@@ -118,6 +120,42 @@ class AuthController extends Controller
         return redirect()->route('email-handler')->with('success', 'Login successful');
     }
 
+    private function loginAdmin(Request $request, $username, $password)
+    {
+        $admin = Admin::where('username', $username)->first();
+
+        if (!$admin || !Hash::check($password, $admin->password)) {
+            return back()->with('error', 'Invalid credentials');
+        }
+
+        // Update admin activity in database
+        $admin->update([
+            'active' => true,
+            'last_activity' => now()
+        ]);
+
+        $request->session()->put('admin_logged_in', true);
+        $request->session()->put('admin_username', $admin->username);
+        $request->session()->put('admin_last_activity', now());
+
+        // Track in active_sessions table
+        ActiveSession::updateOrCreate(
+            [
+                'session_id' => session()->getId(),
+                'channel' => 'Admin',
+            ],
+            [
+                'user_name' => $admin->username,
+                'last_activity' => now(),
+                'is_away' => false,
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]
+        );
+
+        return redirect()->route('admin')->with('success', 'Admin login successful');
+    }
+
     public function logout(Request $request)
     {
         $channel = $request->input('channel') ?? 'unknown';
@@ -142,6 +180,18 @@ class AuthController extends Controller
                 $request->session()->forget(['facebook_logged_in', 'facebook_user', 'facebook_user_id', 'facebook_last_activity']);
                 // Remove from active_sessions
                 ActiveSession::where('session_id', $sessionId)->where('channel', 'Facebook')->delete();
+                break;
+            case 'admin':
+                $adminUsername = $request->session()->get('admin_username');
+                if ($adminUsername) {
+                    Admin::where('username', $adminUsername)->update([
+                        'active' => false,
+                        'last_activity' => now()
+                    ]);
+                }
+                $request->session()->forget(['admin_logged_in', 'admin_username', 'admin_last_activity']);
+                // Remove from active_sessions
+                ActiveSession::where('session_id', $sessionId)->where('channel', 'Admin')->delete();
                 break;
         }
 

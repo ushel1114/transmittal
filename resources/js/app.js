@@ -923,7 +923,7 @@ Mayamot I,Talugtug,Nueva Ecija
 Mayamot II,Talugtug,Nueva Ecija
 Nangabulan,Talugtug,Nueva Ecija
 Osmeña,Talugtug,Nueva Ecija
-Pangit,Talugtug,Nueva Ecija
+Pangit(Fronda),Talugtug,Nueva Ecija
 Patola,Talugtug,Nueva Ecija
 Quezon,Talugtug,Nueva Ecija
 Quirino,Talugtug,Nueva Ecija
@@ -1108,7 +1108,517 @@ Nonong Senior,San Luis,Aurora
 Real,San Luis,Aurora
 San Isidro,San Luis,Aurora
 San Jose,San Luis,Aurora
-Zarah,San Luis,Aurora`;
+Zarah,San Luis,Aurora
+Baguindoc,Anao,Tarlac
+Bantog,Anao,Tarlac
+Campos,Anao,Tarlac
+Carmen,Anao,Tarlac
+Casili,Anao,Tarlac
+Don Ramon,Anao,Tarlac
+Hernando,Anao,Tarlac
+Poblacion,Anao,Tarlac
+Rizal,Anao,Tarlac
+San Francisco East,Anao,Tarlac
+San Francisco West,Anao,Tarlac
+San Jose North,Anao,Tarlac
+San Jose South,Anao,Tarlac
+San Juan,Anao,Tarlac
+San Roque,Anao,Tarlac
+Santo Domingo,Anao,Tarlac
+Sinense,Anao,Tarlac
+Suaverdez,Anao,Tarlac
+Anupul,Bamban,Tarlac
+Banaba,Bamban,Tarlac
+Bangcu,Bamban,Tarlac
+Culubasa,Bamban,Tarlac
+Dela Cruz,Bamban,Tarlac
+La Paz,Bamban,Tarlac
+Lourdes,Bamban,Tarlac
+Malonzo,Bamban,Tarlac
+San Nicolas,Bamban,Tarlac
+San Pedro,Bamban,Tarlac
+San Rafael,Bamban,Tarlac
+San Roque,Bamban,Tarlac
+San Vicente,Bamban,Tarlac
+Santo Niño,Bamban,Tarlac
+Virgen de la Paz,Bamban,Tarlac
+Anoling 1st,Camiling,Tarlac
+Anoling 2nd,Camiling,Tarlac
+Anoling 3rd,Camiling,Tarlac
+Bacabac,Camiling,Tarlac
+Bacsay,Camiling,Tarlac
+Bancay 1st,Camiling,Tarlac
+Bilad,Camiling,Tarlac
+Birbira,Camiling,Tarlac
+Bobon 1st,Camiling,Tarlac
+Bobon 2nd,Camiling,Tarlac
+Bobon Caarosipan,Camiling,Tarlac
+Cabanabaan,Camiling,Tarlac
+Cacamilingan Norte,Camiling,Tarlac
+Cacamilingan Sur,Camiling,Tarlac
+Caniag,Camiling,Tarlac
+Carael,Camiling,Tarlac
+Cayaoan,Camiling,Tarlac
+Cayasan,Camiling,Tarlac
+Florida,Camiling,Tarlac
+Lasong,Camiling,Tarlac
+Libueg,Camiling,Tarlac
+Malacampa,Camiling,Tarlac
+Manakem,Camiling,Tarlac
+Manupeg,Camiling,Tarlac
+Marawi,Camiling,Tarlac
+Matubog,Camiling,Tarlac
+Nagrambacan,Camiling,Tarlac
+Nagserialam,Camiling,Tarlac
+Palimbo Proper,Camiling,Tarlac
+Palimbo-Caarosipan,Camiling,Tarlac
+Pao 1st,Camiling,Tarlac
+Pao 2nd,Camiling,Tarlac
+Pao 3rd,Camiling,Tarlac
+Papaac,Camiling,Tarlac
+Pindangan 1st,Camiling,Tarlac
+Pindangan 2nd,Camiling,Tarlac
+Poblacion A,Camiling,Tarlac
+Poblacion B,Camiling,Tarlac
+Poblacion C,Camiling,Tarlac
+Poblacion D,Camiling,Tarlac
+Poblacion E,Camiling,Tarlac
+Poblacion F,Camiling,Tarlac
+Poblacion G,Camiling,Tarlac
+Poblacion H,Camiling,Tarlac
+Poblacion I,Camiling,Tarlac
+Poblacion J,Camiling,Tarlac
+Santa Maria,Camiling,Tarlac
+Sawat,Camiling,Tarlac
+Sinilian 1st,Camiling,Tarlac
+Sinilian 2nd,Camiling,Tarlac
+Sinilian 3rd,Camiling,Tarlac
+Sinilian Cacalibosoan,Camiling,Tarlac
+Sinulatan 1st,Camiling,Tarlac
+Sinulatan 2nd,Camiling,Tarlac
+Surgui 1st,Camiling,Tarlac
+Surgui 2nd,Camiling,Tarlac
+Surgui 3rd,Camiling,Tarlac
+Tambugan,Camiling,Tarlac
+Telbang,Camiling,Tarlac
+Tuec,Camiling,Tarlac
+Aranguren,Capas,Tarlac
+Bueno,Capas,Tarlac
+Cristo Rey,Capas,Tarlac
+Cubcub,Capas,Tarlac
+Cutcut 1st,Capas,Tarlac
+Cutcut 2nd,Capas,Tarlac
+Dolores,Capas,Tarlac
+Estrada,Capas,Tarlac
+Lawy,Capas,Tarlac
+Manga,Capas,Tarlac
+Manlapig,Capas,Tarlac
+Maruglu,Capas,Tarlac
+O'Donnell,Capas,Tarlac
+Santa Juliana,Capas,Tarlac
+Santa Lucia,Capas,Tarlac
+Santa Rita,Capas,Tarlac
+Santo Domingo 1st,Capas,Tarlac
+Santo Domingo 2nd,Capas,Tarlac
+Santo Rosario,Capas,Tarlac
+Talaga,Capas,Tarlac
+Alfonso,Concepcion,Tarlac
+Balutu,Concepcion,Tarlac
+Cafe,Concepcion,Tarlac
+Calius Gueco,Concepcion,Tarlac
+Caluluan,Concepcion,Tarlac
+Castillo,Concepcion,Tarlac
+Corazon de Jesus,Concepcion,Tarlac
+Culatingan,Concepcion,Tarlac
+Dungan,Concepcion,Tarlac
+Dutung-A-Mataas,Concepcion,Tarlac
+Green Village,Concepcion,Tarlac
+Lilibangan,Concepcion,Tarlac
+Mabilog,Concepcion,Tarlac
+Magao,Concepcion,Tarlac
+Malupa,Concepcion,Tarlac
+Minane,Concepcion,Tarlac
+Panalicsian Barbara,Concepcion,Tarlac
+Pando,Concepcion,Tarlac
+Parang,Concepcion,Tarlac
+Parulung,Concepcion,Tarlac
+Pitabunan,Concepcion,Tarlac
+Plazang Toro,Concepcion,Tarlac
+San Agustin,Concepcion,Tarlac
+San Antonio,Concepcion,Tarlac
+San Bartolome,Concepcion,Tarlac
+San Francisco,Concepcion,Tarlac
+San Isidro,Concepcion,Tarlac
+San Jose,Concepcion,Tarlac
+San Juan,Concepcion,Tarlac
+San Martin,Concepcion,Tarlac
+San Nicolas,Concepcion,Tarlac
+San Nicolas Balas,Concepcion,Tarlac
+San Vicente,Concepcion,Tarlac
+Santa Cruz,Concepcion,Tarlac
+Santa Maria,Concepcion,Tarlac
+Santa Monica,Concepcion,Tarlac
+Santa Rita,Concepcion,Tarlac
+Santo Cristo,Concepcion,Tarlac
+Santo Niño,Concepcion,Tarlac
+Santo Rosario,Concepcion,Tarlac
+Talimunduc Marimla,Concepcion,Tarlac
+Telabanca,Concepcion,Tarlac
+Tinang,Concepcion,Tarlac
+Abagon,Gerona,Tarlac
+Amacalan Sapang,Gerona,Tarlac
+Apsayan,Gerona,Tarlac
+Ayson,Gerona,Tarlac
+Bawa,Gerona,Tarlac
+Buenlag,Gerona,Tarlac
+Bularit,Gerona,Tarlac
+Calayaan,Gerona,Tarlac
+Carbonel,Gerona,Tarlac
+Cardona,Gerona,Tarlac
+Caturay,Gerona,Tarlac
+Danzo,Gerona,Tarlac
+Dicolor,Gerona,Tarlac
+Don Basilio,Gerona,Tarlac
+Luna,Gerona,Tarlac
+Mabini,Gerona,Tarlac
+Magaspac,Gerona,Tarlac
+Malayep,Gerona,Tarlac
+Matapitap,Gerona,Tarlac
+Matayumcab,Gerona,Tarlac
+New Salem,Gerona,Tarlac
+Oloybuaya,Gerona,Tarlac
+Padapada,Gerona,Tarlac
+Parsolingan,Gerona,Tarlac
+Pinasling,Gerona,Tarlac
+Plastado,Gerona,Tarlac
+Poblacion 1,Gerona,Tarlac
+Poblacion 2,Gerona,Tarlac
+Poblacion 3,Gerona,Tarlac
+Quezon,Gerona,Tarlac
+Rizal,Gerona,Tarlac
+Salapungan,Gerona,Tarlac
+San Agustin,Gerona,Tarlac
+San Antonio,Gerona,Tarlac
+San Bartolome,Gerona,Tarlac
+San Jose,Gerona,Tarlac
+Santa Lucia,Gerona,Tarlac
+Santiago,Gerona,Tarlac
+Sembrano,Gerona,Tarlac
+Singat,Gerona,Tarlac
+Sulipa,Gerona,Tarlac
+Tagumbao,Gerona,Tarlac
+Tangcaran,Gerona,Tarlac
+Villa Paz,Gerona,Tarlac
+Balanoy,La Paz,Tarlac
+Bantog-Caricutan,La Paz,Tarlac
+Caramutan,La Paz,Tarlac
+Colibangbang,La Paz,Tarlac
+Caut,La Paz,Tarlac
+Dinep,La Paz,Tarlac
+Comillas Murillo,La Paz,Tarlac
+Dumarais,La Paz,Tarlac
+Guevarra,La Paz,Tarlac
+Kapanikian,La Paz,Tarlac
+La Purisima,La Paz,Tarlac
+Lara,La Paz,Tarlac
+Laungcupang,La Paz,Tarlac
+Lomboy,La Paz,Tarlac
+Macalong,La Paz,Tarlac
+Matayumtayum,La Paz,Tarlac
+Mayang,La Paz,Tarlac
+Motrico,La Paz,Tarlac
+Paludpud,La Paz,Tarlac
+Rizal,La Paz,Tarlac
+San Isidro,La Paz,Tarlac
+San Roque,La Paz,Tarlac
+Sierra,La Paz,Tarlac
+
+Ambalingit,Mayantoc,Tarlac
+Baybayaoas,Mayantoc,Tarlac
+Bigbiga,Mayantoc,Tarlac
+Binbinaca,Mayantoc,Tarlac
+Calabtangan,Mayantoc,Tarlac
+Caocaoayan,Mayantoc,Tarlac
+Carabaoan,Mayantoc,Tarlac
+Cubcub,Mayantoc,Tarlac
+Gayonggayong,Mayantoc,Tarlac
+Gossood,Mayantoc,Tarlac
+Labney,Mayantoc,Tarlac
+Mamonit,Mayantoc,Tarlac
+Maniniog,Mayantoc,Tarlac
+Mapandan,Mayantoc,Tarlac
+Nambalan,Mayantoc,Tarlac
+Pedro L. Quines,Mayantoc,Tarlac
+Pitombayog,Mayantoc,Tarlac
+Poblacion Norte,Mayantoc,Tarlac
+Poblacion Sur,Mayantoc,Tarlac
+Rotrottooc,Mayantoc,Tarlac
+San Bartolome,Mayantoc,Tarlac
+San Jose,Mayantoc,Tarlac
+Taldiapan,Mayantoc,Tarlac
+Tangcarang,Mayantoc,Tarlac
+Ablang-Sapang,Moncada,Tarlac
+Aringin,Moncada,Tarlac
+Atencio,Moncada,Tarlac
+Banaoang East,Moncada,Tarlac
+Banaoang West,Moncada,Tarlac
+Baquero Norte,Moncada,Tarlac
+Baquero Sur,Moncada,Tarlac
+Calamay,Moncada,Tarlac
+Calapan,Moncada,Tarlac
+Camangaan East,Moncada,Tarlac
+Camangaan West,Moncada,Tarlac
+Camposanto 1-Norte,Moncada,Tarlac
+Camposanto 1-Sur,Moncada,Tarlac
+Camposanto 2,Moncada,Tarlac
+Capaoayan,Moncada,Tarlac
+Lapsing,Moncada,Tarlac
+Mabini,Moncada,Tarlac
+Maluac,Moncada,Tarlac
+Poblacion 1,Moncada,Tarlac
+Poblacion 2,Moncada,Tarlac
+Poblacion 3,Moncada,Tarlac
+Poblacion 4,Moncada,Tarlac
+Rizal,Moncada,Tarlac
+San Juan,Moncada,Tarlac
+San Julian,Moncada,Tarlac
+San Leon,Moncada,Tarlac
+San Pedro,Moncada,Tarlac
+San Roque,Moncada,Tarlac
+Santa Lucia East,Moncada,Tarlac
+Santa Lucia West,Moncada,Tarlac
+Santa Maria,Moncada,Tarlac
+Santa Monica,Moncada,Tarlac
+Tolega Norte,Moncada,Tarlac
+Tolega Sur,Moncada,Tarlac
+Tubectubang,Moncada,Tarlac
+Villa,Moncada,Tarlac
+Abogado,Paniqui,Tarlac
+Acocolao,Paniqui,Tarlac
+Aduas,Paniqui,Tarlac
+Apulid,Paniqui,Tarlac
+Balaoang,Paniqui,Tarlac
+Barang,Paniqui,Tarlac
+Brillante,Paniqui,Tarlac
+Burgos,Paniqui,Tarlac
+Cabayaoasan,Paniqui,Tarlac
+Canan,Paniqui,Tarlac
+Carino,Paniqui,Tarlac
+Cayanga,Paniqui,Tarlac
+Colibangbang,Paniqui,Tarlac
+Coral,Paniqui,Tarlac
+Dapdap,Paniqui,Tarlac
+Estacion,Paniqui,Tarlac
+Mabilang,Paniqui,Tarlac
+Manaois,Paniqui,Tarlac
+Matalapitap,Paniqui,Tarlac
+Nagmisaan,Paniqui,Tarlac
+Nancamarinan,Paniqui,Tarlac
+Nipaco,Paniqui,Tarlac
+Patalan,Paniqui,Tarlac
+Poblacion Norte,Paniqui,Tarlac
+Poblacion Sur,Paniqui,Tarlac
+Rang-ayan,Paniqui,Tarlac
+Salumague,Paniqui,Tarlac
+Samput,Paniqui,Tarlac
+San Carlos,Paniqui,Tarlac
+San Isidro,Paniqui,Tarlac
+San Juan de Milla,Paniqui,Tarlac
+Santa Ines,Paniqui,Tarlac
+Sinigpit,Paniqui,Tarlac
+Tablang,Paniqui,Tarlac
+Ventenilla,Paniqui,Tarlac
+Balite,Pura,Tarlac
+Buenavista,Pura,Tarlac
+Cadanglaan,Pura,Tarlac
+Estipona,Pura,Tarlac
+Linao,Pura,Tarlac
+Maasin,Pura,Tarlac
+Matindeg,Pura,Tarlac
+Maungib,Pura,Tarlac
+Naya,Pura,Tarlac
+Nilasin 1st,Pura,Tarlac
+Nilasin 2nd,Pura,Tarlac
+Poblacion 1,Pura,Tarlac
+Poblacion 2,Pura,Tarlac
+Poblacion 3,Pura,Tarlac,
+Poroc,Pura,Tarlac
+Singat,Pura,Tarlac
+Coral-Iloco,Ramos,Tarlac
+Guiteb,Ramos,Tarlac
+Pance,Ramos,Tarlac
+Poblacion Center,Ramos,Tarlac
+Poblacion North,Ramos,Tarlac
+Poblacion South,Ramos,Tarlac
+San Juan,Ramos,Tarlac
+San Raymundo,Ramos,Tarlac
+Toledo,Ramos,Tarlac
+Balloc,San Clemente,Tarlac
+Bamban,San Clemente,Tarlac
+Casipo,San Clemente,Tarlac
+Catagudingan,San Clemente,Tarlac
+Daldalayap,San Clemente,Tarlac
+Doclong 1,San Clemente,Tarlac
+Doclong 2,San Clemente,Tarlac
+Maasin,San Clemente,Tarlac
+Nagsabaran,San Clemente,Tarlac
+Pit-ao,San Clemente,Tarlac
+Poblacion Norte	,San Clemente,Tarlac
+Poblacion Sur,San Clemente,Tarlac
+Burgos,San Jose,Tarlac
+David,San Jose,Tarlac
+Iba,San Jose,Tarlac
+Labney,San Jose,Tarlac
+Lawacamulag,San Jose,Tarlac
+Lubigan,San Jose,Tarlac
+Maamot,San Jose,Tarlac
+Mababanaba,San Jose,Tarlac
+Moriones,San Jose,Tarlac
+Pao,San Jose,Tarlac
+San Juan de Valdez,San Jose,Tarlac
+Sula,San Jose,Tarlac
+Villa Aglipay,San Jose,Tarlac
+Colubot,San Manuel,Tarlac
+Lanat,San Manuel,Tarlac
+Legaspi,San Manuel,Tarlac
+Mangandingay,San Manuel,Tarlac
+Matarannoc,San Manuel,Tarlac
+Pacpaco,San Manuel,Tarlac
+Poblacion,San Manuel,Tarlac
+Salcedo,San Manuel,Tarlac
+San Agustin,San Manuel,Tarlac
+San Felipe,San Manuel,Tarlac
+San Jacinto,San Manuel,Tarlac
+San Miguel,San Manuel,Tarlac
+San Narciso,San Manuel,Tarlac
+San Vicente,San Manuel,Tarlac
+Santa Maria,San Manuel,Tarlac
+Baldios,Santa Ignacia,Tarlac
+Botbotones,Santa Ignacia,Tarlac
+Caanamongan,Santa Ignacia,Tarlac
+Cabaruan,Santa Ignacia,Tarlac
+Cabugbugan,Santa Ignacia,Tarlac
+Caduldulaoan,Santa Ignacia,Tarlac
+Calipayan,Santa Ignacia,Tarlac
+Macaguing,Santa Ignacia,Tarlac
+Nambalan,Santa Ignacia,Tarlac
+Padapada,Santa Ignacia,Tarlac
+Pilpila,Santa Ignacia,Tarlac
+Pinpinas,Santa Ignacia,Tarlac
+Poblacion East,Santa Ignacia,Tarlac
+Poblacion West,Santa Ignacia,Tarlac
+Pugo-Cecilio,Santa Ignacia,Tarlac
+San Francisco,Santa Ignacia,Tarlac
+San Sotero,Santa Ignacia,Tarlac
+San Vicente,Santa Ignacia,Tarlac
+Santa Ines Centro,Santa Ignacia,Tarlac
+Santa Ines East,Santa Ignacia,Tarlac
+Santa Ines West,Santa Ignacia,Tarlac
+Taguiporo,Santa Ignacia,Tarlac
+Timmaguab,Santa Ignacia,Tarlac
+Vargas,Santa Ignacia,Tarlac
+Aguso,City of Tarlac,Tarlac
+Alvindia Segundo,City of Tarlac,Tarlac
+Amucao,City of Tarlac,Tarlac
+Armenia,City of Tarlac,Tarlac
+Asturias,City of Tarlac,Tarlac
+Atioc,City of Tarlac,Tarlac
+Balanti,City of Tarlac,Tarlac
+Balete,City of Tarlac,Tarlac
+Balibago I,City of Tarlac,Tarlac
+Balibago II,City of Tarlac,Tarlac
+Balingcanaway,City of Tarlac,Tarlac
+Banaba,City of Tarlac,Tarlac
+Bantog,City of Tarlac,Tarlac
+Baras-baras,City of Tarlac,Tarlac
+Batang-batang,City of Tarlac,Tarlac
+Binauganan,City of Tarlac,Tarlac
+Bora,City of Tarlac,Tarlac
+Buenavista,City of Tarlac,Tarlac
+Buhilit,City of Tarlac,Tarlac
+Burot,City of Tarlac,Tarlac
+Calingcuan,City of Tarlac,Tarlac
+Capehan,City of Tarlac,Tarlac
+Carangian,City of Tarlac,Tarlac
+Care,City of Tarlac,Tarlac
+Central,City of Tarlac,Tarlac
+Culipat,City of Tarlac,Tarlac
+Cut-cut I,City of Tarlac,Tarlac
+Cut-cut II,City of Tarlac,Tarlac
+Dalayap,City of Tarlac,Tarlac
+Dela Paz,City of Tarlac,Tarlac
+Dolores,City of Tarlac,Tarlac
+Laoang,City of Tarlac,Tarlac
+Ligtasan,City of Tarlac,Tarlac
+Lourdes,City of Tarlac,Tarlac
+Mabini,City of Tarlac,Tarlac
+Maligaya,City of Tarlac,Tarlac
+Maliwalo,City of Tarlac,Tarlac
+Mapalad,City of Tarlac,Tarlac
+Matadero,City of Tarlac,Tarlac
+Matatalaib,City of Tarlac,Tarlac
+Paraiso,City of Tarlac,Tarlac
+Poblacion,City of Tarlac,Tarlac
+Salapungan,City of Tarlac,Tarlac
+San Carlos,City of Tarlac,Tarlac
+San Francisco,City of Tarlac,Tarlac
+San Isidro,City of Tarlac,Tarlac
+San Jose,City of Tarlac,Tarlac
+San Jose de Urquico,City of Tarlac,Tarlac
+San Juan de Mata,City of Tarlac,Tarlac
+San Luis,City of Tarlac,Tarlac
+San Manuel,City of Tarlac,Tarlac
+San Miguel,City of Tarlac,Tarlac
+San Nicolas,City of Tarlac,Tarlac
+San Pablo,City of Tarlac,Tarlac
+San Pascual,City of Tarlac,Tarlac
+San Rafael,City of Tarlac,Tarlac
+San Roque,City of Tarlac,Tarlac
+San Sebastian,City of Tarlac,Tarlac
+San Vicente,City of Tarlac,Tarlac
+Santa Cruz,City of Tarlac,Tarlac
+Santa Maria,City of Tarlac,Tarlac
+Santo Cristo,City of Tarlac,Tarlac
+Santo Domingo,City of Tarlac,Tarlac
+Santo Niño,City of Tarlac,Tarlac
+Sapang Maragul,City of Tarlac,Tarlac
+Sapang Tagalog,City of Tarlac,Tarlac
+Sepung Calzada,City of Tarlac,Tarlac
+Sinait,City of Tarlac,Tarlac
+Suizo,City of Tarlac,Tarlac
+Tariji,City of Tarlac,Tarlac
+Tibag,City of Tarlac,Tarlac
+Tibagan,City of Tarlac,Tarlac
+Trinidad,City of Tarlac,Tarlac
+Ungot,City of Tarlac,Tarlac
+Villa Bacolor,City of Tarlac,Tarlac
+
+Baculong,Victoria,Tarlac
+Balayang,Victoria,Tarlac
+Balbaloto,Victoria,Tarlac
+Bangar,Victoria,Tarlac
+Bantog,Victoria,Tarlac
+Batangbatang,Victoria,Tarlac
+Bulo,Victoria,Tarlac
+Cabuluan,Victoria,Tarlac
+Calibungan,Victoria,Tarlac
+Canarem,Victoria,Tarlac
+Cruz,Victoria,Tarlac
+Lalapac,Victoria,Tarlac
+Maluid,Victoria,Tarlac
+Mangolago,Victoria,Tarlac
+Masalasa,Victoria,Tarlac
+Palacpalac,Victoria,Tarlac
+San Agustin,Victoria,Tarlac
+San Andres,Victoria,Tarlac
+San Fernando,Victoria,Tarlac
+San Francisco,Victoria,Tarlac
+San Gavino,Victoria,Tarlac
+San Jacinto,Victoria,Tarlac
+San Nicolas,Victoria,Tarlac
+San Vicente,Victoria,Tarlac
+Santa Barbara,Victoria,Tarlac
+Santa Lucia,Victoria,Tarlac`;
 
     function parseCsvLine(line) {
         const values = [];
@@ -1257,8 +1767,100 @@ Zarah,San Luis,Aurora`;
     if (addRecordForm) {
         addRecordForm.addEventListener('submit', function () {
             setHiddenAddress(addProvince, addMunicipality, addBarangay, addRecordAddress);
+            
+            // Save location values to localStorage for Officer of the Day
+            if (addProvince && addMunicipality && addBarangay) {
+                localStorage.setItem('od_province', addProvince.value);
+                localStorage.setItem('od_municipality', addMunicipality.value);
+                localStorage.setItem('od_barangay', addBarangay.value);
+            }
+            
+            // Save location values to localStorage for Email
+            if (addProvince && addMunicipality && addBarangay) {
+                localStorage.setItem('email_province', addProvince.value);
+                localStorage.setItem('email_municipality', addMunicipality.value);
+                localStorage.setItem('email_barangay', addBarangay.value);
+            }
         });
     }
+
+    // Restore location values on page load (after successful submission)
+    function restoreLocationValues() {
+        if (addProvince && addMunicipality && addBarangay) {
+            const savedProvince = localStorage.getItem('od_province');
+            const savedMunicipality = localStorage.getItem('od_municipality');
+            const savedBarangay = localStorage.getItem('od_barangay');
+            
+            if (savedProvince) {
+                addProvince.value = savedProvince;
+                addMunicipality.disabled = false;
+                addMunicipality.classList.remove('bg-gray-50');
+                addMunicipality.classList.add('bg-white');
+                
+                const event = new Event('change');
+                addProvince.dispatchEvent(event);
+                
+                setTimeout(function() {
+                    if (savedMunicipality) {
+                        addMunicipality.value = savedMunicipality;
+                        addBarangay.disabled = false;
+                        addBarangay.classList.remove('bg-gray-50');
+                        addBarangay.classList.add('bg-white');
+                        
+                        const municipalityEvent = new Event('change');
+                        addMunicipality.dispatchEvent(municipalityEvent);
+                        
+                        setTimeout(function() {
+                            if (savedBarangay) {
+                                addBarangay.value = savedBarangay;
+                            }
+                        }, 100);
+                    }
+                }, 100);
+            }
+        }
+    }
+    
+    restoreLocationValues();
+
+    // Restore location values for Email channel
+    function restoreEmailLocationValues() {
+        if (addProvince && addMunicipality && addBarangay) {
+            const savedProvince = localStorage.getItem('email_province');
+            const savedMunicipality = localStorage.getItem('email_municipality');
+            const savedBarangay = localStorage.getItem('email_barangay');
+            
+            if (savedProvince) {
+                addProvince.value = savedProvince;
+                addMunicipality.disabled = false;
+                addMunicipality.classList.remove('bg-gray-50');
+                addMunicipality.classList.add('bg-white');
+                
+                const event = new Event('change');
+                addProvince.dispatchEvent(event);
+                
+                setTimeout(function() {
+                    if (savedMunicipality) {
+                        addMunicipality.value = savedMunicipality;
+                        addBarangay.disabled = false;
+                        addBarangay.classList.remove('bg-gray-50');
+                        addBarangay.classList.add('bg-white');
+                        
+                        const municipalityEvent = new Event('change');
+                        addMunicipality.dispatchEvent(municipalityEvent);
+                        
+                        setTimeout(function() {
+                            if (savedBarangay) {
+                                addBarangay.value = savedBarangay;
+                            }
+                        }, 100);
+                    }
+                }, 100);
+            }
+        }
+    }
+    
+    restoreEmailLocationValues();
 
     // Edit Record Dialog
 
@@ -1706,19 +2308,47 @@ Zarah,San Luis,Aurora`;
                         successModalOk.addEventListener('click', function() {
                             successModal.close();
                             
+                            // Save location values before resetting form
+                            const provinceSelect = form.querySelector('#province');
+                            const municipalitySelect = form.querySelector('#municipality');
+                            const barangaySelect = form.querySelector('#barangay');
+                            
+                            const savedProvince = provinceSelect ? provinceSelect.value : '';
+                            const savedMunicipality = municipalitySelect ? municipalitySelect.value : '';
+                            const savedBarangay = barangaySelect ? barangaySelect.value : '';
+                            
+                            console.log('Saved location values before reset:', savedProvince, savedMunicipality, savedBarangay);
+                            
                             // Reset form fields for continuous encoding
                             form.reset();
                             
-                            // Reset dependent dropdowns
-                            const municipalitySelect = form.querySelector('#municipality');
-                            const barangaySelect = form.querySelector('#barangay');
-                            if (municipalitySelect) {
-                                municipalitySelect.disabled = true;
-                                municipalitySelect.innerHTML = '<option value="">Select Municipality</option>';
-                            }
-                            if (barangaySelect) {
-                                barangaySelect.disabled = true;
-                                barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+                            // Restore location values after reset
+                            if (provinceSelect && savedProvince) {
+                                provinceSelect.value = savedProvince;
+                                // Enable municipality dropdown
+                                if (municipalitySelect) {
+                                    municipalitySelect.disabled = false;
+                                    const event = new Event('change');
+                                    provinceSelect.dispatchEvent(event);
+                                    
+                                    setTimeout(() => {
+                                        if (municipalitySelect && savedMunicipality) {
+                                            municipalitySelect.value = savedMunicipality;
+                                            // Enable barangay dropdown
+                                            if (barangaySelect) {
+                                                barangaySelect.disabled = false;
+                                                const municipalityEvent = new Event('change');
+                                                municipalitySelect.dispatchEvent(municipalityEvent);
+                                                
+                                                setTimeout(() => {
+                                                    if (barangaySelect && savedBarangay) {
+                                                        barangaySelect.value = savedBarangay;
+                                                    }
+                                                }, 100);
+                                            }
+                                        }
+                                    }, 100);
+                                }
                             }
                             
                             // Focus on first input field

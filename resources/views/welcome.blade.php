@@ -160,8 +160,9 @@
                 <div class="w-9 h-9 rounded-lg bg-pcic-700 text-white flex items-center justify-center text-xs font-black">AD</div>
                 <h3 class="text-lg font-black text-gray-900">Administrator Login</h3>
             </div>
-            <form action="{{ route('admin.login') }}" method="post" class="flex flex-col gap-3" id="adminLoginForm">
+            <form action="{{ route('auth.login.submit') }}" method="post" class="flex flex-col gap-3" id="adminLoginForm">
                 @csrf
+                <input type="hidden" name="channel" value="admin">
                 <input type="text" id="adminUsername" name="username" placeholder="Username" aria-label="Username" autocomplete="username"
                     class="h-11 px-4 rounded-xl border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full" required>
                 <input type="password" id="adminPassword" name="password" placeholder="Password" aria-label="Password" autocomplete="current-password"

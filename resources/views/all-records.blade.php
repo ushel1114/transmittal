@@ -252,6 +252,11 @@ table {
     margin: 0;
 }
 
+/* Farmer name copy hover effect */
+.farmer-name-copy:hover {
+    color: #D4A017 !important;
+}
+
 table thead tr:first-child {
     background: linear-gradient(135deg, rgba(0, 108, 53, 0.96) 0%, rgba(99, 140, 8, 0.90) 100%);
 }
@@ -287,6 +292,12 @@ table td {
     padding: 8px 10px;
     font-size: 12px;
     color: #334155;
+}
+
+/* Prevent all columns from wrapping */
+table td,
+table th {
+    white-space: nowrap;
 }
 
 table td:last-child {
@@ -586,39 +597,37 @@ table input[type="checkbox"] {
         <table>
             <thead>
                 <tr>
+                    <th>Actions</th>
                     <th>Farmer</th>
+                    <th>TRANSMITTAL #</th>
                     <th>Encoder</th>
                     <th>Source</th>
                     <th>Municipality</th>
                     <th>Date Received</th>
-                    <th>Date Encoded</th>
                     <th>Date of Occurrence</th>
-                    <th>TRANSMITTAL #</th>
-                    <th>Remarks</th>
                     <th>Cause of Loss</th>
-                    <th>Actions</th>
+                    <th>Remarks</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($records as $record)
                     <tr>
-                        <td>{{ $record->farmerName }}</td>
+                        <td>
+                            <button class="view-btn" onclick="viewRecord({{ $record->id }})">View</button>
+                        </td>
+                        <td><span class="farmer-name-copy cursor-pointer" style="user-select: none; transition: color 0.2s;" data-farmer-name="{{ e($record->farmerName) }}" title="Click to copy farmer name">{{ $record->farmerName }}</span></td>
+                        <td>{{ $record->admin_transmittal_number ?? 'N/A' }}</td>
                         <td>{{ $record->encoderName }}</td>
                         <td>{{ $record->source }}</td>
                         <td>{{ $record->municipality }}</td>
                         <td>{{ $record->date_received ? \Carbon\Carbon::parse($record->date_received)->format('M d, Y') : 'N/A' }}</td>
-                        <td>{{ $record->created_at->format('M d, Y') }}</td>
                         <td>{{ $record->date_occurrence ? (function($date) { try { return \Carbon\Carbon::parse($date)->format('M d, Y'); } catch (\Exception $e) { return $date; } })($record->date_occurrence) : 'N/A' }}</td>
-                        <td>{{ $record->admin_transmittal_number ?? 'N/A' }}</td>
-                        <td>{{ $record->remarks ?? 'N/A' }}</td>
                         <td>{{ $record->causeOfDamage ?? 'N/A' }}</td>
-                        <td>
-                            <button class="view-btn" onclick="viewRecord({{ $record->id }})">View</button>
-                        </td>
+                        <td>{{ $record->remarks ?? 'N/A' }}</td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="11" style="text-align: center; padding: 40px; color: #64748b; font-weight: 500;">
+                        <td colspan="10" style="text-align: center; padding: 40px; color: #64748b; font-weight: 500;">
                             No records found matching your filters.
                         </td>
                     </tr>
@@ -671,6 +680,62 @@ document.addEventListener('DOMContentLoaded', function() {
             // Let the form submit normally
             return true;
         });
+    }
+
+    // Handle farmer name copy to clipboard
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('farmer-name-copy')) {
+            e.stopPropagation();
+            const farmerName = e.target.getAttribute('data-farmer-name');
+            if (farmerName) {
+                // Try modern Clipboard API first
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(farmerName).then(function() {
+                        if (typeof showModalMessage === 'function') {
+                            showModalMessage('Farmer name copied to clipboard!', 'success');
+                        }
+                    }).catch(function(err) {
+                        console.error('Clipboard API failed, trying fallback:', err);
+                        copyToClipboardFallback(farmerName);
+                    });
+                } else {
+                    // Fallback for non-secure contexts (HTTP)
+                    copyToClipboardFallback(farmerName);
+                }
+            }
+        }
+    });
+
+    // Fallback method for copying text (works in HTTP contexts)
+    function copyToClipboardFallback(text) {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-999999px';
+        textarea.style.top = '-999999px';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+
+        try {
+            const successful = document.execCommand('copy');
+            document.body.removeChild(textarea);
+            if (successful) {
+                if (typeof showModalMessage === 'function') {
+                    showModalMessage('Farmer name copied to clipboard!', 'success');
+                }
+            } else {
+                if (typeof showModalMessage === 'function') {
+                    showModalMessage('Failed to copy farmer name', 'error');
+                }
+            }
+        } catch (err) {
+            console.error('Fallback copy failed:', err);
+            document.body.removeChild(textarea);
+            if (typeof showModalMessage === 'function') {
+                showModalMessage('Failed to copy farmer name', 'error');
+            }
+        }
     }
 });
 

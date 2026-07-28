@@ -187,6 +187,11 @@
         // Form validation shake feedback + loading spinner on submit
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('form').forEach(function(form) {
+                // Skip forms that have custom AJAX handlers
+                if (form.id === 'addRecordForm' || form.id === 'editRecordForm') {
+                    return;
+                }
+                
                 form.addEventListener('submit', function(e) {
                     var invalid = form.querySelector('input:invalid, select:invalid, textarea:invalid');
                     if (invalid) {
@@ -299,20 +304,199 @@
         })();
     </script>
 
-    <!-- Confirmation Modal -->
-    <dialog id="confirmModal" class="rounded-2xl shadow-2xl bg-white backdrop:bg-black/40 p-0 w-[min(400px,calc(100vw-2rem))]">
+    <!-- Date Range Export Modal -->
+    <dialog id="dateRangeExportModal" class="rounded-2xl shadow-2xl bg-white backdrop:bg-black/40 p-0 w-[min(400px,calc(100vw-2rem))]">
         <div class="px-5 pt-5 pb-3 border-b border-gray-100">
-            <h3 class="text-base font-black text-gray-900">Confirm Record Submission</h3>
+            <h3 class="text-base font-black text-gray-900">Download Old Records to CSV</h3>
         </div>
         <div class="px-5 py-4">
-            <p class="text-sm text-gray-600 mb-4">Are you sure you want to add this record? Please review all the data before continuing.</p>
-            <p class="text-xs text-gray-500 mb-4">Click "Continue" to submit or "Cancel" to go back and edit.</p>
+            <form id="dateRangeExportForm" method="POST">
+                @csrf
+                <div class="mb-4">
+                    <label class="block text-xs font-bold text-gray-600 mb-2">Date Selection:</label>
+                    <div class="flex gap-4">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="dateSelection" value="single" id="dateSelectionSingle" class="w-4 h-4 text-pcic-700 focus:ring-pcic-500">
+                            <span class="text-xs text-gray-700">Single Date</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="dateSelection" value="range" id="dateSelectionRange" checked class="w-4 h-4 text-pcic-700 focus:ring-pcic-500">
+                            <span class="text-xs text-gray-700">Date Range</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="mb-4" id="singleDateContainer" style="display: none;">
+                    <label for="single_date" class="block text-xs font-bold text-gray-600 mb-1">Date:</label>
+                    <input type="date" id="single_date" name="single_date" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
+                </div>
+                <div class="mb-4" id="dateRangeContainer">
+                    <label for="start_date" class="block text-xs font-bold text-gray-600 mb-1">Start Date:</label>
+                    <input type="date" id="start_date" name="start_date" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full mb-3">
+                    <label for="end_date" class="block text-xs font-bold text-gray-600 mb-1">End Date:</label>
+                    <input type="date" id="end_date" name="end_date" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
+                </div>
+                <input type="hidden" id="exportChannel" name="channel" value="">
+            </form>
         </div>
         <div class="px-5 py-3 border-t border-gray-100 flex gap-2 justify-end">
-            <button type="button" id="confirmModalCancel" class="h-9 px-4 rounded-lg border border-gray-200 text-xs font-bold text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer">Cancel</button>
-            <button type="button" id="confirmModalContinue" class="h-9 px-4 rounded-lg bg-pcic-700 text-white text-xs font-bold hover:bg-pcic-800 transition-colors cursor-pointer">Continue</button>
+            <button type="button" id="dateRangeExportCancel" class="h-9 px-4 rounded-lg border border-gray-200 text-xs font-bold text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer">Cancel</button>
+            <button type="button" id="dateRangeExportSubmit" class="h-9 px-4 rounded-lg bg-pcic-700 text-white text-xs font-bold hover:bg-pcic-800 transition-colors cursor-pointer">Download</button>
         </div>
     </dialog>
+
+    <script>
+        // Date Range Export Modal Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateRangeExportModal = document.getElementById('dateRangeExportModal');
+            const dateRangeExportForm = document.getElementById('dateRangeExportForm');
+            const dateRangeExportCancel = document.getElementById('dateRangeExportCancel');
+            const dateRangeExportSubmit = document.getElementById('dateRangeExportSubmit');
+            const exportChannelInput = document.getElementById('exportChannel');
+            const dateSelectionSingle = document.getElementById('dateSelectionSingle');
+            const dateSelectionRange = document.getElementById('dateSelectionRange');
+            const singleDateContainer = document.getElementById('singleDateContainer');
+            const dateRangeContainer = document.getElementById('dateRangeContainer');
+            
+            // Get current channel
+            function getCurrentChannel() {
+                const path = window.location.pathname;
+                if (path.includes('officer-of-the-day')) return 'OD';
+                if (path.includes('email-handler')) return 'Email';
+                if (path.includes('facebook-handler')) return 'Facebook';
+                return 'unknown';
+            }
+            
+            // Toggle between single date and date range
+            dateSelectionSingle.addEventListener('change', function() {
+                if (this.checked) {
+                    singleDateContainer.style.display = 'block';
+                    dateRangeContainer.style.display = 'none';
+                    document.getElementById('single_date').required = true;
+                    document.getElementById('start_date').required = false;
+                    document.getElementById('end_date').required = false;
+                }
+            });
+            
+            dateSelectionRange.addEventListener('change', function() {
+                if (this.checked) {
+                    singleDateContainer.style.display = 'none';
+                    dateRangeContainer.style.display = 'block';
+                    document.getElementById('single_date').required = false;
+                    document.getElementById('start_date').required = true;
+                    document.getElementById('end_date').required = true;
+                }
+            });
+            
+            // Open modal when download old records button is clicked
+            document.querySelectorAll('.downloadOldRecordsButton').forEach(function(button) {
+                button.addEventListener('click', function() {
+                    const channel = getCurrentChannel();
+                    exportChannelInput.value = channel;
+                    dateRangeExportModal.showModal();
+                });
+            });
+            
+            // Close modal on cancel
+            dateRangeExportCancel.addEventListener('click', function() {
+                dateRangeExportModal.close();
+                dateRangeExportForm.reset();
+                // Reset to default state
+                dateSelectionRange.checked = true;
+                singleDateContainer.style.display = 'none';
+                dateRangeContainer.style.display = 'block';
+            });
+            
+            // Handle export submission
+            dateRangeExportSubmit.addEventListener('click', function() {
+                const channel = exportChannelInput.value;
+                const dateSelection = document.querySelector('input[name="dateSelection"]:checked').value;
+                let startDate, endDate, filename;
+                
+                if (dateSelection === 'single') {
+                    const singleDate = document.getElementById('single_date').value;
+                    if (!singleDate) {
+                        alert('Please select a date');
+                        return;
+                    }
+                    startDate = singleDate;
+                    endDate = singleDate;
+                    filename = `${channel.toLowerCase()}-records-${singleDate}.csv`;
+                } else {
+                    startDate = document.getElementById('start_date').value;
+                    endDate = document.getElementById('end_date').value;
+                    if (!startDate || !endDate) {
+                        alert('Please select both start and end dates');
+                        return;
+                    }
+                    if (new Date(endDate) < new Date(startDate)) {
+                        alert('End date must be after or equal to start date');
+                        return;
+                    }
+                    filename = `${channel.toLowerCase()}-records-${startDate}-to-${endDate}.csv`;
+                }
+                
+                // Determine the correct route based on channel
+                let exportRoute;
+                if (channel === 'OD') {
+                    exportRoute = '{{ route('officer.export-csv-by-date-range') }}';
+                } else if (channel === 'Email') {
+                    exportRoute = '{{ route('email.export-csv-by-date-range') }}';
+                } else if (channel === 'Facebook') {
+                    exportRoute = '{{ route('facebook.export-csv-by-date-range') }}';
+                }
+                
+                // Create form data
+                const formData = new FormData();
+                formData.append('start_date', startDate);
+                formData.append('end_date', endDate);
+                formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+                
+                // Submit the form
+                fetch(exportRoute, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (response.ok) {
+                        return response.blob();
+                    }
+                    throw new Error('Export failed');
+                })
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    dateRangeExportModal.close();
+                    dateRangeExportForm.reset();
+                    // Reset to default state
+                    dateSelectionRange.checked = true;
+                    singleDateContainer.style.display = 'none';
+                    dateRangeContainer.style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to export records. Please try again.');
+                });
+            });
+            
+            // Close on backdrop click
+            dateRangeExportModal.addEventListener('click', function(e) {
+                if (e.target === dateRangeExportModal) {
+                    dateRangeExportModal.close();
+                    dateRangeExportForm.reset();
+                    // Reset to default state
+                    dateSelectionRange.checked = true;
+                    singleDateContainer.style.display = 'none';
+                    dateRangeContainer.style.display = 'block';
+                }
+            });
+        });
+    </script>
 
     <!-- Assign Transmittal Modal -->
     <dialog id="assignTransmittalModal" class="rounded-2xl shadow-2xl bg-white backdrop:bg-black/40 p-0 w-[min(400px,calc(100vw-2rem))]">

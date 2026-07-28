@@ -1,9 +1,19 @@
 @props(['records', 'showDelete' => true, 'showEncoder' => false, 'showApproval' => false, 'showAction' => false, 'showCheckbox' => true, 'showFilters' => false, 'showSortableHeaders' => true, 'showAdminTransmittal' => false, 'hideAccountsColumn' => false, 'hideSourceColumn' => false, 'hideProvinceColumn' => false, 'hideDateReceivedColumn' => false, 'useDateEncodedAsDateReceived' => false, 'allPrograms' => [], 'allLines' => [], 'allSources' => [], 'allModes' => []])
 
 <style>
-/* Default account field color - blue */
+/* Default account field color - mustard yellow */
 .account-field {
-    color: #0066CC !important;
+    color: #D4A017 !important;
+}
+
+/* Farmer name copy hover effect */
+.farmer-name-copy:hover {
+    color: #D4A017 !important;
+}
+
+/* Prevent text selection when clicking farmer name */
+.farmer-name-copy {
+    user-select: none;
 }
 
 /* Sticky table header using CSS */
@@ -333,6 +343,63 @@ document.addEventListener('DOMContentLoaded', function() {
     tableWrappers.forEach(function(tableWrapper) {
         observer.observe(tableWrapper, { childList: true, subtree: true });
     });
+
+    // Handle farmer name copy to clipboard
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('farmer-name-copy')) {
+            // Stop event propagation to prevent row highlighting from being affected
+            e.stopPropagation();
+            const farmerName = e.target.getAttribute('data-farmer-name');
+            if (farmerName) {
+                // Try modern Clipboard API first
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(farmerName).then(function() {
+                        if (typeof showModalMessage === 'function') {
+                            showModalMessage('Farmer name copied to clipboard!', 'success');
+                        }
+                    }).catch(function(err) {
+                        console.error('Clipboard API failed, trying fallback:', err);
+                        copyToClipboardFallback(farmerName);
+                    });
+                } else {
+                    // Fallback for non-secure contexts (HTTP)
+                    copyToClipboardFallback(farmerName);
+                }
+            }
+        }
+    });
+
+    // Fallback method for copying text (works in HTTP contexts)
+    function copyToClipboardFallback(text) {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-999999px';
+        textarea.style.top = '-999999px';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+
+        try {
+            const successful = document.execCommand('copy');
+            document.body.removeChild(textarea);
+            if (successful) {
+                if (typeof showModalMessage === 'function') {
+                    showModalMessage('Farmer name copied to clipboard!', 'success');
+                }
+            } else {
+                if (typeof showModalMessage === 'function') {
+                    showModalMessage('Failed to copy farmer name', 'error');
+                }
+            }
+        } catch (err) {
+            console.error('Fallback copy failed:', err);
+            document.body.removeChild(textarea);
+            if (typeof showModalMessage === 'function') {
+                showModalMessage('Failed to copy farmer name', 'error');
+            }
+        }
+    }
 });
 </script>
 
@@ -734,7 +801,9 @@ function getSortIndicator($column, $currentSort, $currentOrder) {
                 data-fb-page-url="{{ e($record->facebook_page_url ?? '') }}"
                 data-date-occurrence="{{ e($record->date_occurrence ?? '') }}"
                 data-date-received="{{ e($record->date_received ? $record->date_received->format('Y-m-d') : '') }}"
+                data-created-at="{{ e($record->created_at ? $record->created_at->format('M d, Y') : '') }}"
                 data-remarks="{{ e($record->remarks) }}"
+                data-control-number="{{ e($record->control_number ?? '') }}"
                 data-source="{{ e($record->source) }}"
                 data-transmittal-number="{{ e($record->transmittal_number) }}"
                 data-admin-transmittal-number="{{ e($record->admin_transmittal_number) }}"
@@ -774,7 +843,9 @@ function getSortIndicator($column, $currentSort, $currentOrder) {
             @endif
             
             <!-- 3. Farmer Name -->
-            <td class="col-farmer-name">{{ $record->farmerName }}</td>
+            <td class="col-farmer-name">
+                <span class="farmer-name-copy cursor-pointer transition-colors" style="color: inherit;" data-farmer-name="{{ e($record->farmerName) }}" title="Click to copy farmer name">{{ $record->farmerName }}</span>
+            </td>
             
             <!-- 4. Municipality -->
             @if(!$hideProvinceColumn)
@@ -808,7 +879,7 @@ function getSortIndicator($column, $currentSort, $currentOrder) {
             <td class="col-causeOfDamage">{{ $record->causeOfDamage }}</td>
             
             <!-- 11. Control Number -->
-            <td class="col-control-number">{{ $record->transmittal_number ?? '—' }}</td>
+            <td class="col-control-number">{{ $record->control_number ?? '—' }}</td>
             
             <!-- 12. Account -->
             @if(!$hideAccountsColumn)
@@ -989,13 +1060,13 @@ document.addEventListener('DOMContentLoaded', function() {
     
     recordRows.forEach(row => {
         row.addEventListener('click', function(e) {
-            // Don't highlight if clicking on buttons, inputs, or links
-            if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.tagName === 'A' || e.target.closest('button, input, a')) {
+            // Don't highlight if clicking on buttons, inputs, links, or farmer name copy
+            if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.tagName === 'A' || e.target.closest('button, input, a, .farmer-name-copy')) {
                 return;
             }
 
             const isAlreadyHighlighted = this.classList.contains('highlighted');
-            
+
             // Remove highlight from all rows
             recordRows.forEach(r => r.classList.remove('highlighted'));
 
@@ -1236,7 +1307,24 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Modal elements not found');
             return false;
         }
+
+        // Attach close button event listeners (remove old listeners first to prevent duplicates)
+        closeBtn.removeEventListener('click', closeModal);
+        closeFooterBtn.removeEventListener('click', closeModal);
+        modal.removeEventListener('click', handleBackdropClick);
+        
+        closeBtn.addEventListener('click', closeModal);
+        closeFooterBtn.addEventListener('click', closeModal);
+        modal.addEventListener('click', handleBackdropClick);
+        
         return true;
+    }
+
+    // Handle backdrop click separately to avoid event listener issues
+    function handleBackdropClick(e) {
+        if (e.target === modal) {
+            closeModal(e);
+        }
     }
 
     // Close modal functions
@@ -1309,6 +1397,7 @@ document.addEventListener('DOMContentLoaded', function() {
             accounts: editBtn.getAttribute('data-accounts') || 'N/A',
             dateOccurrence: editBtn.getAttribute('data-date-occurrence') || 'N/A',
             dateReceived: editBtn.getAttribute('data-date-received') || 'N/A',
+            dateEncoded: editBtn.getAttribute('data-created-at') || 'N/A',
             remarks: editBtn.getAttribute('data-remarks') || '',
             source: editBtn.getAttribute('data-source') || 'N/A',
             adminTransmittalNumber: editBtn.getAttribute('data-admin-transmittal-number') || 'N/A',
@@ -1402,7 +1491,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                         <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #fbbf24;">
                             <span style="font-size: 12px; font-weight: 600; color: #92400e; text-transform: uppercase;">DATE ENCODED</span>
-                            <span style="font-size: 14px; color: #1e293b; font-weight: 500;">${data.dateReceived}</span>
+                            <span style="font-size: 14px; color: #1e293b; font-weight: 500;">${data.dateEncoded}</span>
                         </div>
                         <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #fbbf24;">
                             <span style="font-size: 12px; font-weight: 600; color: #92400e; text-transform: uppercase;">DATE OF OCCURRENCE</span>
@@ -1448,28 +1537,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize when DOM is ready
     document.addEventListener('DOMContentLoaded', function() {
-        if (!initModal()) return;
-
-        // Close button event listeners with stopPropagation
-        closeBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            closeModal(e);
-        });
-
-        closeFooterBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            closeModal(e);
-        });
-
-        // Close on backdrop click (but not on modal content)
-        modal.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                closeModal(e);
-            }
-        });
-
         // Close on ESC key
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape' && isModalOpen) {

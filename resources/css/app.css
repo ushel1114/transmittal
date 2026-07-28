@@ -1437,8 +1437,8 @@ details.admin-card > summary::-webkit-details-marker {
     grid-template-columns: 420px 1fr;
     gap: 14px;
     align-items: start;
-    overflow-x: auto;
-    padding-bottom: 4px;
+    overflow-x: visible;
+    padding-bottom: 0;
 }
 @media (max-width: 1100px) {
     .dash3-layout { grid-template-columns: 1fr; }
@@ -1486,9 +1486,11 @@ details.admin-card > summary::-webkit-details-marker {
 
 .dash3-grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(420px, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 14px;
     align-items: start;
+    grid-column: 1 / -1;
+    width: 100%;
 }
 
 .dash3-grid {
@@ -1497,7 +1499,7 @@ details.admin-card > summary::-webkit-details-marker {
 }
 
 .dash3-table-wrap {
-    overflow-x: auto;
+    overflow-x: visible;
 }
 
 .dash3-table {
