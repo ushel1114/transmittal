@@ -2592,6 +2592,25 @@ Villa Rosario,Victoria,Tarlac`;
                     if (addRecordForm.querySelector('#date_occurrence')) addRecordForm.querySelector('#date_occurrence').value = '';
                     if (addRecordForm.querySelector('#remarks')) addRecordForm.querySelector('#remarks').value = '';
                     if (addRecordForm.querySelector('#controlNumber')) addRecordForm.querySelector('#controlNumber').value = '';
+                    
+                    // Refresh table data without closing dialog
+                    setTimeout(function() {
+                        fetch(window.location.href, {
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        })
+                        .then(response => response.text())
+                        .then(html => {
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(html, 'text/html');
+                            const newTable = doc.querySelector('.overflow-x-auto');
+                            const currentTable = document.querySelector('.overflow-x-auto');
+                            if (newTable && currentTable) {
+                                currentTable.innerHTML = newTable.innerHTML;
+                            }
+                        });
+                    }, 1500);
                 } else {
                     showModalMessage(data.message || 'Error adding record', 'error');
                 }
