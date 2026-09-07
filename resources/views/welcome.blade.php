@@ -5,36 +5,26 @@
 @section('page-styles')
 <style>
     body {
-        position: relative;
-    }
-    body::before {
-        content: '';
-        position: fixed;
-        top: -10px;
-        left: -10px;
-        width: calc(100% + 20px);
-        height: calc(100% + 20px);
-        background: url('{{ asset('images/background.png') }}') center/cover no-repeat;
-        filter: blur(3px) brightness(0.55);
-        z-index: -2;
-    }
-    body::after {
-        content: '';
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.25);
-        z-index: -1;
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+        background-color: #0f172a;
+        background-image: linear-gradient(rgba(0, 0, 0, 0.28), rgba(0, 0, 0, 0.28)), url('{{ asset('images/background.png') }}');
+        background-position: center center;
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        filter: blur(0);
     }
 </style>
 @endsection
 
 @section('content')
 
-    <div class="min-h-screen flex items-center justify-center p-4 sm:p-6 relative overflow-hidden">
-        <div class="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-5 gap-5">
+    <div class="min-h-screen relative overflow-hidden">
+        <div class="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat" style="background-image: linear-gradient(rgba(0, 0, 0, 0.28), rgba(0, 0, 0, 0.28)), url('{{ asset('images/background.png') }}');"></div>
+        <div class="relative z-10 min-h-screen flex items-center justify-center p-4 sm:p-6">
+            <div class="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-5 gap-5">
 
             {{-- Brand Panel --}}
             <div class="lg:col-span-2 bg-pcic-950 text-white rounded-2xl p-7 flex flex-col gap-5 shadow-2xl relative overflow-hidden">

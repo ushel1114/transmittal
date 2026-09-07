@@ -2618,7 +2618,7 @@ Santa Lucia,Victoria,Tarlac`;
         });
     }
 
-    if (confirmBulkDelete && bulkForm) {
+    if (bulkDeleteBtn && confirmBulkDelete && bulkForm) {
         confirmBulkDelete.addEventListener('click', function () {
             bulkDeleteDialog.close();
             bulkForm.submit();

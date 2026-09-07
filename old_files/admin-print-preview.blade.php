@@ -526,7 +526,6 @@
         @endif
     </div>
 
-    @if(!$isReprint)
     <form class="assign-form no-print" method="POST" action="{{ route('admin.assign-transmittals') }}" onsubmit="handleAssignTransmittal(event)">
         @csrf
         @foreach($query as $key => $value)
@@ -535,7 +534,6 @@
         <button type="submit" class="btn btn-success">Assign Transmittal Number</button>
         <a href="{{ route('admin.export-preview-csv') }}?{{ http_build_query($query) }}" class="btn btn-primary" target="_blank">Export to CSV</a>
     </form>
-    @endif
     
     <script>
         function handleAssignTransmittal(event) {
@@ -587,17 +585,13 @@
                 } else {
                     // Show error message in modal
                     if (assignModal && messageElement) {
-                        const alreadyAssigned = data.message === 'Transmittal number already assigned!';
-                        messageElement.textContent = data.message || 'Failed to assign transmittal numbers';
+                        messageElement.textContent = 'Error: ' + (data.message || 'Failed to assign transmittal numbers');
                         messageElement.className = 'text-sm text-red-600 mb-4';
                         assignModal.showModal();
                         
                         // Handle modal buttons
                         const continueBtn = document.getElementById('assignTransmittalContinue');
                         const cancelBtn = document.getElementById('assignTransmittalCancel');
-
-                        cancelBtn.style.display = alreadyAssigned ? 'none' : '';
-                        continueBtn.textContent = alreadyAssigned ? 'OK' : 'Assign';
                         
                         // Remove existing event listeners
                         const newContinueBtn = continueBtn.cloneNode(true);

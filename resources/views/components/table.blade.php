@@ -223,6 +223,64 @@ tr.bg-green-700 .account-field {
 .table-wrapper th {
     visibility: visible;
 }
+
+/* Dark mode support for table components */
+body.dark-mode .records-table thead th,
+body.dark-mode .fixed-table-header th {
+    background-color: #111827 !important;
+    color: #e2e8f0 !important;
+    border-color: rgba(148, 163, 184, 0.22) !important;
+}
+
+body.dark-mode .table-scroll-sync-top,
+body.dark-mode .table-scroll-sync-bottom {
+    background: #0f172a !important;
+    border-color: rgba(148, 163, 184, 0.28) !important;
+}
+
+body.dark-mode .table-scroll-sync-top::-webkit-scrollbar-track,
+body.dark-mode .table-scroll-sync-bottom::-webkit-scrollbar-track {
+    background: #111827 !important;
+}
+
+body.dark-mode .table-scroll-sync-top::-webkit-scrollbar-thumb,
+body.dark-mode .table-scroll-sync-bottom::-webkit-scrollbar-thumb {
+    background: #4b5563 !important;
+}
+
+body.dark-mode .table-wrapper table {
+    background: #111827 !important;
+    border-color: rgba(148, 163, 184, 0.24) !important;
+}
+
+body.dark-mode .table-wrapper th,
+body.dark-mode .table-wrapper td {
+    color: #e2e8f0 !important;
+    border-color: rgba(148, 163, 184, 0.22) !important;
+}
+
+body.dark-mode .table-wrapper thead tr.filter-row {
+    background: #111827 !important;
+}
+
+body.dark-mode .table-wrapper tbody tr:nth-child(odd) {
+    background: #0f172a !important;
+}
+
+body.dark-mode .table-wrapper tbody tr:nth-child(even) {
+    background: #111827 !important;
+}
+
+body.dark-mode .table-wrapper tbody tr:hover {
+    background: rgba(59, 130, 246, 0.16) !important;
+}
+
+body.dark-mode .table-wrapper input,
+body.dark-mode .table-wrapper select {
+    background: #0f172a !important;
+    color: #e2e8f0 !important;
+    border-color: rgba(148, 163, 184, 0.28) !important;
+}
 </style>
 
 <script>
@@ -409,17 +467,21 @@ $currentOrder = request('sort_order', 'desc');
 $oppositeOrder = $currentOrder === 'asc' ? 'desc' : 'asc';
 
 // Helper to generate sort URL
-function getSortUrl($column, $currentSort, $currentOrder, $oppositeOrder) {
-    $newOrder = $currentSort === $column ? $oppositeOrder : 'asc';
-    return url()->current() . '?' . http_build_query(array_merge(request()->query(), ['sort_by' => $column, 'sort_order' => $newOrder]));
+if (! function_exists('getSortUrl')) {
+    function getSortUrl($column, $currentSort, $currentOrder, $oppositeOrder) {
+        $newOrder = $currentSort === $column ? $oppositeOrder : 'asc';
+        return url()->current() . '?' . http_build_query(array_merge(request()->query(), ['sort_by' => $column, 'sort_order' => $newOrder]));
+    }
 }
 
 // Helper to get sort indicator
-function getSortIndicator($column, $currentSort, $currentOrder) {
-    if ($currentSort === $column) {
-        return $currentOrder === 'asc' ? ' ▲' : ' ▼';
+if (! function_exists('getSortIndicator')) {
+    function getSortIndicator($column, $currentSort, $currentOrder) {
+        if ($currentSort === $column) {
+            return $currentOrder === 'asc' ? ' ▲' : ' ▼';
+        }
+        return '';
     }
-    return '';
 }
 @endphp
 

@@ -8,7 +8,28 @@
     <title>@yield('title','transmittal')</title>
     <link rel="icon" type="image/svg+xml" href="/images/icon.svg">
     @yield('page-styles')
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @php
+        $manifestPath = public_path('build/manifest.json');
+        $useBuiltAssets = file_exists($manifestPath);
+        $builtAssets = [];
+
+        if ($useBuiltAssets) {
+            $manifest = json_decode(file_get_contents($manifestPath), true);
+            $builtAssets['css'] = $manifest['resources/css/app.css']['file'] ?? null;
+            $builtAssets['js'] = $manifest['resources/js/app.js']['file'] ?? null;
+        }
+    @endphp
+
+    @if($useBuiltAssets)
+        @if(!empty($builtAssets['css']))
+            <link rel="stylesheet" href="{{ asset('build/' . $builtAssets['css']) }}">
+        @endif
+        @if(!empty($builtAssets['js']))
+            <script type="module" src="{{ asset('build/' . $builtAssets['js']) }}"></script>
+        @endif
+    @else
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @endif
     <style>
         /* Fix pagination SVG icon sizing */
         .pagination svg {
@@ -36,6 +57,8 @@
     </style>
 </head>
 <body>
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode" aria-pressed="false">☾</button>
+
     @yield('content')
 
     {{-- Modal notification container --}}
@@ -64,6 +87,30 @@
     @endif
 
     <script>
+        (function () {
+            const toggle = document.getElementById('themeToggle');
+            const applyTheme = function (isDark) {
+                document.body.classList.toggle('dark-mode', isDark);
+                document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+                if (toggle) {
+                    toggle.innerHTML = isDark ? '☀' : '☾';
+                    toggle.setAttribute('aria-pressed', String(isDark));
+                }
+            };
+
+            const storedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const initialTheme = storedTheme ? storedTheme === 'dark' : prefersDark;
+            applyTheme(initialTheme);
+
+            if (toggle) {
+                toggle.addEventListener('click', function () {
+                    const isDark = !document.body.classList.contains('dark-mode');
+                    applyTheme(isDark);
+                    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                });
+            }
+        })();
 
         // Modal message system for all notifications
         function showModalMessage(message, type) {

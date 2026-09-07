@@ -263,7 +263,7 @@
                             if (form.querySelector('#remarks')) form.querySelector('#remarks').value = '';
                             if (form.querySelector('#controlNumber')) form.querySelector('#controlNumber').value = '';
                             
-                            // Only populate location, mode of payment, and date received
+                            // Populate retained values from the latest record
                             if (form.querySelector('#province')) {
                                 form.querySelector('#province').value = data.record.province || '';
                                 // Trigger change to enable municipality
@@ -271,6 +271,7 @@
                             }
                             if (form.querySelector('#modeOfPayment')) form.querySelector('#modeOfPayment').value = data.record.modeOfPayment || '';
                             if (form.querySelector('#date_received')) form.querySelector('#date_received').value = data.record.date_received || '';
+                            if (form.querySelector('#controlNumber')) form.querySelector('#controlNumber').value = data.record.control_number || '';
                             
                             // Handle municipality and barangay after province change
                             setTimeout(() => {
@@ -320,6 +321,7 @@
                     const barangayValue = addRecordForm.querySelector('#barangay') ? addRecordForm.querySelector('#barangay').value : '';
                     const accountsValue = addRecordForm.querySelector('#accounts') ? addRecordForm.querySelector('#accounts').value : '';
                     const facebookPageUrlValue = addRecordForm.querySelector('#facebook_page_url') ? addRecordForm.querySelector('#facebook_page_url').value : '';
+                    const controlNumberValue = addRecordForm.querySelector('#controlNumber') ? addRecordForm.querySelector('#controlNumber').value : '';
                     
                     const formData = new FormData(addRecordForm);
                     const submitBtn = addRecordForm.querySelector('button[type="submit"]');
@@ -348,6 +350,7 @@
                             if (addRecordForm.querySelector('#barangay')) addRecordForm.querySelector('#barangay').value = barangayValue;
                             if (addRecordForm.querySelector('#accounts')) addRecordForm.querySelector('#accounts').value = accountsValue;
                             if (addRecordForm.querySelector('#facebook_page_url')) addRecordForm.querySelector('#facebook_page_url').value = facebookPageUrlValue;
+                            if (addRecordForm.querySelector('#controlNumber')) addRecordForm.querySelector('#controlNumber').value = controlNumberValue;
                             
                             // Clear other fields
                             if (addRecordForm.querySelector('#farmerName')) addRecordForm.querySelector('#farmerName').value = '';
@@ -356,7 +359,6 @@
                             if (addRecordForm.querySelector('#causeOfDamage')) addRecordForm.querySelector('#causeOfDamage').value = '';
                             if (addRecordForm.querySelector('#date_occurrence')) addRecordForm.querySelector('#date_occurrence').value = '';
                             if (addRecordForm.querySelector('#remarks')) addRecordForm.querySelector('#remarks').value = '';
-                            if (addRecordForm.querySelector('#controlNumber')) addRecordForm.querySelector('#controlNumber').value = '';
                             
                             // Refresh table data without closing dialog
                             setTimeout(function() {

@@ -5,28 +5,15 @@
 @section('page-styles')
 <style>
     body {
-        position: relative;
-    }
-    body::before {
-        content: '';
-        position: fixed;
-        top: -10px;
-        left: -10px;
-        width: calc(100% + 20px);
-        height: calc(100% + 20px);
-        background: url('{{ asset('images/background.png') }}') center/cover no-repeat;
-        filter: blur(3px) brightness(0.55);
-        z-index: -2;
-    }
-    body::after {
-        content: '';
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.25);
-        z-index: -1;
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+        background-color: #0f172a;
+        background-image: url('{{ asset('images/background.png') }}');
+        background-position: center center;
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
     }
 </style>
 @endsection

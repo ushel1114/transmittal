@@ -209,7 +209,7 @@ class LocationData
                 'Capas' => [
                     'Buenavista', 'Burgos', 'Calibung', 'Cubcub', 'Cutcut 1st', 'Cutcut 2nd',
                     'Dadalay', 'Desierto', 'Dolores', 'Estrada', 'Fenas', 'Iba', 'Kinasang',
-                    'Lawy', 'Mababanaba', 'Maruglo', 'O'Donnell', 'Patling', 'Poblacion Center',
+                    'Lawy', 'Mababanaba', 'Maruglo', 'O\'Donnell', 'Patling', 'Poblacion Center',
                     'Poblacion East', 'Poblacion North', 'Poblacion South', 'Poblacion West',
                     'San Antonio', 'San Joaquin', 'Santa Juliana', 'Santa Lucia', 'Santo Cristo',
                     'Santo Domingo', 'Santo Niño', 'Talaga', 'Trapiche'

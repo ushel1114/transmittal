@@ -533,7 +533,7 @@
                 </div>
             </div>
 
-            <div class="dash3-grid">
+            <div id="dash3-grid" class="dash3-grid">
                 @foreach($provinceTables as $province => $rows)
                     @php
                         $provinceTotal = array_sum(array_map(function ($r) { return (int) ($r['count'] ?? 0); }, $rows));
@@ -3150,6 +3150,7 @@ Villa Rosario,Victoria,Tarlac`;
                 <button id="delete-selected" class="btn" disabled style="padding: 10px 16px; background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); color: white; border: none; border-radius: 8px; cursor: not-allowed; font-weight: 600; font-size: 13px; box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2); transition: all 0.2s; opacity: 0.6;">Delete Selected</button>
                 <button type="button" id="select-records-transmit" class="btn" style="padding: 10px 16px; background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; box-shadow: 0 2px 4px rgba(14, 165, 233, 0.2); transition: all 0.2s;">Select for Transmit</button>
                 <button type="button" id="transmit-selected-records" class="btn" disabled style="padding: 10px 16px; background: linear-gradient(135deg, #006c35 0%, #008a43 100%); color: white; border: none; border-radius: 8px; cursor: not-allowed; font-weight: 600; font-size: 13px; box-shadow: 0 2px 4px rgba(0, 108, 53, 0.2); transition: all 0.2s; opacity: 0.6;">Transmit Selected</button>
+                <button type="button" id="reprint-transmittal" class="btn" style="padding: 10px 16px; background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; box-shadow: 0 2px 4px rgba(124, 58, 237, 0.2); transition: all 0.2s;">Re-print Transmittal</button>
                 <button type="button" id="clear-selections" class="btn" style="padding: 10px 16px; background: linear-gradient(135deg, #64748b 0%, #94a3b8 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; box-shadow: 0 2px 4px rgba(100, 116, 139, 0.2); transition: all 0.2s;">Clear Selections</button>
                 <span id="bulk-selected-count" style="padding: 8px 12px; background: #f1f5f9; color: #64748b; border-radius: 8px; font-size: 12px; font-weight: 600; border: 1px solid #e2e8f0; min-width: 80px; text-align: center;">0 selected</span>
             </div>
@@ -3323,10 +3324,25 @@ Villa Rosario,Victoria,Tarlac`;
             <ul class="bulk-delete-list max-h-40 overflow-y-auto mb-3"></ul>
             <p class="text-sm font-semibold text-red-700 mb-3">Are you sure you want to proceed?</p>
             <div class="flex gap-2 justify-end">
-                <button type="button" id="confirm-bulk-delete" class="h-9 px-4 rounded-lg bg-red-600 text-white text-xs font-bold hover:bg-red-700 transition-colors cursor-pointer">Confirm Delete</button>
+                <button type="button" id="confirm-admin-bulk-delete" class="h-9 px-4 rounded-lg bg-red-600 text-white text-xs font-bold hover:bg-red-700 transition-colors cursor-pointer">Confirm Delete</button>
                 <button type="button" class="cancelBulkDelete h-9 px-4 rounded-lg border border-gray-200 text-xs font-bold text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer">Cancel</button>
             </div>
         </div>
+    </dialog>
+
+    <dialog id="reprintTransmittalDialog" class="rounded-2xl shadow-2xl bg-white backdrop:bg-black/40 p-0 w-[min(400px,calc(100vw-2rem))]">
+        <div class="px-5 pt-5 pb-3 border-b border-gray-100">
+            <h3 class="text-base font-black text-gray-900">Re-print Transmittal</h3>
+        </div>
+        <form id="reprintTransmittalForm" class="px-5 py-4">
+            <label for="reprintTransmittalNumber" class="block text-xs font-bold text-gray-600 mb-2">Transmittal Number</label>
+            <input type="text" id="reprintTransmittalNumber" required class="h-10 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
+            <p id="reprintTransmittalMessage" class="text-sm text-red-600 mt-2"></p>
+            <div class="flex gap-2 justify-end mt-4">
+                <button type="button" id="cancelReprintTransmittal" class="h-9 px-4 rounded-lg border border-gray-200 text-xs font-bold text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer">Cancel</button>
+                <button type="submit" class="h-9 px-4 rounded-lg bg-pcic-700 text-white text-xs font-bold hover:bg-pcic-800 transition-colors cursor-pointer">Print</button>
+            </div>
+        </form>
     </dialog>
 
     <!-- Edit Admin Dialog -->
@@ -4200,6 +4216,12 @@ Villa Rosario,Victoria,Tarlac`;
         const deleteSelectedBtn = document.getElementById('delete-selected');
         const transmitToggleBtn = document.getElementById('select-records-transmit');
         const bulkDeleteDialog = document.querySelector('.bulkDeleteDialog');
+        const reprintTransmittalBtn = document.getElementById('reprint-transmittal');
+        const reprintTransmittalDialog = document.getElementById('reprintTransmittalDialog');
+        const reprintTransmittalForm = document.getElementById('reprintTransmittalForm');
+        const reprintTransmittalNumber = document.getElementById('reprintTransmittalNumber');
+        const cancelReprintTransmittal = document.getElementById('cancelReprintTransmittal');
+        const reprintTransmittalMessage = document.getElementById('reprintTransmittalMessage');
         const checkboxElements = document.querySelectorAll('.col-checkbox');
         const unassignedToggle = document.getElementById('unassigned-toggle');
         const transmitCheckboxElements = document.querySelectorAll('.col-checkbox-transmit');
@@ -4208,6 +4230,28 @@ Villa Rosario,Victoria,Tarlac`;
         function showLoadingIndicator() {
             // Loading indicator removed - function kept for compatibility
         }
+
+        reprintTransmittalBtn?.addEventListener('click', function() {
+            reprintTransmittalMessage.textContent = '';
+            reprintTransmittalNumber.value = '';
+            reprintTransmittalDialog?.showModal();
+            reprintTransmittalNumber.focus();
+        });
+
+        cancelReprintTransmittal?.addEventListener('click', function() {
+            reprintTransmittalDialog?.close();
+        });
+
+        reprintTransmittalForm?.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const transmittalNumber = reprintTransmittalNumber.value.trim();
+            if (!transmittalNumber) return;
+
+            const url = new URL('{{ route('admin.print-preview') }}', window.location.origin);
+            url.searchParams.set('reprint_transmittal', transmittalNumber);
+            window.open(url.toString(), '_blank');
+            reprintTransmittalDialog?.close();
+        });
 
         // Auto-apply unassigned filter toggle and preserve current query filters
         unassignedToggle?.addEventListener('change', function () {
@@ -4333,22 +4377,25 @@ Villa Rosario,Victoria,Tarlac`;
 
         // Toggle checkbox visibility for bulk delete
         deleteMultipleBtn?.addEventListener('click', function() {
-            let firstElement = checkboxElements[0];
-            let firstCheckbox = recordCheckboxes[0];
+            // Query the current table because filtering replaces its contents.
+            const currentCheckboxElements = document.querySelectorAll('.col-checkbox');
+            const currentCheckboxes = document.querySelectorAll('.record-checkbox');
+            let firstElement = currentCheckboxElements[0];
+            let firstCheckbox = currentCheckboxes[0];
             let isHidden = (firstElement && firstElement.style.display === 'none') || 
                            (firstCheckbox && firstCheckbox.style.display === 'none');
             
             // Show/hide the table cells
-            checkboxElements.forEach(cl => {
+            currentCheckboxElements.forEach(cl => {
                 cl.style.display = isHidden ? 'table-cell' : 'none';
             });
             // Also show/hide the checkbox inputs
-            recordCheckboxes.forEach(cb => {
+            currentCheckboxes.forEach(cb => {
                 cb.style.display = isHidden ? 'block' : 'none';
             });
             
             // Also show/hide the select all checkboxes in headers
-            const selectAllBoxes = document.querySelectorAll('#select-all-transmit');
+            const selectAllBoxes = document.querySelectorAll('#select-all');
             selectAllBoxes.forEach(box => {
                 box.style.display = isHidden ? 'block' : 'none';
             });
@@ -4391,6 +4438,18 @@ Villa Rosario,Victoria,Tarlac`;
             if (isHidden) {
                 this.textContent = 'Cancel Selection';
                 this.style.backgroundColor = '#6c757d'; // Gray out
+
+                // Selecting records for transmit always limits the table to eligible records.
+                if (unassignedToggle && !unassignedToggle.checked) {
+                    unassignedToggle.checked = true;
+                    const toggleBackground = document.getElementById('unassigned-toggle-bg');
+                    const toggleDot = document.getElementById('unassigned-toggle-dot');
+                    if (toggleBackground && toggleDot) {
+                        toggleBackground.style.backgroundColor = '#006c35';
+                        toggleDot.style.transform = 'translateX(24px)';
+                    }
+                    submitFilterForm();
+                }
             } else {
                 this.textContent = 'Select Records for Transmit';
                 this.style.backgroundColor = ''; // Reset color
@@ -4844,6 +4903,27 @@ Villa Rosario,Victoria,Tarlac`;
                     setTimeout(function() {
                         initializeRowClickHighlighting();
                     }, 100);
+                }
+
+                // Replace dashboard summary
+                const newDash3Summary = doc.querySelector('.dash3-summary');
+                const currentDash3Summary = document.querySelector('.dash3-summary');
+                if (newDash3Summary && currentDash3Summary) {
+                    currentDash3Summary.innerHTML = newDash3Summary.innerHTML;
+                }
+
+                // Replace dashboard charts row
+                const newDash3ChartsRow = doc.querySelector('.dash3-charts-row');
+                const currentDash3ChartsRow = document.querySelector('.dash3-charts-row');
+                if (newDash3ChartsRow && currentDash3ChartsRow) {
+                    currentDash3ChartsRow.innerHTML = newDash3ChartsRow.innerHTML;
+                }
+
+                // Replace dashboard grid cards
+                const newDash3Grid = doc.querySelector('#dash3-grid');
+                const currentDash3Grid = document.getElementById('dash3-grid');
+                if (newDash3Grid && currentDash3Grid) {
+                    currentDash3Grid.innerHTML = newDash3Grid.innerHTML;
                 }
                 
                 // Replace pagination
@@ -5613,7 +5693,7 @@ Villa Rosario,Victoria,Tarlac`;
             }
         });
 
-        document.getElementById('confirm-bulk-delete')?.addEventListener('click', () => {
+        document.getElementById('confirm-admin-bulk-delete')?.addEventListener('click', () => {
             const selectedIds = getSelectedDeleteIdsFromUrl();
             if (selectedRecordIdsInput) {
                 selectedRecordIdsInput.value = selectedIds.join(',');

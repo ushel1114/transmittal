@@ -10,15 +10,4 @@ export default defineConfig({
         }),
         tailwindcss(),
     ],
-    server: {
-        host: '0.0.0.0',
-        hmr: {
-            host: '192.168.30.92',
-            protocol: 'http',
-            port: 5173,
-        },
-        watch: {
-            ignored: ['**/storage/framework/views/**'],
-        },
-    },
 });

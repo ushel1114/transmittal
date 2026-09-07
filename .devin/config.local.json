@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Exec(Get-ChildItem)",
+      "Exec(npm run)",
+      "Exec(ls)",
+      "Exec(php artisan)",
+      "Exec(curl)",
+      "Exec(Select-Object)",
+      "Exec(Remove-Item)"
+    ]
+  }
+}

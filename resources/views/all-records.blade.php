@@ -12,10 +12,10 @@
     padding: 0;
     border: none;
     border-radius: 0;
-    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    background: linear-gradient(135deg, #020617 0%, #111827 100%);
     backdrop-filter: blur(20px);
-    box-shadow: 0 4px 20px rgba(0, 108, 53, 0.08), 0 1px 3px rgba(0, 0, 0, 0.1);
-    border-bottom: 1px solid rgba(0, 108, 53, 0.1);
+    box-shadow: 0 4px 20px rgba(2, 6, 23, 0.35), 0 1px 3px rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid rgba(148, 163, 184, 0.18);
 }
 
 .nav-content {
@@ -71,7 +71,7 @@
     font-size: 16px;
     margin: 0;
     font-weight: 900;
-    color: #0f172a;
+    color: #f8fafc;
     letter-spacing: -0.02em;
     line-height: 1.2;
 }
@@ -79,7 +79,7 @@
 .nav-text p {
     margin: 2px 0 0 0;
     font-size: 11px;
-    color: #64748b;
+    color: #cbd5e1;
     font-weight: 600;
     letter-spacing: 0.02em;
     opacity: 0.8;
@@ -96,22 +96,22 @@
     align-items: center;
     gap: 6px;
     padding: 6px 12px;
-    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-    border: 1px solid #e2e8f0;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(148, 163, 184, 0.24);
     border-radius: 6px;
-    color: #475569;
+    color: #f8fafc;
     font-weight: 600;
     font-size: 11px;
     text-decoration: none;
     transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 4px rgba(2, 6, 23, 0.2);
 }
 
 .back-btn:hover {
-    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-    border-color: #006c35;
-    color: #006c35;
-    box-shadow: 0 2px 8px rgba(0, 108, 53, 0.15);
+    background: rgba(30, 41, 59, 0.95);
+    border-color: rgba(96, 165, 250, 0.35);
+    color: #e2e8f0;
+    box-shadow: 0 2px 8px rgba(2, 6, 23, 0.25);
     transform: translateY(-1px);
 }
 
@@ -136,9 +136,9 @@
 /* System-matched filter section */
 .table-filters {
     border-radius: 16px !important;
-    border: 1px solid var(--border) !important;
-    background: rgba(255,255,255,0.92) !important;
-    box-shadow: 0 10px 24px rgba(0,0,0,0.06) !important;
+    border: 1px solid rgba(148, 163, 184, 0.24) !important;
+    background: rgba(15, 23, 42, 0.94) !important;
+    box-shadow: 0 10px 24px rgba(2,6,23,0.28) !important;
     margin-bottom: 8px !important;
     padding: 8px !important;
 }
@@ -159,7 +159,7 @@
 .form-field label {
     font-size: 12px;
     font-weight: 600;
-    color: #64748b;
+    color: #e2e8f0;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -167,12 +167,13 @@
 .form-field input,
 .form-field select {
     padding: 6px 8px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid rgba(148, 163, 184, 0.24);
     border-radius: 6px;
     font-size: 12px;
-    background: white;
+    background: #020617;
+    color: #f8fafc;
     transition: all 0.2s;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
 }
 
 .form-field input:focus,
@@ -187,7 +188,7 @@
     gap: 6px;
     margin-top: 8px;
     padding-top: 8px;
-    border-top: 1px solid #e2e8f0;
+    border-top: 1px solid rgba(148, 163, 184, 0.2);
     justify-content: flex-end;
 }
 
@@ -218,25 +219,26 @@
 }
 
 .btn-muted {
-    background: #f1f5f9;
-    color: #64748b;
-    border: 1px solid #e2e8f0;
+    background: rgba(30, 41, 59, 0.95);
+    color: #e2e8f0;
+    border: 1px solid rgba(148, 163, 184, 0.24);
 }
 
 .btn-muted:hover {
-    background: #e2e8f0;
-    color: #475569;
+    background: rgba(51, 65, 85, 0.95);
+    color: #f8fafc;
 }
 
 /* System-matched table container */
 .table-wrapper {
     width: 100%;
     border-radius: 16px;
-    border: 1px solid #e5e7eb;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(148, 163, 184, 0.24);
+    box-shadow: 0 1px 3px rgba(2, 6, 23, 0.2);
     max-height: calc(100vh - 380px);
     overflow-y: auto;
     overflow-x: auto;
+    background: rgba(15, 23, 42, 0.94);
 }
 
 /* System-matched table styling */
@@ -245,11 +247,12 @@ table {
     max-width: 1200px;
     border-collapse: separate;
     border-spacing: 0;
-    border: 1px solid rgba(15, 23, 42, 0.10);
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    box-shadow: 0 12px 28px rgba(2, 6, 23, 0.18);
     border-radius: 14px;
     overflow: hidden;
     margin: 0;
+    background: rgba(15, 23, 42, 0.94);
 }
 
 /* Farmer name copy hover effect */
@@ -277,21 +280,21 @@ table tbody tr {
 }
 
 table tbody tr:nth-child(odd) {
-    background-color: #ffffff;
+    background-color: rgba(15, 23, 42, 0.95);
 }
 
 table tbody tr:nth-child(even) {
-    background-color: rgba(248, 250, 252, 0.65);
+    background-color: rgba(17, 24, 39, 0.82);
 }
 
 table tbody tr:hover {
-    background-color: rgba(220, 252, 231, 0.55);
+    background-color: rgba(59, 130, 246, 0.16);
 }
 
 table td {
     padding: 8px 10px;
     font-size: 12px;
-    color: #334155;
+    color: #e2e8f0;
 }
 
 /* Prevent all columns from wrapping */
@@ -339,10 +342,10 @@ table input[type="checkbox"] {
     gap: 8px;
     margin-top: 12px;
     padding: 8px 12px;
-    background: rgba(255,255,255,0.92);
+    background: rgba(15, 23, 42, 0.94);
     border-radius: 12px;
-    border: 1px solid var(--border);
-    box-shadow: 0 10px 24px rgba(0,0,0,0.06);
+    border: 1px solid rgba(148, 163, 184, 0.24);
+    box-shadow: 0 10px 24px rgba(2,6,23,0.24);
 }
 
 .pagination-link {
@@ -366,18 +369,19 @@ table input[type="checkbox"] {
 .pagination-info {
     padding: 6px 12px;
     border-radius: 6px;
-    background: #f8fafc;
-    color: #475569;
+    background: rgba(17, 24, 39, 0.9);
+    color: #cbd5e1;
     font-weight: 600;
     font-size: 12px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid rgba(148, 163, 184, 0.2);
 }
 
 /* System-matched modal */
 .largeModal {
     border-radius: 16px !important;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
-    background: white !important;
+    box-shadow: 0 25px 50px -12px rgba(2, 6, 23, 0.45) !important;
+    background: #020617 !important;
+    color: #f8fafc !important;
     backdrop-filter: blur(8px) !important;
 }
 
@@ -400,15 +404,108 @@ table input[type="checkbox"] {
     padding: 20px 24px;
     max-height: 60vh;
     overflow-y: auto;
+    color: #e2e8f0;
 }
 
 .modal-footer {
     padding: 16px 24px;
-    border-top: 1px solid #e2e8f0;
-    background: #f8fafc;
+    border-top: 1px solid rgba(148, 163, 184, 0.2);
+    background: rgba(15, 23, 42, 0.95);
     border-radius: 0 0 16px 16px;
     text-align: right;
 }
+
+/* Light-mode overrides (when body does NOT have .dark-mode) */
+body:not(.dark-mode) .records-nav {
+    background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    box-shadow: 0 2px 8px rgba(2,6,23,0.04);
+    border-bottom: 1px solid rgba(2,6,23,0.06);
+}
+
+body:not(.dark-mode) .nav-text h1 { color: #0f172a; }
+body:not(.dark-mode) .nav-text p { color: #475569; }
+body:not(.dark-mode) .nav-icon { background: linear-gradient(135deg,#06a55f 0%,#0ea37a 100%); color: #fff; }
+body:not(.dark-mode) .back-btn {
+    background: #ffffff;
+    color: #0f172a;
+    border: 1px solid rgba(2,6,23,0.06);
+    box-shadow: 0 1px 2px rgba(2,6,23,0.04);
+}
+
+body:not(.dark-mode) .table-filters {
+    background: #ffffff !important;
+    border: 1px solid rgba(2,6,23,0.06) !important;
+    box-shadow: 0 2px 6px rgba(2,6,23,0.04) !important;
+}
+
+body:not(.dark-mode) .form-field input,
+body:not(.dark-mode) .form-field select {
+    background: #ffffff;
+    color: #0f172a;
+    border: 1px solid #cbd5e1;
+    box-shadow: none;
+}
+
+body:not(.dark-mode) .form-field input::placeholder { color: #94a3b8; }
+
+body:not(.dark-mode) .table-wrapper,
+body:not(.dark-mode) table {
+    background: #ffffff;
+    border: 1px solid #e6eef6;
+    box-shadow: 0 6px 16px rgba(2,6,23,0.04);
+}
+
+body:not(.dark-mode) table thead tr:first-child {
+    background: linear-gradient(135deg, #e6ffef 0%, #dff3ea 100%);
+}
+
+body:not(.dark-mode) table th { color: #0f172a; }
+body:not(.dark-mode) table td { color: #0f172a; }
+
+body:not(.dark-mode) .pagination-container {
+    background: #ffffff;
+    border: 1px solid #e6eef6;
+    box-shadow: 0 2px 6px rgba(2,6,23,0.04);
+}
+
+body:not(.dark-mode) .largeModal { background: #ffffff !important; color: #0f172a !important; }
+
+/* Light-mode modal accents and text */
+body:not(.dark-mode) .modal-header {
+    background: linear-gradient(135deg, #e6ffef 0%, #dff3ea 100%);
+    color: #0f172a;
+    border-bottom: 1px solid rgba(2,6,23,0.06);
+}
+
+body:not(.dark-mode) .modal-title { color: #0f172a; }
+
+body:not(.dark-mode) .modal-body {
+    background: #ffffff;
+    color: #0f172a;
+}
+
+body:not(.dark-mode) .modal-footer {
+    background: #ffffff;
+    border-top: 1px solid rgba(2,6,23,0.06);
+}
+
+body:not(.dark-mode) .close-btn {
+    background: #f1f5f9;
+    color: #0f172a;
+    box-shadow: none;
+    border: 1px solid #e6eef6;
+}
+
+/* Ensure record-detail text is dark in light mode */
+body:not(.dark-mode) .record-detail {
+    border-bottom: 1px solid #e6eef6;
+}
+
+body:not(.dark-mode) .record-detail .detail-label,
+body:not(.dark-mode) .record-detail .detail-value {
+    color: #0f172a;
+}
+
 
 .record-detail {
     display: grid;
@@ -425,22 +522,22 @@ table input[type="checkbox"] {
 
 .detail-label {
     font-weight: 700;
-    color: #374151;
+    color: #cbd5e1;
     font-size: 13px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
 .detail-value {
-    color: #64748b;
+    color: #e2e8f0;
     font-size: 14px;
     font-weight: 500;
     word-break: break-word;
 }
 
 .close-btn {
-    background: linear-gradient(135deg, #64748b 0%, #475569 100%);
-    color: white;
+    background: linear-gradient(135deg, #334155 0%, #475569 100%);
+    color: #f8fafc;
     padding: 10px 20px;
     border-radius: 8px;
     font-weight: 600;
@@ -448,13 +545,13 @@ table input[type="checkbox"] {
     border: none;
     cursor: pointer;
     transition: all 0.2s;
-    box-shadow: 0 2px 4px rgba(100, 116, 139, 0.2);
+    box-shadow: 0 2px 4px rgba(15, 23, 42, 0.25);
 }
 
 .close-btn:hover {
-    background: linear-gradient(135deg, #475569 0%, #334155 100%);
+    background: linear-gradient(135deg, #475569 0%, #64748b 100%);
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(100, 116, 139, 0.3);
+    box-shadow: 0 4px 8px rgba(15, 23, 42, 0.3);
 }
 
 /* Responsive design */
@@ -793,7 +890,11 @@ function viewRecord(recordId) {
                     <div class="detail-label">Payment Method:</div>
                     <div class="detail-value">${data.modeOfPayment || 'N/A'}</div>
                 </div>
-            `;
+                <div class="record-detail">
+                    <div class="detail-label">Account:</div>
+                    <div class="detail-value" style="font-weight: bold; color: blue; cursor: pointer;">${data.accounts ? (data.facebook_page_url ? `<a href="${data.facebook_page_url}" target="_blank" rel="noopener noreferrer">${data.accounts}</a>` : data.accounts) : 'N/A'}</div>
+                </div>
+             `;
             
             const modal = document.getElementById('viewModal');
             if (typeof modal.showModal === 'function') {

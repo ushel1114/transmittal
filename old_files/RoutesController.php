@@ -7,8 +7,8 @@ use App\Models\Record;
 use App\Models\Session as ActiveSession;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class RoutesController extends Controller
 {
@@ -608,10 +608,7 @@ class RoutesController extends Controller
             $query->where('admin_transmittal_number', 'like', '%' . $request->admin_transmittal_number . '%');
         }
         if ($request->filled('unassigned_only')) {
-            $query->where(function ($query) {
-                $query->whereNull('admin_transmittal_number')
-                    ->orWhere('admin_transmittal_number', '');
-            });
+            $query->whereNull('admin_transmittal_number');
         }
         if ($request->filled('date_encoded')) {
             $query->whereDate('created_at', $request->date_encoded);
@@ -721,55 +718,76 @@ class RoutesController extends Controller
         }
 
         $dashProvinces = ['NUEVA ECIJA', 'AURORA', 'TARLAC'];
+
+        $dashMunicipalitiesByProvince = (clone $dashQuery)
+            ->select('province', 'municipality')
+            ->whereRaw('UPPER(province) IN (?,?,?)', $dashProvinces)
+            ->whereNotNull('municipality')
+            ->where('municipality', '!=', '')
+            ->distinct()
+            ->orderBy('municipality', 'asc')
+            ->get()
+            ->groupBy('province')
+            ->mapWithKeys(function ($rows, $province) {
+                return [strtoupper($province) => $rows->pluck('municipality')->values()->all()];
+            })
+            ->all();
+
+        $dashMunicipalityRows = (clone $dashQuery)
+            ->selectRaw('province, municipality, count(*) as count')
+            ->whereRaw('UPPER(province) IN (?,?,?)', $dashProvinces)
+            ->whereNotNull('municipality')
+            ->where('municipality', '!=', '')
+            ->groupBy('province', 'municipality')
+            ->orderByRaw('count(*) desc')
+            ->get();
+
+        $dashCountMap = [];
+        foreach ($dashMunicipalityRows as $row) {
+            $provinceKey = strtoupper($row->province);
+            $dashCountMap[$provinceKey] ??= [];
+            $dashCountMap[$provinceKey][$row->municipality] = (int) $row->count;
+        }
+
         $dashCountsByProvince = [
             'NUEVA ECIJA' => [],
             'AURORA' => [],
             'TARLAC' => [],
         ];
-        $dashBarangayBreakdown = [];
-
-        // Build all location counts from the same filtered records as the dashboard charts.
-        $dashLocationCounts = [];
-        foreach ((clone $dashQuery)->get(['province', 'municipality', 'barangay']) as $record) {
-            $province = strtoupper(trim((string) $record->province));
-            $municipality = trim((string) $record->municipality);
-            $barangay = trim((string) $record->barangay);
-
-            if (!in_array($province, $dashProvinces, true) || $municipality === '') {
-                continue;
-            }
-
-            $dashLocationCounts[$province][$municipality] = ($dashLocationCounts[$province][$municipality] ?? 0) + 1;
-            if ($barangay !== '') {
-                $dashBarangayBreakdown[$province][$municipality][$barangay] = ($dashBarangayBreakdown[$province][$municipality][$barangay] ?? 0) + 1;
-            }
-        }
-
         foreach ($dashProvinces as $province) {
-            foreach ($dashLocationCounts[$province] ?? [] as $municipality => $count) {
+            $municipalities = $dashMunicipalitiesByProvince[$province] ?? [];
+            foreach ($municipalities as $municipality) {
                 $dashCountsByProvince[$province][] = [
                     'municipality' => $municipality,
-                    'count' => $count,
+                    'count' => $dashCountMap[$province][$municipality] ?? 0,
                 ];
             }
-            usort($dashCountsByProvince[$province], function ($a, $b) {
+            // Sort each province's municipalities by count in descending order
+            usort($dashCountsByProvince[$province], function($a, $b) {
                 return $b['count'] - $a['count'];
             });
         }
 
-        foreach ($dashBarangayBreakdown as $province => $municipalities) {
-            foreach ($municipalities as $municipality => $barangays) {
-                $dashBarangayBreakdown[$province][$municipality] = [];
-                foreach ($barangays as $barangay => $count) {
-                    $dashBarangayBreakdown[$province][$municipality][] = [
-                        'barangay' => $barangay,
-                        'count' => $count,
-                    ];
-                }
-                usort($dashBarangayBreakdown[$province][$municipality], function ($a, $b) {
-                    return $b['count'] - $a['count'];
-                });
-            }
+        $dashBarangayRows = (clone $dashQuery)
+            ->selectRaw('province, municipality, barangay, count(*) as count')
+            ->whereRaw('UPPER(province) IN (?,?,?)', $dashProvinces)
+            ->whereNotNull('municipality')
+            ->where('municipality', '!=', '')
+            ->whereNotNull('barangay')
+            ->where('barangay', '!=', '')
+            ->groupBy('province', 'municipality', 'barangay')
+            ->orderByRaw('count(*) desc')
+            ->get();
+
+        $dashBarangayBreakdown = [];
+        foreach ($dashBarangayRows as $row) {
+            $provinceKey = strtoupper($row->province);
+            $dashBarangayBreakdown[$provinceKey] ??= [];
+            $dashBarangayBreakdown[$provinceKey][$row->municipality] ??= [];
+            $dashBarangayBreakdown[$provinceKey][$row->municipality][] = [
+                'barangay' => $row->barangay,
+                'count' => (int) $row->count,
+            ];
         }
 
         // Total records should be unfiltered to show accurate count
@@ -943,11 +961,7 @@ class RoutesController extends Controller
             }
         }
 
-        if ($request->filled('reprint_transmittal')) {
-            $records = Record::where('admin_transmittal_number', $request->input('reprint_transmittal'))
-                ->orderBy('id', 'asc')
-                ->get();
-        } elseif (!empty($sessionRecordIds)) {
+        if (!empty($sessionRecordIds)) {
             $recordsQuery = Record::whereIn('id', $sessionRecordIds);
             
             // Check if selection order is provided
@@ -1040,9 +1054,8 @@ class RoutesController extends Controller
             }
         }
 
-        // If a block has no assigned number yet, show the next numbers that would be assigned.
-        // Each group of 40 records gets the next transmittal number.
-        // Example: if the current max is 30, then records 1-40 get 31 and records 41-80 get 32.
+        // If a page has no assigned number yet, show the next numbers that would be assigned.
+        // This keeps numbering consistent across pages (40 records per page).
         if ($totalPages > 0) {
             $maxExisting = Record::whereNotNull('admin_transmittal_number')
                 ->get()
@@ -1069,7 +1082,6 @@ class RoutesController extends Controller
             'perPage' => $perPage,
             'recordPageAssignments' => $recordPageAssignments,
             'pageTransmittalNumbers' => $pageTransmittalNumbers,
-            'isReprint' => $request->filled('reprint_transmittal'),
         ]);
     }
 
@@ -1210,7 +1222,11 @@ class RoutesController extends Controller
             $recordIds = array_filter(array_map('intval', $recordIds));
         }
 
-        if (empty($recordIds)) {
+        if (!empty($recordIds)) {
+            // Use records from URL parameter
+            $recordsQuery = Record::whereIn('id', $recordIds)
+                ->orderBy('id', 'desc');
+        } else {
             // If no URL IDs, return error
             return response()->json([
                 'success' => false,
@@ -1218,58 +1234,51 @@ class RoutesController extends Controller
             ]);
         }
 
-        $recordIds = array_values(array_unique($recordIds));
+        $totalRecords = $recordsQuery->count();
 
-        return DB::transaction(function () use ($request, $recordIds, $perPage) {
-            $allRecords = Record::whereIn('id', $recordIds)
-                ->orderBy('id', 'desc')
-                ->lockForUpdate()
-                ->get();
-
-            if ($allRecords->isEmpty()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No records found for assigning admin transmittal number.'
-                ]);
-            }
-
-            if ($allRecords->contains(function ($record) {
-                return filled($record->admin_transmittal_number);
-            })) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Transmittal number already assigned!'
-                ]);
-            }
-
-            $totalRecords = $allRecords->count();
-            $totalPages = ceil($totalRecords / $perPage);
-
-            // Get the next starting transmittal number
-            $maxExisting = Record::whereNotNull('admin_transmittal_number')
-                ->get()
-                ->map(function ($record) {
-                    $transmittal = $record->admin_transmittal_number;
-                    preg_match('/(\d+)$/', $transmittal, $matches);
-                    return isset($matches[1]) ? (int) $matches[1] : 0;
-                })
-                ->max() ?? 0;
-
-            foreach ($allRecords as $index => $record) {
-                $blockNumber = intdiv($index, $perPage) + 1;
-                $record->update([
-                    'admin_transmittal_number' => (string) ($maxExisting + $blockNumber),
-                    'admin_transmittal_assigned_at' => now(),
-                ]);
-            }
-
-            $request->session()->forget('admin_print_preview_record_ids');
-
+        if ($totalRecords === 0) {
             return response()->json([
-                'success' => true,
-                'message' => "Admin transmittal numbers assigned successfully to {$totalRecords} records across {$totalPages} pages."
+                'success' => false,
+                'message' => 'No records found for assigning admin transmittal number.'
             ]);
-        });
+        }
+
+        // Get all records to process
+        $allRecords = $recordsQuery->get();
+        $totalPages = ceil($totalRecords / $perPage);
+
+        // Get the next starting transmittal number
+        $maxExisting = Record::whereNotNull('admin_transmittal_number')
+            ->get()
+            ->map(function ($record) {
+                $transmittal = $record->admin_transmittal_number;
+                preg_match('/(\d+)$/', $transmittal, $matches);
+                return isset($matches[1]) ? (int) $matches[1] : 0;
+            })
+            ->max() ?? 0;
+
+        $currentTransmittalNumber = $maxExisting + 1;
+        $totalAssigned = 0;
+
+        // Process records in batches of 40 - each batch gets a unique transmittal number
+        foreach ($allRecords as $index => $record) {
+            $pageNumber = floor($index / $perPage) + 1;
+            $transmittalNumber = $maxExisting + $pageNumber;
+
+            $record->update([
+                'admin_transmittal_number' => (string) $transmittalNumber,
+                'admin_transmittal_assigned_at' => now(),
+            ]);
+            $totalAssigned++;
+        }
+
+        // Clear the print preview session after assigning
+        $request->session()->forget('admin_print_preview_record_ids');
+
+        return response()->json([
+            'success' => true,
+            'message' => "Admin transmittal numbers assigned successfully to {$totalAssigned} records across {$totalPages} pages."
+        ]);
     }
 
     public function clearPrintPreview(Request $request)
@@ -1355,10 +1364,7 @@ class RoutesController extends Controller
             $query->where('admin_transmittal_number', 'like', '%' . $request->admin_transmittal_number . '%');
         }
         if ($request->filled('unassigned_only')) {
-            $query->where(function ($query) {
-                $query->whereNull('admin_transmittal_number')
-                    ->orWhere('admin_transmittal_number', '');
-            });
+            $query->whereNull('admin_transmittal_number');
         }
         if ($request->filled('date_encoded')) {
             $query->whereDate('created_at', $request->date_encoded);
@@ -1905,7 +1911,6 @@ class RoutesController extends Controller
             'source' => $record->source,
             'modeOfPayment' => $record->modeOfPayment,
             'accounts' => $record->accounts,
-            'facebook_page_url' => $record->facebook_page_url,
             'remarks' => $record->remarks,
             'causeOfDamage' => $record->causeOfDamage,
             'date_received' => $record->date_received ? \Carbon\Carbon::parse($record->date_received)->format('M d, Y') : null,
