@@ -6,6 +6,10 @@ use App\Http\Controllers\RecordsController;
 use App\Http\Controllers\AuthController;
 
 Route::get('/', [RoutesController::class, 'showWelcome'])->name('welcome');
+Route::get('/public-dashboard', [RoutesController::class, 'showPublicDashboard'])->name('public-dashboard');
+Route::get('/public-dashboard/locations', [RoutesController::class, 'publicDashboardLocations'])->name('public-dashboard.locations');
+Route::get('/public-dashboard/explorer', [RoutesController::class, 'publicDashboardExplorer'])->name('public-dashboard.explorer');
+Route::get('/public-dashboard/export/csv', [RoutesController::class, 'exportPublicDashboardCsv'])->name('public-dashboard.export.csv');
 
 // Unified Authentication Routes
 Route::get('/auth/login', [AuthController::class, 'showLogin'])->name('auth.login');

@@ -16,6 +16,209 @@ class RoutesController extends Controller
         return view('welcome');
     }
 
+    public function showPublicDashboard(Request $request)
+    {
+        $query = Record::query();
+
+        if ($request->filled('program')) {
+            $query->where('program', $request->input('program'));
+        }
+        if ($request->filled('line')) {
+            $query->where('line', $request->input('line'));
+        }
+        if ($request->filled('from')) {
+            $query->whereDate('created_at', '>=', $request->input('from'));
+        }
+        if ($request->filled('to')) {
+            $query->whereDate('created_at', '<=', $request->input('to'));
+        }
+
+        $recordsByLine = (clone $query)
+            ->selectRaw('line, count(*) as count')
+            ->groupBy('line')
+            ->orderByRaw('count(*) desc')
+            ->pluck('count', 'line');
+        $recordsBySource = (clone $query)
+            ->selectRaw('source, count(*) as count')
+            ->groupBy('source')
+            ->orderByRaw('count(*) desc')
+            ->pluck('count', 'source');
+        $recordsByProgram = (clone $query)
+            ->selectRaw('program, count(*) as count')
+            ->groupBy('program')
+            ->orderByRaw('count(*) desc')
+            ->pluck('count', 'program');
+        $recordsByProvince = (clone $query)
+            ->selectRaw('province, count(*) as count')
+            ->whereNotNull('province')
+            ->where('province', '!=', '')
+            ->groupBy('province')
+            ->orderByRaw('count(*) desc')
+            ->pluck('count', 'province');
+
+        return view('public-dashboard', [
+            'totalRecords' => (clone $query)->count(),
+            'recentRecords' => (clone $query)->where('created_at', '>=', now()->subDays(7))->count(),
+            'recordsByLine' => $recordsByLine,
+            'recordsBySource' => $recordsBySource,
+            'recordsByProgram' => $recordsByProgram,
+            'recordsByProvince' => $recordsByProvince,
+            'dashboardFilters' => $request->only('program', 'line', 'from', 'to'),
+            'allPrograms' => Record::query()->whereNotNull('program')->where('program', '!=', '')->distinct()->orderBy('program')->pluck('program'),
+            'allLines' => Record::query()->whereNotNull('line')->where('line', '!=', '')->distinct()->orderBy('line')->pluck('line'),
+        ]);
+    }
+
+    public function publicDashboardLocations(Request $request)
+    {
+        $province = trim((string) $request->input('province'));
+        $query = Record::query()->whereRaw('UPPER(TRIM(`province`)) = ?', [mb_strtoupper($province, 'UTF-8')]);
+
+        foreach (['program', 'line'] as $filter) {
+            if ($request->filled($filter)) {
+                $query->whereRaw('UPPER(TRIM(`' . $filter . '`)) = ?', [mb_strtoupper(trim((string) $request->input($filter)), 'UTF-8')]);
+            }
+        }
+        if ($request->filled('from')) {
+            $query->whereDate('created_at', '>=', $request->input('from'));
+        }
+        if ($request->filled('to')) {
+            $query->whereDate('created_at', '<=', $request->input('to'));
+        }
+
+        $municipality = $request->input('municipality');
+        if ($municipality) {
+            $query->whereRaw('UPPER(TRIM(`municipality`)) = ?', [mb_strtoupper(trim((string) $municipality), 'UTF-8')]);
+        }
+
+        $column = $municipality ? 'barangay' : 'municipality';
+        $locations = $query
+            ->selectRaw($column . ', count(*) as count')
+            ->whereNotNull($column)
+            ->where($column, '!=', '')
+            ->groupBy($column)
+            ->orderByRaw('count(*) desc')
+            ->get()
+            ->map(fn ($row) => ['name' => $row->{$column}, 'count' => (int) $row->count])
+            ->values();
+
+        return response()->json([
+            'province' => $request->input('province'),
+            'municipality' => $municipality,
+            'locations' => $locations,
+        ]);
+    }
+
+    public function publicDashboardExplorer(Request $request)
+    {
+        $query = Record::query();
+        foreach (['program', 'line'] as $filter) {
+            if ($request->filled($filter)) {
+                $query->where($filter, $request->input($filter));
+            }
+        }
+        if ($request->filled('from')) {
+            $query->whereDate('created_at', '>=', $request->input('from'));
+        }
+        if ($request->filled('to')) {
+            $query->whereDate('created_at', '<=', $request->input('to'));
+        }
+
+        $tree = [];
+        foreach ($query->get(['province', 'municipality', 'barangay', 'line', 'program', 'source']) as $record) {
+            $province = trim((string) $record->province) ?: 'Unspecified';
+            $municipality = trim((string) $record->municipality) ?: 'Unspecified';
+            $barangay = trim((string) $record->barangay) ?: 'Unspecified';
+
+            if (!isset($tree[$province])) {
+                $tree[$province] = ['summary' => ['total' => 0, 'lines' => [], 'programs' => [], 'sources' => []], 'municipalities' => []];
+            }
+            if (!isset($tree[$province]['municipalities'][$municipality])) {
+                $tree[$province]['municipalities'][$municipality] = ['summary' => ['total' => 0, 'lines' => [], 'programs' => [], 'sources' => []], 'barangays' => []];
+            }
+            if (!isset($tree[$province]['municipalities'][$municipality]['barangays'][$barangay])) {
+                $tree[$province]['municipalities'][$municipality]['barangays'][$barangay] = ['summary' => ['total' => 0, 'lines' => [], 'programs' => [], 'sources' => []]];
+            }
+
+            foreach ([&$tree[$province]['summary'], &$tree[$province]['municipalities'][$municipality]['summary'], &$tree[$province]['municipalities'][$municipality]['barangays'][$barangay]['summary']] as &$summary) {
+                $summary['total']++;
+                foreach (['lines' => 'line', 'programs' => 'program', 'sources' => 'source'] as $group => $field) {
+                    $value = trim((string) $record->{$field}) ?: 'Unspecified';
+                    $summary[$group][$value] = ($summary[$group][$value] ?? 0) + 1;
+                }
+            }
+            unset($summary);
+        }
+
+        return response()->json(['tree' => $tree]);
+    }
+
+    public function exportPublicDashboardCsv(Request $request)
+    {
+        $summary = $this->publicDashboardExportSummary($request);
+        $headers = ['Content-Type' => 'text/csv', 'Content-Disposition' => 'attachment; filename="nl-public-report.csv"'];
+
+        return response()->stream(function () use ($summary) {
+            $output = fopen('php://output', 'w');
+            fputcsv($output, ['NL Records Summary Report']);
+            fputcsv($output, ['Metric', 'Value']);
+            fputcsv($output, ['Records in view', $summary['total']]);
+            fputcsv($output, ['Added in 7 days', $summary['recent']]);
+            fputcsv($output, ['Reporting areas', $summary['provinces']->count()]);
+            fputcsv($output, []);
+            fputcsv($output, ['Category', 'Name', 'NL Count']);
+            foreach ($summary['groups'] as $category => $items) {
+                foreach ($items as $name => $count) {
+                    fputcsv($output, [$category, $name ?: 'Unspecified', $count]);
+                }
+            }
+            fclose($output);
+        }, 200, $headers);
+    }
+
+    private function publicDashboardExportSummary(Request $request)
+    {
+        $query = $this->publicDashboardExportQuery($request);
+        $group = function ($column) use ($query) {
+            return (clone $query)
+                ->selectRaw($column . ', count(*) as count')
+                ->whereNotNull($column)
+                ->where($column, '!=', '')
+                ->groupBy($column)
+                ->orderByRaw('count(*) desc')
+                ->pluck('count', $column);
+        };
+
+        return [
+            'total' => (clone $query)->count(),
+            'recent' => (clone $query)->where('created_at', '>=', now()->subDays(7))->count(),
+            'provinces' => $group('province'),
+            'groups' => [
+                'Insurance line' => $group('line'),
+                'Program' => $group('program'),
+                'Province' => $group('province'),
+                'Source' => $group('source'),
+            ],
+        ];
+    }
+
+    private function publicDashboardExportQuery(Request $request)
+    {
+        $query = Record::query();
+        foreach (['program', 'line'] as $filter) {
+            if ($request->filled($filter)) {
+                $query->where($filter, $request->input($filter));
+            }
+        }
+        if ($request->filled('from')) {
+            $query->whereDate('created_at', '>=', $request->input('from'));
+        }
+        if ($request->filled('to')) {
+            $query->whereDate('created_at', '<=', $request->input('to'));
+        }
+        return $query->orderBy('id');
+    }
+
     public function showEmailHandler(Request $request)
     {
         // Check authentication - show login form if not authenticated
@@ -638,9 +841,9 @@ class RoutesController extends Controller
         // Handle sorting
         $sortBy = $request->input('sort_by', 'id');
         $sortOrder = $request->input('sort_order', 'desc');
-        $perPage = (int) $request->input('per_page', 50);
-        if (!in_array($perPage, [25, 50, 100], true)) {
-            $perPage = 50;
+        $perPage = (int) $request->input('per_page', 40);
+        if (!in_array($perPage, [40, 80, 120], true)) {
+            $perPage = 40;
         }
         
         // Validate sort parameters to prevent injection

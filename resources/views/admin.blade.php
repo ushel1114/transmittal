@@ -1022,9 +1022,9 @@
                 <div style="display: flex; flex-direction: column; gap: 6px;">
                     <label style="font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Rows per page</label>
                     <select name="per_page" style="padding: 10px 12px; font-size: 13px; border: 1px solid #cbd5e1; border-radius: 8px; background: #ffffff; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);">
-                        <option value="25" {{ request('per_page') == '25' ? 'selected' : '' }}>25</option>
-                        <option value="50" {{ request('per_page', '50') == '50' ? 'selected' : '' }}>50</option>
-                        <option value="100" {{ request('per_page') == '100' ? 'selected' : '' }}>100</option>
+                        <option value="40" {{ request('per_page', '40') == '40' ? 'selected' : '' }}>40</option>
+                        <option value="80" {{ request('per_page', '40') == '80' ? 'selected' : '' }}>80</option>
+                        <option value="120" {{ request('per_page') == '120' ? 'selected' : '' }}>120</option>
                     </select>
                 </div>
             </div>

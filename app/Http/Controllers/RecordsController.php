@@ -41,6 +41,10 @@ class RecordsController extends Controller
             'source' => 'nullable|string|in:OD,Email,Facebook',
         ]);
 
+        foreach (['line', 'province', 'municipality', 'barangay'] as $locationField) {
+            $validatedData[$locationField] = mb_strtoupper(trim($validatedData[$locationField]), 'UTF-8');
+        }
+
         if ($source !== 'Facebook') {
             $validatedData['facebook_page_url'] = null;
         }
@@ -97,9 +101,9 @@ class RecordsController extends Controller
         }
 
         $address = trim(implode(', ', array_filter([
-            $request->barangay,
-            $request->municipality,
-            $request->province,
+            $validatedData['barangay'],
+            $validatedData['municipality'],
+            $validatedData['province'],
         ])));
 
         try {
