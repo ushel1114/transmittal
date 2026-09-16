@@ -101,6 +101,9 @@
         <form method="GET" action="{{ route('public-dashboard') }}" class="dashboard-filter">
             <div class="dashboard-field"><label for="program">Program</label><select id="program" name="program"><option value="">All programs</option>@foreach($allPrograms as $program)<option value="{{ $program }}" @selected(request('program') === $program)>{{ $program }}</option>@endforeach</select></div>
             <div class="dashboard-field"><label for="line">Insurance line</label><select id="line" name="line"><option value="">All lines</option>@foreach($allLines as $line)<option value="{{ $line }}" @selected(request('line') === $line)>{{ $line }}</option>@endforeach</select></div>
+            <div class="dashboard-field"><label for="province">Province</label><select id="province" name="province"><option value="">All provinces</option>@foreach($allProvinces as $province)<option value="{{ $province }}" @selected(request('province') === $province)>{{ $province }}</option>@endforeach</select></div>
+            <div class="dashboard-field"><label for="municipality">Municipality</label><select id="municipality" name="municipality"><option value="">All municipalities</option>@foreach($allMunicipalities as $municipality)<option value="{{ $municipality }}" @selected(request('municipality') === $municipality)>{{ $municipality }}</option>@endforeach</select></div>
+            <div class="dashboard-field"><label for="barangay">Barangay</label><select id="barangay" name="barangay"><option value="">All barangays</option>@foreach($allBarangays as $barangay)<option value="{{ $barangay }}" @selected(request('barangay') === $barangay)>{{ $barangay }}</option>@endforeach</select></div>
             <div class="dashboard-field"><label for="from">From</label><input id="from" type="date" name="from" value="{{ request('from') }}"></div>
             <div class="dashboard-field"><label for="to">To</label><input id="to" type="date" name="to" value="{{ request('to') }}"></div>
             <button class="dashboard-button" type="submit">Apply filters</button><a class="dashboard-button secondary" href="{{ route('public-dashboard') }}">Clear</a>
@@ -143,11 +146,58 @@ document.addEventListener('DOMContentLoaded', function () {
     const title = document.getElementById('locationModalTitle');
     const body = document.getElementById('locationModalBody');
     const endpoint = {!! json_encode(route('public-dashboard.locations')) !!};
-    const filters = new URLSearchParams({!! json_encode($dashboardFilters) !!});
+    const filters = new URLSearchParams(window.location.search);
     const explorerPanel = document.getElementById('explorerPanel');
     const folderTree = document.getElementById('folderTree');
     const explorerSummary = document.getElementById('explorerSummary');
     const explorerEndpoint = {!! json_encode(route('public-dashboard.explorer')) !!};
+    const provinceSelect = document.getElementById('province');
+    const municipalitySelect = document.getElementById('municipality');
+    const barangaySelect = document.getElementById('barangay');
+
+    function setLocationOptions(select, placeholder, locations, selectedValue = '') {
+        select.innerHTML = '<option value="">' + placeholder + '</option>';
+        locations.forEach(location => {
+            const option = document.createElement('option');
+            option.value = location.name;
+            option.textContent = location.name;
+            option.selected = location.name === selectedValue;
+            select.appendChild(option);
+        });
+    }
+
+    function loadLocationOptions(select, placeholder, province, municipality = null, selectedValue = '') {
+        const params = new URLSearchParams(filters);
+        params.delete('province');
+        params.delete('municipality');
+        params.delete('barangay');
+        params.set('province', province);
+        if (municipality) params.set('municipality', municipality);
+        select.disabled = true;
+        fetch(endpoint + '?' + params.toString())
+            .then(response => response.json())
+            .then(data => setLocationOptions(select, placeholder, data.locations, selectedValue))
+            .catch(() => setLocationOptions(select, placeholder, []))
+            .finally(() => { select.disabled = false; });
+    }
+
+    provinceSelect.addEventListener('change', function () {
+        setLocationOptions(municipalitySelect, 'All municipalities', []);
+        setLocationOptions(barangaySelect, 'All barangays', []);
+        if (this.value) loadLocationOptions(municipalitySelect, 'All municipalities', this.value);
+    });
+
+    municipalitySelect.addEventListener('change', function () {
+        setLocationOptions(barangaySelect, 'All barangays', []);
+        if (provinceSelect.value && this.value) loadLocationOptions(barangaySelect, 'All barangays', provinceSelect.value, this.value);
+    });
+
+    if (provinceSelect.value) {
+        loadLocationOptions(municipalitySelect, 'All municipalities', provinceSelect.value, null, @json(request('municipality')));
+    }
+    if (provinceSelect.value && municipalitySelect.value) {
+        loadLocationOptions(barangaySelect, 'All barangays', provinceSelect.value, municipalitySelect.value, @json(request('barangay')));
+    }
 
     function summaryMarkup(name, summary) {
         const groups = [['Lines', summary.lines], ['Programs', summary.programs], ['Sources', summary.sources]];
@@ -188,6 +238,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function loadLocations(province, municipality = null) {
         const params = new URLSearchParams(filters);
+        params.delete('province');
+        params.delete('municipality');
+        params.delete('barangay');
         params.set('province', province);
         if (municipality) params.set('municipality', municipality);
         title.textContent = municipality ? municipality + ' barangays' : province + ' municipalities';

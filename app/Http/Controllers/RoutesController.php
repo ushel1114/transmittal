@@ -20,11 +20,10 @@ class RoutesController extends Controller
     {
         $query = Record::query();
 
-        if ($request->filled('program')) {
-            $query->where('program', $request->input('program'));
-        }
-        if ($request->filled('line')) {
-            $query->where('line', $request->input('line'));
+        foreach (['program', 'line', 'province', 'municipality', 'barangay'] as $filter) {
+            if ($request->filled($filter)) {
+                $query->whereRaw('UPPER(TRIM(`' . $filter . '`)) = ?', [mb_strtoupper(trim((string) $request->input($filter)), 'UTF-8')]);
+            }
         }
         if ($request->filled('from')) {
             $query->whereDate('created_at', '>=', $request->input('from'));
@@ -56,6 +55,13 @@ class RoutesController extends Controller
             ->orderByRaw('count(*) desc')
             ->pluck('count', 'province');
 
+        $locationQuery = Record::query();
+        foreach (['province', 'municipality'] as $locationFilter) {
+            if ($request->filled($locationFilter)) {
+                $locationQuery->whereRaw('UPPER(TRIM(`' . $locationFilter . '`)) = ?', [mb_strtoupper(trim((string) $request->input($locationFilter)), 'UTF-8')]);
+            }
+        }
+
         return view('public-dashboard', [
             'totalRecords' => (clone $query)->count(),
             'recentRecords' => (clone $query)->where('created_at', '>=', now()->subDays(7))->count(),
@@ -63,9 +69,12 @@ class RoutesController extends Controller
             'recordsBySource' => $recordsBySource,
             'recordsByProgram' => $recordsByProgram,
             'recordsByProvince' => $recordsByProvince,
-            'dashboardFilters' => $request->only('program', 'line', 'from', 'to'),
+            'dashboardFilters' => $request->only('program', 'line', 'province', 'municipality', 'barangay', 'from', 'to'),
             'allPrograms' => Record::query()->whereNotNull('program')->where('program', '!=', '')->distinct()->orderBy('program')->pluck('program'),
             'allLines' => Record::query()->whereNotNull('line')->where('line', '!=', '')->distinct()->orderBy('line')->pluck('line'),
+            'allProvinces' => Record::query()->whereNotNull('province')->where('province', '!=', '')->distinct()->orderBy('province')->pluck('province'),
+            'allMunicipalities' => (clone $locationQuery)->whereNotNull('municipality')->where('municipality', '!=', '')->distinct()->orderBy('municipality')->pluck('municipality'),
+            'allBarangays' => (clone $locationQuery)->whereNotNull('barangay')->where('barangay', '!=', '')->distinct()->orderBy('barangay')->pluck('barangay'),
         ]);
     }
 
@@ -74,7 +83,7 @@ class RoutesController extends Controller
         $province = trim((string) $request->input('province'));
         $query = Record::query()->whereRaw('UPPER(TRIM(`province`)) = ?', [mb_strtoupper($province, 'UTF-8')]);
 
-        foreach (['program', 'line'] as $filter) {
+        foreach (['program', 'line', 'municipality', 'barangay'] as $filter) {
             if ($request->filled($filter)) {
                 $query->whereRaw('UPPER(TRIM(`' . $filter . '`)) = ?', [mb_strtoupper(trim((string) $request->input($filter)), 'UTF-8')]);
             }
@@ -87,9 +96,6 @@ class RoutesController extends Controller
         }
 
         $municipality = $request->input('municipality');
-        if ($municipality) {
-            $query->whereRaw('UPPER(TRIM(`municipality`)) = ?', [mb_strtoupper(trim((string) $municipality), 'UTF-8')]);
-        }
 
         $column = $municipality ? 'barangay' : 'municipality';
         $locations = $query
@@ -112,9 +118,9 @@ class RoutesController extends Controller
     public function publicDashboardExplorer(Request $request)
     {
         $query = Record::query();
-        foreach (['program', 'line'] as $filter) {
+        foreach (['program', 'line', 'province', 'municipality', 'barangay'] as $filter) {
             if ($request->filled($filter)) {
-                $query->where($filter, $request->input($filter));
+                $query->whereRaw('UPPER(TRIM(`' . $filter . '`)) = ?', [mb_strtoupper(trim((string) $request->input($filter)), 'UTF-8')]);
             }
         }
         if ($request->filled('from')) {
