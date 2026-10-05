@@ -18,6 +18,7 @@ class Record extends Model
         'modeOfPayment',
         'accounts',
         'facebook_page_url',
+        'notice_image_path',
         'date_occurrence',
         'date_received',
         'remarks',

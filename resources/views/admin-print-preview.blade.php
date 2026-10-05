@@ -1,6 +1,14 @@
 @extends('layout.layout')
 
 @section('title', 'Print Preview')
+@section('body-class', 'print-preview-page')
+
+@section('print-page-rules')
+    @page {
+        size: 13in 8.5in;
+        margin: 0.12in;
+    }
+@endsection
 
 @section('page-styles')
     <style>
@@ -164,11 +172,6 @@
         }
 
         @media print {
-            @page {
-                size: 8.5in 13in landscape;
-                margin: 8mm;
-            }
-
             /* Hide screen-only elements */
             .assign-form,
             .no-print {
@@ -387,6 +390,360 @@
                 display: none !important;
             }
         }
+
+        body.print-preview-page #themeToggle {
+            display: none !important;
+        }
+
+        .print-preview-wrap {
+            width: min(1248px, calc(100vw - 40px));
+            max-width: none;
+            margin: 22px auto 36px;
+            padding: 0;
+        }
+
+        .print-preview-topbar {
+            margin: 0 auto 20px;
+            padding: 16px 20px !important;
+            border: 1px solid #dbe4ec;
+            border-radius: 16px !important;
+            background: #fff;
+            box-shadow: 0 8px 24px rgb(15 23 42 / 7%);
+        }
+
+        .print-preview-topbar .heading h1 {
+            color: #0f172a;
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .print-preview-topbar .heading p {
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .print-preview-topbar .actions .btn {
+            min-height: 40px;
+            padding: 0 16px;
+            border-radius: 10px;
+            font-weight: 750;
+        }
+
+        .page-section {
+            box-sizing: border-box;
+            width: 100%;
+            min-height: min(816px, calc((100vw - 40px) * 0.65385));
+            margin: 0 auto 24px;
+            padding: 16px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            background: #fff;
+            box-shadow: 0 16px 42px rgb(15 23 42 / 13%);
+        }
+
+        .print-preview-card {
+            display: flex;
+            min-height: min(782px, calc((100vw - 40px) * 0.65385 - 34px));
+            flex-direction: column;
+            border: 0;
+            border-radius: 0;
+            background: #fff;
+            box-shadow: none;
+        }
+
+        .print-preview-card .meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            padding: 12px 14px;
+            border: 1px solid #dbe4ec;
+            border-left: 4px solid #166534;
+            border-radius: 10px;
+            background: #f8fafc;
+            color: #475569;
+            font-size: 12px;
+        }
+
+        .print-preview-card .meta > div:nth-child(2) {
+            text-align: center;
+        }
+
+        .print-preview-card .meta > div:last-child {
+            text-align: right;
+        }
+
+        .print-preview-card .meta strong {
+            color: #166534;
+            font-weight: 850;
+        }
+
+        .print-preview-card .table-wrap {
+            flex: 1;
+            padding: 0;
+        }
+
+        .print-preview-table {
+            width: 100%;
+            margin: 0;
+            border: 1px solid #cbd5e1;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        .print-preview-table th {
+            padding: 9px 8px;
+            border: 1px solid #14532d;
+            background: #166534;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            line-height: 1.2;
+        }
+
+        .print-preview-table td {
+            padding: 7px 8px;
+            border: 1px solid #dbe4ec;
+            color: #1e293b;
+            font-size: 11px;
+            line-height: 1.3;
+            overflow-wrap: anywhere;
+        }
+
+        .print-preview-table tbody tr:nth-child(even) {
+            background: #f1f5f9;
+        }
+
+        .received-by {
+            display: inline-block;
+            width: 49%;
+            min-height: 68px;
+            box-sizing: border-box;
+            margin-top: 12px;
+            padding: 10px 12px;
+            border: 1px solid #94a3b8;
+            color: #334155;
+            font-size: 11px;
+            vertical-align: top;
+        }
+
+        .received-by strong {
+            display: block;
+            margin-bottom: 6px;
+            color: #166534;
+            font-weight: 800;
+        }
+
+        @media (max-width: 700px) {
+            .print-preview-wrap {
+                width: calc(100vw - 24px);
+                margin-top: 12px;
+            }
+
+            .print-preview-topbar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .page-section {
+                min-height: 0;
+                padding: 10px;
+            }
+
+            .print-preview-card {
+                min-height: 0;
+            }
+
+            .print-preview-card .meta {
+                grid-template-columns: 1fr;
+            }
+
+            .print-preview-card .meta > div,
+            .print-preview-card .meta > div:nth-child(2),
+            .print-preview-card .meta > div:last-child {
+                text-align: left;
+            }
+        }
+
+        @media print {
+            html,
+            body {
+                width: 100% !important;
+                min-width: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: #fff !important;
+            }
+
+            body * {
+                visibility: hidden !important;
+            }
+
+            .print-preview-wrap,
+            .print-preview-wrap * {
+                visibility: visible !important;
+            }
+
+            .print-preview-wrap {
+                width: 100% !important;
+                max-width: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            .page-section {
+                width: 100% !important;
+                min-height: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border: 0 !important;
+                border-radius: 0 !important;
+                background: #fff !important;
+                box-shadow: none !important;
+                break-after: page;
+                page-break-after: always;
+            }
+
+            .page-section:last-child {
+                break-after: auto;
+                page-break-after: auto !important;
+            }
+
+            .print-preview-card {
+                display: block !important;
+                min-height: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: visible !important;
+                border: 0 !important;
+                background: #fff !important;
+                box-shadow: none !important;
+                break-inside: avoid;
+                page-break-inside: avoid !important;
+            }
+
+            .print-preview-card .meta {
+                grid-template-columns: 1fr 1fr 1fr !important;
+                gap: 6px !important;
+                margin: 0 !important;
+                padding: 6px 8px !important;
+                border: 1px solid #64748b !important;
+                border-left: 3px solid #166534 !important;
+                border-radius: 0 !important;
+                background: #f1f5f9 !important;
+                color: #0f172a !important;
+                font-size: 8pt !important;
+                line-height: 1.15 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .print-preview-card .meta strong {
+                color: #14532d !important;
+            }
+
+            .print-preview-card .table-wrap {
+                padding: 0 !important;
+                margin: 0 !important;
+                break-inside: avoid;
+                page-break-inside: avoid !important;
+            }
+
+            .print-preview-table {
+                display: table !important;
+                width: 100% !important;
+                max-width: none !important;
+                margin: 0 !important;
+                border: 1px solid #334155 !important;
+                border-collapse: collapse !important;
+                border-spacing: 0 !important;
+                table-layout: fixed !important;
+                break-inside: avoid;
+                page-break-inside: avoid !important;
+            }
+
+            .print-preview-table thead {
+                display: table-header-group !important;
+            }
+
+            .print-preview-table tbody {
+                display: table-row-group !important;
+            }
+
+            .print-preview-table tr {
+                display: table-row !important;
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+            }
+
+            .print-preview-table th {
+                display: table-cell !important;
+                height: auto !important;
+                padding: 3px 4px !important;
+                border: 1px solid #334155 !important;
+                background: #166534 !important;
+                color: #fff !important;
+                font-size: 8pt !important;
+                font-weight: 800 !important;
+                line-height: 1.05 !important;
+                white-space: normal !important;
+                overflow: visible !important;
+                text-overflow: clip !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .print-preview-table td {
+                display: table-cell !important;
+                height: auto !important;
+                padding: 1.8px 4px !important;
+                border: 1px solid #64748b !important;
+                color: #000 !important;
+                font-size: 8pt !important;
+                line-height: 1.05 !important;
+                vertical-align: middle !important;
+                overflow-wrap: anywhere !important;
+            }
+
+            .print-preview-table .address-cell {
+                white-space: normal !important;
+            }
+
+            .print-preview-table tbody tr:nth-child(even) {
+                background: #f1f5f9 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .received-by {
+                width: 49% !important;
+                height: 0.55in !important;
+                min-height: 0.55in !important;
+                margin-top: 5px !important;
+                padding: 5px 8px !important;
+                border: 1px solid #64748b !important;
+                color: #000 !important;
+                font-size: 8pt !important;
+                vertical-align: top !important;
+            }
+
+            .received-by strong {
+                display: block !important;
+                margin-bottom: 0 !important;
+                color: #000 !important;
+                font-size: 8pt !important;
+                font-weight: 800 !important;
+            }
+
+            .assign-form,
+            .no-print,
+            #themeToggle,
+            dialog,
+            #modalContainer {
+                display: none !important;
+            }
+        }
     </style>
 @endsection
 
@@ -395,7 +752,7 @@
         <div class="admin-topbar print-preview-topbar no-print">
             <div class="heading">
                 <h1>Transmittal Print Preview</h1>
-                <p>Review pages, then assign transmittal numbers</p>
+                <p>13 × 8.5 in landscape • 40 records per page</p>
             </div>
             <div class="actions">
                 <button type="button" class="btn btn-outline btn-sm" onclick="window.print()">Print</button>
@@ -518,8 +875,8 @@
                             </table>
                         </div>
 
-                        <div class="received-by">Received By: ____________________</div>
-                        <div class="received-by">Encoded By: ____________________</div>
+                        <div class="received-by"><strong>Received By</strong></div>
+                        <div class="received-by"><strong>Encoded By</strong></div>
                     </div>
                 </section>
             @endforeach
@@ -566,6 +923,8 @@
                         // Handle modal buttons
                         const continueBtn = document.getElementById('assignTransmittalContinue');
                         const cancelBtn = document.getElementById('assignTransmittalCancel');
+                        cancelBtn.style.display = 'none';
+                        continueBtn.textContent = 'Continue';
                         
                         // Remove existing event listeners
                         const newContinueBtn = continueBtn.cloneNode(true);

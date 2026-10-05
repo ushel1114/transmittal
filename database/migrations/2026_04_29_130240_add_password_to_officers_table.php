@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('officers', function (Blueprint $table) {
-            $table->string('password')->nullable()->after('username');
-        });
+        if (! Schema::hasColumn('officers', 'password')) {
+            Schema::table('officers', function (Blueprint $table) {
+                $table->string('password')->nullable()->after('username');
+            });
+        }
     }
 
     /**
@@ -21,8 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('officers', function (Blueprint $table) {
-            $table->dropColumn('password');
-        });
+        // The earlier officer authentication migration also owns this column.
     }
 };

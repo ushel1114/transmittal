@@ -1,4 +1,4 @@
-@props(['records', 'showDelete' => true, 'showEncoder' => false, 'showApproval' => false, 'showAction' => false, 'showCheckbox' => true, 'showFilters' => false, 'showSortableHeaders' => true, 'showAdminTransmittal' => false, 'hideAccountsColumn' => false, 'hideSourceColumn' => false, 'hideProvinceColumn' => false, 'hideDateReceivedColumn' => false, 'useDateEncodedAsDateReceived' => false, 'allPrograms' => [], 'allLines' => [], 'allSources' => [], 'allModes' => []])
+@props(['records', 'showDelete' => true, 'showEncoder' => false, 'showApproval' => false, 'showAction' => false, 'showCheckbox' => true, 'showFilters' => false, 'showSortableHeaders' => true, 'showAdminTransmittal' => false, 'showNoticeImage' => false, 'hideAccountsColumn' => false, 'hideSourceColumn' => false, 'hideProvinceColumn' => false, 'hideDateReceivedColumn' => false, 'useDateEncodedAsDateReceived' => false, 'allPrograms' => [], 'allLines' => [], 'allSources' => [], 'allModes' => []])
 
 <style>
 /* Default account field color - mustard yellow */
@@ -354,33 +354,39 @@ document.addEventListener('DOMContentLoaded', function() {
             // Set the spacer width to match the table width
             updateSpacerWidth();
 
-            // Sync scroll from top to wrapper and bottom
-            scrollTop.addEventListener('scroll', function() {
-                scrollWrapper.scrollLeft = scrollTop.scrollLeft;
-                scrollBottom.scrollLeft = scrollTop.scrollLeft;
-            });
+            if (scrollWrapper.dataset.scrollSyncInitialized !== 'true') {
+                function syncScrollPosition(source) {
+                    scrollTop.scrollLeft = source.scrollLeft;
+                    scrollWrapper.scrollLeft = source.scrollLeft;
+                    scrollBottom.scrollLeft = source.scrollLeft;
+                }
 
-            // Sync scroll from wrapper to top and bottom
-            scrollWrapper.addEventListener('scroll', function() {
-                scrollTop.scrollLeft = scrollWrapper.scrollLeft;
-                scrollBottom.scrollLeft = scrollWrapper.scrollLeft;
-            });
-
-            // Sync scroll from bottom to wrapper and top
-            scrollBottom.addEventListener('scroll', function() {
-                scrollWrapper.scrollLeft = scrollBottom.scrollLeft;
-                scrollTop.scrollLeft = scrollBottom.scrollLeft;
-            });
-
-            // Update spacer width on window resize
-            window.addEventListener('resize', updateSpacerWidth);
-
-            // Use ResizeObserver to update spacer width when table size changes
-            if (typeof ResizeObserver !== 'undefined') {
-                const resizeObserver = new ResizeObserver(function() {
-                    updateSpacerWidth();
+                scrollTop.addEventListener('scroll', function() {
+                    syncScrollPosition(scrollTop);
                 });
-                resizeObserver.observe(table);
+
+                scrollWrapper.addEventListener('scroll', function() {
+                    syncScrollPosition(scrollWrapper);
+                });
+
+                scrollBottom.addEventListener('scroll', function() {
+                    syncScrollPosition(scrollBottom);
+                });
+
+                scrollWrapper.dataset.scrollSyncInitialized = 'true';
+            }
+
+            if (scrollWrapper.dataset.scrollResizeInitialized !== 'true') {
+                window.addEventListener('resize', updateSpacerWidth);
+
+                if (typeof ResizeObserver !== 'undefined') {
+                    const resizeObserver = new ResizeObserver(function() {
+                        updateSpacerWidth();
+                    });
+                    resizeObserver.observe(table);
+                }
+
+                scrollWrapper.dataset.scrollResizeInitialized = 'true';
             }
         });
     }
@@ -670,6 +676,9 @@ if (! function_exists('getSortIndicator')) {
             <th class="no-print col-delete">Delete</th>
             <th class="no-print col-view">View</th>
             @endif
+            @if($showNoticeImage)
+            <th class="no-print col-notice-image">Notice Image</th>
+            @endif
             <!-- 1. Date Received -->
             @if(!$hideDateReceivedColumn)
             <th class="col-date-received">
@@ -841,12 +850,16 @@ if (! function_exists('getSortIndicator')) {
     <tbody>
     @foreach($records as $record)
         <tr class="{{ !$record->approved ? 'pending' : '' }} record-row" data-record-id="{{ $record->id }}">
+            @if($showCheckbox)
             <td class="no-print col-checkbox" style="display: none;">
                 <input type="checkbox" name="record_ids[]" value="{{ $record->id }}" class="record-checkbox">
             </td>
+            @endif
+            @if(!$hideAccountsColumn && $showAdminTransmittal)
             <td class="no-print col-checkbox-transmit" style="display: none;">
                 <input type="checkbox" name="record_ids_transmit[]" value="{{ $record->id }}" class="record-checkbox-transmit" data-source="{{ $record->source }}" style="display: none;">
             </td>
+            @endif
             <td class="no-print col-edit">
                 <button type="button" class="editButton"
                 data-id="{{ $record->id }}"
@@ -870,6 +883,7 @@ if (! function_exists('getSortIndicator')) {
                 data-transmittal-number="{{ e($record->transmittal_number) }}"
                 data-admin-transmittal-number="{{ e($record->admin_transmittal_number) }}"
                 data-admin-transmittal-assigned-at="{{ $record->admin_transmittal_assigned_at ? e(is_string($record->admin_transmittal_assigned_at) ? date('M d, Y', strtotime($record->admin_transmittal_assigned_at)) : $record->admin_transmittal_assigned_at->format('M d, Y')) : 'N/A' }}"
+                data-notice-image-url="{{ $record->notice_image_path ? route('admin.records.notice-image', $record) : '' }}"
                 >edit</button>
             </td>
             @if($showDelete)
@@ -886,6 +900,20 @@ if (! function_exists('getSortIndicator')) {
                     </svg>
                     View
                 </button>
+            </td>
+            @endif
+            @if($showNoticeImage)
+            <td class="no-print col-notice-image">
+                @if($record->notice_image_path)
+                    <button
+                        type="button"
+                        class="notice-image-view-btn"
+                        data-image-url="{{ route('admin.records.notice-image', $record) }}"
+                        data-farmer-name="{{ $record->farmerName }}"
+                    >View / Print</button>
+                @else
+                    <span class="notice-image-unavailable">—</span>
+                @endif
             </td>
             @endif
             @if(!$hideDateReceivedColumn)
@@ -1213,8 +1241,245 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 </div>
 
+<dialog id="noticeImagePrintDialog" class="notice-image-dialog">
+    <div class="notice-image-dialog-header">
+        <h2 id="noticeImageDialogTitle">Notice of loss / claim</h2>
+        <button type="button" class="notice-image-dialog-close" aria-label="Close image preview">&times;</button>
+    </div>
+    <div class="notice-image-dialog-content">
+        <img id="noticeImagePreview" alt="Uploaded notice of loss or claim">
+        <p id="noticeImagePreviewError" hidden role="alert" class="text-sm font-semibold text-red-700">Unable to load this image. It may have been moved or deleted; refresh the Admin page and try again.</p>
+    </div>
+    <div class="notice-image-dialog-actions">
+        <button type="button" class="notice-image-dialog-close secondary">Close</button>
+        <button type="button" id="printNoticeImageButton" class="primary">Print image</button>
+    </div>
+</dialog>
+
+<script>
+(function () {
+    let selectedPreviewUrl = null;
+
+    document.addEventListener('click', function (event) {
+        const editButton = event.target.closest('.editButton');
+        if (!editButton) {
+            return;
+        }
+
+        const form = document.getElementById('recordEditForm');
+        const preview = form?.querySelector('#editNoticeImagePreview');
+        const previewContainer = form?.querySelector('#editNoticeImagePreviewContainer');
+        const imageInput = form?.querySelector('#editNoticeImage');
+        const printButton = form?.querySelector('#editNoticeImagePrintButton');
+
+        if (selectedPreviewUrl) {
+            URL.revokeObjectURL(selectedPreviewUrl);
+            selectedPreviewUrl = null;
+        }
+
+        if (imageInput) {
+            imageInput.value = '';
+        }
+
+        if (preview && previewContainer) {
+            const imageUrl = editButton.dataset.noticeImageUrl;
+            previewContainer.hidden = !imageUrl;
+            preview.hidden = !imageUrl;
+            preview.src = imageUrl || '';
+            if (printButton) {
+                printButton.dataset.imageUrl = imageUrl || '';
+                printButton.hidden = !imageUrl;
+            }
+        }
+    });
+
+    document.addEventListener('change', function (event) {
+        const imageInput = event.target.closest('#editNoticeImage');
+        if (!imageInput) {
+            return;
+        }
+
+        const form = imageInput.form;
+        const preview = form?.querySelector('#editNoticeImagePreview');
+        const previewContainer = form?.querySelector('#editNoticeImagePreviewContainer');
+        const printButton = form?.querySelector('#editNoticeImagePrintButton');
+        const image = imageInput.files?.[0];
+
+        if (!preview || !previewContainer) {
+            return;
+        }
+
+        if (selectedPreviewUrl) {
+            URL.revokeObjectURL(selectedPreviewUrl);
+            selectedPreviewUrl = null;
+        }
+
+        if (image) {
+            selectedPreviewUrl = URL.createObjectURL(image);
+            preview.src = selectedPreviewUrl;
+            preview.hidden = false;
+            previewContainer.hidden = false;
+            if (printButton) {
+                printButton.dataset.imageUrl = selectedPreviewUrl;
+                printButton.hidden = false;
+            }
+        }
+    });
+
+    document.addEventListener('close', function (event) {
+        if (event.target.id !== 'recordEditDialog' || !selectedPreviewUrl) {
+            return;
+        }
+
+        URL.revokeObjectURL(selectedPreviewUrl);
+        selectedPreviewUrl = null;
+    }, true);
+})();
+</script>
+
 <style>
 /* View Record Button Styling */
+.notice-image-dialog {
+    width: min(900px, calc(100vw - 2rem));
+    max-height: calc(100vh - 2rem);
+    padding: 0;
+    border: 1px solid #cbd5e1;
+    border-radius: 16px;
+    color: #0f172a;
+    box-shadow: 0 24px 64px rgb(15 23 42 / 24%);
+}
+
+.notice-image-dialog::backdrop {
+    background: rgb(15 23 42 / 60%);
+}
+
+.notice-image-dialog-header,
+.notice-image-dialog-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 18px;
+}
+
+.notice-image-dialog-header {
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.notice-image-dialog-header h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.notice-image-dialog-content {
+    display: grid;
+    min-height: 180px;
+    max-height: 70vh;
+    place-items: center;
+    overflow: auto;
+    padding: 16px;
+    background: #f8fafc;
+}
+
+.notice-image-dialog-content img {
+    display: block;
+    max-width: 100%;
+    max-height: 66vh;
+    object-fit: contain;
+}
+
+.notice-image-dialog-actions {
+    justify-content: flex-end;
+    border-top: 1px solid #e2e8f0;
+}
+
+.notice-image-dialog-actions button,
+.notice-image-dialog-close {
+    border: 0;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.notice-image-dialog-actions .primary {
+    background: #006c35;
+    color: white;
+}
+
+.notice-image-dialog-actions .secondary,
+.notice-image-dialog-close {
+    background: #e2e8f0;
+    color: #334155;
+}
+
+.notice-image-view-btn {
+    border: 1px solid #bbf7d0;
+    border-radius: 7px;
+    padding: 6px 10px;
+    background: #f0fdf4;
+    color: #166534;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.notice-image-view-btn:hover {
+    border-color: #16a34a;
+    background: #dcfce7;
+}
+
+.notice-image-unavailable {
+    color: #94a3b8;
+}
+
+@media print {
+    body * {
+        visibility: hidden !important;
+    }
+
+    #noticeImagePrintDialog[open],
+    #noticeImagePrintDialog[open] * {
+        visibility: visible !important;
+    }
+
+    #noticeImagePrintDialog[open] {
+        position: fixed;
+        inset: 0;
+        display: block;
+        width: 100%;
+        max-width: none;
+        max-height: none;
+        overflow: visible;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    #noticeImagePrintDialog .notice-image-dialog-header,
+    #noticeImagePrintDialog .notice-image-dialog-actions {
+        display: none !important;
+    }
+
+    #noticeImagePrintDialog .notice-image-dialog-content {
+        display: block;
+        max-height: none;
+        overflow: visible;
+        padding: 0;
+        background: white;
+    }
+
+    #noticeImagePrintDialog .notice-image-dialog-content img {
+        width: auto;
+        max-width: 100%;
+        height: auto;
+        max-height: 95vh;
+        margin: 0 auto;
+    }
+}
+
 .view-record-btn {
     display: inline-flex;
     align-items: center;
@@ -1623,3 +1888,68 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 })();
 </script>
+
+    <script>
+    (function () {
+        const dialog = document.getElementById('noticeImagePrintDialog');
+        const preview = document.getElementById('noticeImagePreview');
+        const previewError = document.getElementById('noticeImagePreviewError');
+        const title = document.getElementById('noticeImageDialogTitle');
+        const printButton = document.getElementById('printNoticeImageButton');
+
+        if (!dialog || !preview || !previewError || !title || !printButton) {
+            return;
+        }
+
+        preview.addEventListener('load', function () {
+            previewError.hidden = true;
+        });
+
+        preview.addEventListener('error', function () {
+            preview.hidden = true;
+            previewError.hidden = false;
+        });
+
+        document.addEventListener('click', function (event) {
+            const viewButton = event.target.closest('.notice-image-view-btn');
+            if (viewButton) {
+                event.preventDefault();
+                event.stopPropagation();
+                preview.hidden = false;
+                previewError.hidden = true;
+                preview.src = viewButton.dataset.imageUrl;
+                title.textContent = `Notice of loss / claim — ${viewButton.dataset.farmerName}`;
+                dialog.showModal();
+                return;
+            }
+
+            const closeButton = event.target.closest('.notice-image-dialog-close');
+            if (closeButton && dialog.open) {
+                dialog.close();
+            }
+
+            if (event.target === dialog && dialog.open) {
+                dialog.close();
+            }
+        });
+
+        dialog.addEventListener('close', function () {
+            preview.removeAttribute('src');
+            preview.hidden = false;
+            previewError.hidden = true;
+        });
+
+        printButton.addEventListener('click', function () {
+            if (!preview.complete || preview.naturalWidth === 0) {
+                console.error('The notice image is not ready to print.');
+                if (typeof window.showModalMessage === 'function') {
+                    window.showModalMessage('The notice image could not be loaded for printing.', 'error');
+                }
+
+                return;
+            }
+
+            window.print();
+        });
+    })();
+    </script>

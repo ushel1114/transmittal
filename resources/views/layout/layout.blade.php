@@ -30,6 +30,7 @@
     @else
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     @endif
+    @stack('styles')
     <style>
         /* Fix pagination SVG icon sizing */
         .pagination svg {
@@ -45,6 +46,7 @@
     </style>
     <style media="print">
         @page { size: landscape; margin: 10mm; }
+        @yield('print-page-rules')
         body { margin: 0; padding: 0; }
         .odHeader { display: none !important; }
         .addRecordButton { display: none !important; }
@@ -56,7 +58,7 @@
         dialog { display: none !important; }
     </style>
 </head>
-<body>
+<body class="@yield('body-class')">
     <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode" aria-pressed="false">☾</button>
 
     @yield('content')

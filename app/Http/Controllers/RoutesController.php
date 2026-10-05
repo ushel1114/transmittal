@@ -1,18 +1,23 @@
 <?php
+
 namespace App\Http\Controllers;
 
-use App\Models\Officer;
+use App\Exports\RecordsExport;
 use App\Models\Admin;
+use App\Models\Officer;
 use App\Models\Record;
 use App\Models\Session as ActiveSession;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class RoutesController extends Controller
 {
-    public function showWelcome() {
+    public function showWelcome()
+    {
         return view('welcome');
     }
 
@@ -22,7 +27,7 @@ class RoutesController extends Controller
 
         foreach (['program', 'line', 'province', 'municipality', 'barangay'] as $filter) {
             if ($request->filled($filter)) {
-                $query->whereRaw('UPPER(TRIM(`' . $filter . '`)) = ?', [mb_strtoupper(trim((string) $request->input($filter)), 'UTF-8')]);
+                $query->whereRaw('UPPER(TRIM(`'.$filter.'`)) = ?', [mb_strtoupper(trim((string) $request->input($filter)), 'UTF-8')]);
             }
         }
         if ($request->filled('from')) {
@@ -58,7 +63,7 @@ class RoutesController extends Controller
         $locationQuery = Record::query();
         foreach (['province', 'municipality'] as $locationFilter) {
             if ($request->filled($locationFilter)) {
-                $locationQuery->whereRaw('UPPER(TRIM(`' . $locationFilter . '`)) = ?', [mb_strtoupper(trim((string) $request->input($locationFilter)), 'UTF-8')]);
+                $locationQuery->whereRaw('UPPER(TRIM(`'.$locationFilter.'`)) = ?', [mb_strtoupper(trim((string) $request->input($locationFilter)), 'UTF-8')]);
             }
         }
 
@@ -85,7 +90,7 @@ class RoutesController extends Controller
 
         foreach (['program', 'line', 'municipality', 'barangay'] as $filter) {
             if ($request->filled($filter)) {
-                $query->whereRaw('UPPER(TRIM(`' . $filter . '`)) = ?', [mb_strtoupper(trim((string) $request->input($filter)), 'UTF-8')]);
+                $query->whereRaw('UPPER(TRIM(`'.$filter.'`)) = ?', [mb_strtoupper(trim((string) $request->input($filter)), 'UTF-8')]);
             }
         }
         if ($request->filled('from')) {
@@ -99,7 +104,7 @@ class RoutesController extends Controller
 
         $column = $municipality ? 'barangay' : 'municipality';
         $locations = $query
-            ->selectRaw($column . ', count(*) as count')
+            ->selectRaw($column.', count(*) as count')
             ->whereNotNull($column)
             ->where($column, '!=', '')
             ->groupBy($column)
@@ -120,7 +125,7 @@ class RoutesController extends Controller
         $query = Record::query();
         foreach (['program', 'line', 'province', 'municipality', 'barangay'] as $filter) {
             if ($request->filled($filter)) {
-                $query->whereRaw('UPPER(TRIM(`' . $filter . '`)) = ?', [mb_strtoupper(trim((string) $request->input($filter)), 'UTF-8')]);
+                $query->whereRaw('UPPER(TRIM(`'.$filter.'`)) = ?', [mb_strtoupper(trim((string) $request->input($filter)), 'UTF-8')]);
             }
         }
         if ($request->filled('from')) {
@@ -136,13 +141,13 @@ class RoutesController extends Controller
             $municipality = trim((string) $record->municipality) ?: 'Unspecified';
             $barangay = trim((string) $record->barangay) ?: 'Unspecified';
 
-            if (!isset($tree[$province])) {
+            if (! isset($tree[$province])) {
                 $tree[$province] = ['summary' => ['total' => 0, 'lines' => [], 'programs' => [], 'sources' => []], 'municipalities' => []];
             }
-            if (!isset($tree[$province]['municipalities'][$municipality])) {
+            if (! isset($tree[$province]['municipalities'][$municipality])) {
                 $tree[$province]['municipalities'][$municipality] = ['summary' => ['total' => 0, 'lines' => [], 'programs' => [], 'sources' => []], 'barangays' => []];
             }
-            if (!isset($tree[$province]['municipalities'][$municipality]['barangays'][$barangay])) {
+            if (! isset($tree[$province]['municipalities'][$municipality]['barangays'][$barangay])) {
                 $tree[$province]['municipalities'][$municipality]['barangays'][$barangay] = ['summary' => ['total' => 0, 'lines' => [], 'programs' => [], 'sources' => []]];
             }
 
@@ -187,7 +192,7 @@ class RoutesController extends Controller
         $query = $this->publicDashboardExportQuery($request);
         $group = function ($column) use ($query) {
             return (clone $query)
-                ->selectRaw($column . ', count(*) as count')
+                ->selectRaw($column.', count(*) as count')
                 ->whereNotNull($column)
                 ->where($column, '!=', '')
                 ->groupBy($column)
@@ -222,16 +227,18 @@ class RoutesController extends Controller
         if ($request->filled('to')) {
             $query->whereDate('created_at', '<=', $request->input('to'));
         }
+
         return $query->orderBy('id');
     }
 
     public function showEmailHandler(Request $request)
     {
         // Check authentication - show login form if not authenticated
-        if (!$request->session()->get('email_logged_in')) {
+        if (! $request->session()->get('email_logged_in')) {
             // Don't redirect, just show the login form in the view
             $emailUserName = null;
             $records = collect();
+
             return view('email-handler', [
                 'records' => $records,
                 'isLoggedIn' => false,
@@ -240,7 +247,7 @@ class RoutesController extends Controller
         }
 
         $emailUserName = $request->session()->get('email_user_name');
-        
+
         $records = collect();
 
         // Get the logged-in user's full name from session
@@ -251,7 +258,7 @@ class RoutesController extends Controller
 
         // Use encoder_id for efficient user-specific querying
         $query = Record::where('source', 'Email');
-        
+
         // Filter by logged-in user's encoder ID (default behavior)
         if ($encoderId) {
             $query->where('encoder_id', $encoderId);
@@ -260,19 +267,19 @@ class RoutesController extends Controller
         // Apply flexible date filtering based on user selections
         $useDateEncoded = $request->filled('use_date_encoded');
         $useDateReceived = $request->filled('use_date_received');
-        
+
         // Apply date encoded filter (when record was created)
         if ($useDateEncoded && $request->filled('date_encoded')) {
             $query->whereDate('created_at', $request->date_encoded);
         }
-        
+
         // Apply date received filter (when NL was received)
         if ($useDateReceived && $request->filled('date_received')) {
             $query->whereDate('date_received', $request->date_received);
         }
-        
+
         // If no filters are selected, default to today's records (by date encoded)
-        if (!$useDateEncoded && !$useDateReceived) {
+        if (! $useDateEncoded && ! $useDateReceived) {
             $query->whereDate('created_at', today());
         }
 
@@ -298,18 +305,18 @@ class RoutesController extends Controller
         $password = $request->input('email_password');
 
         // Find the officer by exact username match only
-        $officer = \App\Models\Officer::where('username', $username)->first();
-        if (!$officer) {
+        $officer = Officer::where('username', $username)->first();
+        if (! $officer) {
             return redirect()->route('email-handler')->with('error', 'Invalid username. Please select a valid user from the list.');
         }
 
         // Check if officer has a password
-        if (!$officer->password) {
+        if (! $officer->password) {
             return redirect()->route('email-handler')->with('error', 'Account not configured. Please contact administrator.');
         }
 
         // Verify password
-        if (!Hash::check($password, $officer->password)) {
+        if (! Hash::check($password, $officer->password)) {
             return redirect()->route('email-handler')->with('error', 'Invalid password. Please try again.');
         }
 
@@ -343,7 +350,7 @@ class RoutesController extends Controller
             // Update officer status in database
             Officer::where('name', $officerName)->update([
                 'active' => false,
-                'last_activity' => now()
+                'last_activity' => now(),
             ]);
         }
 
@@ -353,6 +360,7 @@ class RoutesController extends Controller
         $request->session()->forget('officer_last_activity');
         // Remove from active_sessions
         ActiveSession::where('session_id', $sessionId)->where('channel', 'OD')->delete();
+
         return redirect()->route('welcome');
     }
 
@@ -369,14 +377,13 @@ class RoutesController extends Controller
         return redirect()->route('welcome');
     }
 
-    
-    
     public function showFacebookHandler(Request $request)
     {
         // Check authentication - show login form if not authenticated
-        if (!$request->session()->get('facebook_logged_in')) {
+        if (! $request->session()->get('facebook_logged_in')) {
             $facebookUserName = null;
             $records = collect();
+
             return view('facebook-handler', [
                 'records' => $records,
                 'isLoggedIn' => false,
@@ -393,7 +400,7 @@ class RoutesController extends Controller
 
         // Show Facebook records filtered by logged-in user's encoder ID
         $query = Record::where('source', 'Facebook');
-        
+
         // Filter by logged-in user's encoder ID
         if ($encoderId) {
             $query->where('encoder_id', $encoderId);
@@ -402,19 +409,19 @@ class RoutesController extends Controller
         // Apply flexible date filtering based on user selections
         $useDateEncoded = $request->filled('use_date_encoded');
         $useDateReceived = $request->filled('use_date_received');
-        
+
         // Apply date encoded filter (when record was created)
         if ($useDateEncoded && $request->filled('date_encoded')) {
             $query->whereDate('created_at', $request->date_encoded);
         }
-        
+
         // Apply date received filter (when NL was received)
         if ($useDateReceived && $request->filled('date_received')) {
             $query->whereDate('date_received', $request->date_received);
         }
-        
+
         // If no filters are selected, default to today's records (by date encoded)
-        if (!$useDateEncoded && !$useDateReceived) {
+        if (! $useDateEncoded && ! $useDateReceived) {
             $query->whereDate('created_at', today());
         }
 
@@ -441,17 +448,17 @@ class RoutesController extends Controller
 
         // Find the officer by exact username match only
         $officer = Officer::where('username', $username)->first();
-        if (!$officer) {
+        if (! $officer) {
             return redirect()->route('facebook-handler')->with('error', 'Invalid username. Please select a valid officer.');
         }
 
         // Check if officer has a password
-        if (!$officer->password) {
+        if (! $officer->password) {
             return redirect()->route('facebook-handler')->with('error', 'Account not configured. Please contact administrator.');
         }
 
         // Verify password
-        if (!Hash::check($password, $officer->password)) {
+        if (! Hash::check($password, $officer->password)) {
             return redirect()->route('facebook-handler')->with('error', 'Invalid password. Please try again.');
         }
 
@@ -464,11 +471,10 @@ class RoutesController extends Controller
         return redirect()->route('facebook-handler')->with('success', 'You are signed in successfully.');
     }
 
-    
     public function showOfficerOfTheDay(Request $request)
     {
         // Check authentication - redirect to login if not authenticated
-        if (!$request->session()->get('officer_logged_in')) {
+        if (! $request->session()->get('officer_logged_in')) {
             return redirect()->route('auth.login', ['channel' => 'OD']);
         }
 
@@ -479,7 +485,7 @@ class RoutesController extends Controller
         // Get the logged-in officer's full name from Officer table
         $officerFullName = null;
         if ($officerId) {
-            $officer = \App\Models\Officer::find($officerId);
+            $officer = Officer::find($officerId);
             if ($officer) {
                 $officerFullName = $officer->name;
             }
@@ -487,7 +493,7 @@ class RoutesController extends Controller
             // If no officerId, try to find by session username
             $sessionOfficerName = $request->session()->get('officer_name');
             if ($sessionOfficerName) {
-                $officer = \App\Models\Officer::where('username', $sessionOfficerName)->first();
+                $officer = Officer::where('username', $sessionOfficerName)->first();
                 if ($officer) {
                     $officerFullName = $officer->name;
                 }
@@ -496,11 +502,11 @@ class RoutesController extends Controller
 
         if ($officerFullName) {
             // Get the officer's ID for encoder_id lookup
-            $officerRecord = \App\Models\Officer::where('name', $officerFullName)->first();
+            $officerRecord = Officer::where('name', $officerFullName)->first();
             $encoderId = $officerRecord ? $officerRecord->id : null;
-            
+
             $query = Record::where('source', 'OD');
-            
+
             // Filter by encoder_id if available
             if ($encoderId) {
                 $query->where('encoder_id', $encoderId);
@@ -534,23 +540,28 @@ class RoutesController extends Controller
     public function exportOfficerCsv(Request $request)
     {
         $officerName = $request->session()->get('officer_name');
-        if (!$officerName) { return redirect()->route('officer-of-the-day'); }
+        if (! $officerName) {
+            return redirect()->route('officer-of-the-day');
+        }
 
         $query = Record::where('encoderName', $officerName)
             ->where('source', 'OD')
             ->whereDate('created_at', today())
             ->orderBy('id', 'asc');
 
-        $export = new \App\Exports\RecordsExport($query);
+        $export = new RecordsExport($query);
+
         return response($export->toCsv())
             ->header('Content-Type', 'text/csv')
-            ->header('Content-Disposition', 'attachment; filename="od-records-' . date('Y-m-d') . '.csv"');
+            ->header('Content-Disposition', 'attachment; filename="od-records-'.date('Y-m-d').'.csv"');
     }
 
     public function exportOfficerCsvByDateRange(Request $request)
     {
         $officerName = $request->session()->get('officer_name');
-        if (!$officerName) { return redirect()->route('officer-of-the-day'); }
+        if (! $officerName) {
+            return redirect()->route('officer-of-the-day');
+        }
 
         $request->validate([
             'start_date' => 'required|date',
@@ -565,32 +576,38 @@ class RoutesController extends Controller
             ->whereBetween('created_at', [$startDate, $endDate])
             ->orderBy('id', 'asc');
 
-        $export = new \App\Exports\RecordsExport($query);
+        $export = new RecordsExport($query);
+
         return response($export->toCsv())
             ->header('Content-Type', 'text/csv')
-            ->header('Content-Disposition', 'attachment; filename="od-records-' . $startDate . '-to-' . $endDate . '.csv"');
+            ->header('Content-Disposition', 'attachment; filename="od-records-'.$startDate.'-to-'.$endDate.'.csv"');
     }
 
     public function exportEmailCsv(Request $request)
     {
         $emailUserId = $request->session()->get('email_user_id');
-        if (!$emailUserId) { return redirect()->route('email-handler'); }
+        if (! $emailUserId) {
+            return redirect()->route('email-handler');
+        }
 
         $query = Record::where('source', 'Email')
             ->where('encoder_id', $emailUserId)
             ->whereDate('created_at', today())
             ->orderBy('id', 'asc');
 
-        $export = new \App\Exports\RecordsExport($query);
+        $export = new RecordsExport($query);
+
         return response($export->toCsv())
             ->header('Content-Type', 'text/csv')
-            ->header('Content-Disposition', 'attachment; filename="email-records-' . date('Y-m-d') . '.csv"');
+            ->header('Content-Disposition', 'attachment; filename="email-records-'.date('Y-m-d').'.csv"');
     }
 
     public function exportEmailCsvByDateRange(Request $request)
     {
         $emailUserId = $request->session()->get('email_user_id');
-        if (!$emailUserId) { return redirect()->route('email-handler'); }
+        if (! $emailUserId) {
+            return redirect()->route('email-handler');
+        }
 
         $request->validate([
             'start_date' => 'required|date',
@@ -605,29 +622,35 @@ class RoutesController extends Controller
             ->whereBetween('created_at', [$startDate, $endDate])
             ->orderBy('id', 'asc');
 
-        $export = new \App\Exports\RecordsExport($query);
+        $export = new RecordsExport($query);
+
         return response($export->toCsv())
             ->header('Content-Type', 'text/csv')
-            ->header('Content-Disposition', 'attachment; filename="email-records-' . $startDate . '-to-' . $endDate . '.csv"');
+            ->header('Content-Disposition', 'attachment; filename="email-records-'.$startDate.'-to-'.$endDate.'.csv"');
     }
 
     public function exportFacebookCsv(Request $request)
     {
-        if (!$request->session()->get('facebook_logged_in')) { return redirect()->route('facebook-handler'); }
+        if (! $request->session()->get('facebook_logged_in')) {
+            return redirect()->route('facebook-handler');
+        }
 
         $query = Record::where('source', 'Facebook')
             ->whereDate('created_at', today())
             ->orderBy('id', 'asc');
 
-        $export = new \App\Exports\RecordsExport($query);
+        $export = new RecordsExport($query);
+
         return response($export->toCsv())
             ->header('Content-Type', 'text/csv')
-            ->header('Content-Disposition', 'attachment; filename="facebook-records-' . date('Y-m-d') . '.csv"');
+            ->header('Content-Disposition', 'attachment; filename="facebook-records-'.date('Y-m-d').'.csv"');
     }
 
     public function exportFacebookCsvByDateRange(Request $request)
     {
-        if (!$request->session()->get('facebook_logged_in')) { return redirect()->route('facebook-handler'); }
+        if (! $request->session()->get('facebook_logged_in')) {
+            return redirect()->route('facebook-handler');
+        }
 
         $request->validate([
             'start_date' => 'required|date',
@@ -641,10 +664,11 @@ class RoutesController extends Controller
             ->whereBetween('created_at', [$startDate, $endDate])
             ->orderBy('id', 'asc');
 
-        $export = new \App\Exports\RecordsExport($query);
+        $export = new RecordsExport($query);
+
         return response($export->toCsv())
             ->header('Content-Type', 'text/csv')
-            ->header('Content-Disposition', 'attachment; filename="facebook-records-' . $startDate . '-to-' . $endDate . '.csv"');
+            ->header('Content-Disposition', 'attachment; filename="facebook-records-'.$startDate.'-to-'.$endDate.'.csv"');
     }
 
     public function showAdminLogin()
@@ -660,17 +684,17 @@ class RoutesController extends Controller
         ]);
 
         $admin = Admin::where('username', $request->username)->first();
-        
-        if ($admin && !Hash::needsRehash($admin->password)) {
+
+        if ($admin && ! Hash::needsRehash($admin->password)) {
             // Modern hashed password
-            if (!Hash::check($request->password, $admin->password)) {
+            if (! Hash::check($request->password, $admin->password)) {
                 $admin = null;
             }
         } elseif ($admin) {
             // Legacy plain text password - automatically upgrade to hash
             if ($admin->password === $request->password) {
                 $admin->update([
-                    'password' => Hash::make($request->password)
+                    'password' => Hash::make($request->password),
                 ]);
             } else {
                 $admin = null;
@@ -681,7 +705,7 @@ class RoutesController extends Controller
             // Update admin activity in database
             $admin->update([
                 'active' => true,
-                'last_activity' => now()
+                'last_activity' => now(),
             ]);
 
             $request->session()->put('admin_logged_in', true);
@@ -712,7 +736,7 @@ class RoutesController extends Controller
                 'session_id' => session()->getId(),
                 'admin_logged_in' => session()->get('admin_logged_in'),
                 'admin_username' => session()->get('admin_username'),
-                'all_session_data' => $request->session()->all()
+                'all_session_data' => $request->session()->all(),
             ]);
 
             return redirect()->route('admin')->with('success', 'Admin login successful');
@@ -721,7 +745,7 @@ class RoutesController extends Controller
         // Debug: Log failed login attempt
         \Log::warning('Admin login failed', [
             'username' => $request->username,
-            'user_exists' => $admin !== null
+            'user_exists' => $admin !== null,
         ]);
 
         return redirect()->back()->with('error', 'Invalid credentials');
@@ -735,7 +759,7 @@ class RoutesController extends Controller
             // Update admin status in database
             Admin::where('username', $adminUsername)->update([
                 'active' => false,
-                'last_activity' => now()
+                'last_activity' => now(),
             ]);
         }
 
@@ -744,6 +768,7 @@ class RoutesController extends Controller
         $request->session()->forget('admin_last_activity');
         // Remove from active_sessions
         ActiveSession::where('session_id', $sessionId)->where('channel', 'Admin')->delete();
+
         return redirect()->route('welcome');
     }
 
@@ -752,30 +777,31 @@ class RoutesController extends Controller
         // Check if admin is logged in
         $adminLoggedIn = $request->session()->get('admin_logged_in', false);
         $adminUsername = $request->session()->get('admin_username', '');
-        
+
         // Debug logging
         \Log::info('Admin page access attempt', [
             'admin_logged_in' => $adminLoggedIn,
             'admin_username' => $adminUsername,
             'session_id' => session()->getId(),
-            'session_data' => $request->session()->all()
+            'session_data' => $request->session()->all(),
         ]);
-        
-        if (!$adminLoggedIn) {
+
+        if (! $adminLoggedIn) {
             \Log::warning('Admin access denied - not logged in');
+
             return redirect()->route('welcome')->with('error', 'Please login as admin to access this page');
         }
 
         $query = Record::query();
 
         if ($request->filled('farmerName')) {
-            $query->where('farmerName', 'like', '%' . $request->farmerName . '%');
+            $query->where('farmerName', 'like', '%'.$request->farmerName.'%');
         }
         if ($request->filled('address')) {
-            $query->where('address', 'like', '%' . $request->address . '%');
+            $query->where('address', 'like', '%'.$request->address.'%');
         }
         if ($request->filled('encoderName')) {
-            $query->where('encoderName', 'like', '%' . $request->encoderName . '%');
+            $query->where('encoderName', 'like', '%'.$request->encoderName.'%');
         }
         if ($request->filled('program')) {
             $query->where('program', $request->program);
@@ -784,37 +810,37 @@ class RoutesController extends Controller
             $query->where('line', $request->line);
         }
         if ($request->filled('province')) {
-            $query->where('province', 'like', '%' . $request->province . '%');
+            $query->where('province', 'like', '%'.$request->province.'%');
         }
         if ($request->filled('municipality')) {
-            $query->where('municipality', 'like', '%' . $request->municipality . '%');
+            $query->where('municipality', 'like', '%'.$request->municipality.'%');
         }
         if ($request->filled('barangay')) {
-            $query->where('barangay', 'like', '%' . $request->barangay . '%');
+            $query->where('barangay', 'like', '%'.$request->barangay.'%');
         }
         if ($request->filled('causeOfDamage')) {
-            $query->where('causeOfDamage', 'like', '%' . $request->causeOfDamage . '%');
+            $query->where('causeOfDamage', 'like', '%'.$request->causeOfDamage.'%');
         }
         if ($request->filled('modeOfPayment')) {
             $query->where('modeOfPayment', $request->modeOfPayment);
         }
         if ($request->filled('remarks')) {
-            $query->where('remarks', 'like', '%' . $request->remarks . '%');
+            $query->where('remarks', 'like', '%'.$request->remarks.'%');
         }
         if ($request->filled('date_occurrence')) {
-            $query->where('date_occurrence', 'like', '%' . $request->date_occurrence . '%');
+            $query->where('date_occurrence', 'like', '%'.$request->date_occurrence.'%');
         }
         if ($request->filled('accounts')) {
-            $query->where('accounts', 'like', '%' . $request->accounts . '%');
+            $query->where('accounts', 'like', '%'.$request->accounts.'%');
         }
         if ($request->filled('source')) {
             $query->where('source', $request->source);
         }
         if ($request->filled('transmittal_number')) {
-            $query->where('transmittal_number', 'like', '%' . $request->transmittal_number . '%');
+            $query->where('transmittal_number', 'like', '%'.$request->transmittal_number.'%');
         }
         if ($request->filled('admin_transmittal_number')) {
-            $query->where('admin_transmittal_number', 'like', '%' . $request->admin_transmittal_number . '%');
+            $query->where('admin_transmittal_number', 'like', '%'.$request->admin_transmittal_number.'%');
         }
         if ($request->filled('unassigned_only')) {
             $query->where(function ($query) {
@@ -841,31 +867,31 @@ class RoutesController extends Controller
         }
         if ($request->filled('date_month')) {
             $query->whereMonth('created_at', $request->date_month)
-                  ->whereYear('created_at', $request->filled('date_year') ? $request->date_year : now()->year);
+                ->whereYear('created_at', $request->filled('date_year') ? $request->date_year : now()->year);
         }
 
         // Handle sorting
         $sortBy = $request->input('sort_by', 'id');
         $sortOrder = $request->input('sort_order', 'desc');
         $perPage = (int) $request->input('per_page', 40);
-        if (!in_array($perPage, [40, 80, 120], true)) {
+        if (! in_array($perPage, [40, 80, 120], true)) {
             $perPage = 40;
         }
-        
+
         // Validate sort parameters to prevent injection
         $allowedSortColumns = ['id', 'farmerName', 'province', 'municipality', 'barangay', 'program', 'line', 'causeOfDamage', 'modeOfPayment', 'date_occurrence', 'remarks', 'accounts', 'source', 'transmittal_number', 'admin_transmittal_number', 'encoderName', 'approved', 'created_at'];
-        if (!in_array($sortBy, $allowedSortColumns)) {
+        if (! in_array($sortBy, $allowedSortColumns)) {
             $sortBy = 'id';
         }
-        if (!in_array($sortOrder, ['asc', 'desc'])) {
+        if (! in_array($sortOrder, ['asc', 'desc'])) {
             $sortOrder = 'desc';
         }
-        
+
         $records = $query->orderBy($sortBy, $sortOrder)->paginate($perPage)->withQueryString();
 
         // Dashboard stats - use ONLY dashboard filter parameters (dash_ prefix)
         $statsQuery = Record::query();
-        
+
         // Apply DASHBOARD ONLY filters (do NOT affect main records table)
         if ($request->filled('dash_program')) {
             $statsQuery->where('program', $request->dash_program);
@@ -874,19 +900,19 @@ class RoutesController extends Controller
             $statsQuery->where('line', $request->dash_line);
         }
         if ($request->filled('dash_province')) {
-            $statsQuery->where('province', 'like', '%' . $request->dash_province . '%');
+            $statsQuery->where('province', 'like', '%'.$request->dash_province.'%');
         }
         if ($request->filled('dash_municipality')) {
-            $statsQuery->where('municipality', 'like', '%' . $request->dash_municipality . '%');
+            $statsQuery->where('municipality', 'like', '%'.$request->dash_municipality.'%');
         }
         if ($request->filled('dash_barangay')) {
-            $statsQuery->where('barangay', 'like', '%' . $request->dash_barangay . '%');
+            $statsQuery->where('barangay', 'like', '%'.$request->dash_barangay.'%');
         }
         if ($request->filled('dash_source')) {
             $sources = $request->input('dash_source');
             if (is_array($sources) && count($sources) > 0) {
                 $statsQuery->whereIn('source', $sources);
-            } elseif (is_string($sources) && !empty($sources)) {
+            } elseif (is_string($sources) && ! empty($sources)) {
                 $statsQuery->where('source', $sources);
             }
         }
@@ -903,7 +929,7 @@ class RoutesController extends Controller
                 }
             } elseif ($dateType === 'month' && $request->filled('dash_date_month')) {
                 $statsQuery->whereMonth('created_at', substr($request->dash_date_month, 5, 2))
-                      ->whereYear('created_at', substr($request->dash_date_month, 0, 4));
+                    ->whereYear('created_at', substr($request->dash_date_month, 0, 4));
             }
         }
 
@@ -944,7 +970,7 @@ class RoutesController extends Controller
             $municipality = trim((string) $record->municipality);
             $barangay = trim((string) $record->barangay);
 
-            if (!in_array($province, $dashProvinces, true) || $municipality === '') {
+            if (! in_array($province, $dashProvinces, true) || $municipality === '') {
                 continue;
             }
 
@@ -993,14 +1019,14 @@ class RoutesController extends Controller
             ->groupBy('line')
             ->orderByRaw('count(*) desc')
             ->pluck('count', 'line');
-        
+
         // Source counts should follow the active dashboard filters
         $recordsBySource = (clone $statsQuery)
             ->selectRaw('source, count(*) as count')
             ->groupBy('source')
             ->orderByRaw('count(*) desc')
             ->pluck('count', 'source');
-        
+
         // Mode of payment counts
         $recordsByModeOfPayment = (clone $statsQuery)
             ->selectRaw('modeOfPayment, count(*) as count')
@@ -1027,7 +1053,7 @@ class RoutesController extends Controller
                     return $provinceGroup->take(5)->map(function ($item) {
                         return [
                             'municipality' => $item->municipality,
-                            'count' => (int) $item->count
+                            'count' => (int) $item->count,
                         ];
                     })->values();
                 });
@@ -1050,7 +1076,7 @@ class RoutesController extends Controller
             ->get()
             ->groupBy('municipality');
         $recentRecords = (clone $statsQuery)->where('created_at', '>=', now()->subDays(7))->count();
-        
+
         // Unfiltered stats for reference
         $activeOfficers = Officer::orderBy('name')->get();
         $admins = Admin::all();
@@ -1065,7 +1091,7 @@ class RoutesController extends Controller
             'OTHER-LBP ACP',
             'REGULAR',
             'SELF-FINANCED',
-            'CFITF'
+            'CFITF',
         ];
 
         // All available lines (7 total)
@@ -1076,21 +1102,21 @@ class RoutesController extends Controller
             'clti',
             'livestock',
             'non-crop',
-            'fisheries'
+            'fisheries',
         ];
 
         // All available sources
         $allSources = [
             'OD',
             'Email',
-            'Facebook'
+            'Facebook',
         ];
 
         // All available provinces - Hardcoded to match modal options exactly
         $allProvinces = [
             'Aurora',
             'Nueva Ecija',
-            'Tarlac'
+            'Tarlac',
         ];
 
         // All available provinces, municipalities, barangays
@@ -1102,7 +1128,7 @@ class RoutesController extends Controller
             'check',
             'palawan',
             'gcash',
-            'not_indicated'
+            'not_indicated',
         ];
 
         return view('admin', [
@@ -1133,21 +1159,21 @@ class RoutesController extends Controller
     public function printPreview(Request $request)
     {
         // Check if admin is logged in
-        if (!$request->session()->has('admin_logged_in') || !$request->session()->get('admin_logged_in')) {
+        if (! $request->session()->has('admin_logged_in') || ! $request->session()->get('admin_logged_in')) {
             return redirect()->route('welcome');
         }
 
         $sessionRecordIds = $request->session()->get('admin_print_preview_record_ids', []);
 
         // Log for debugging - remove this in production
-        \Log::info('Print Preview - Session Record IDs: ' . json_encode($sessionRecordIds));
-        \Log::info('Print Preview - Request Params: ' . json_encode($request->all()));
+        \Log::info('Print Preview - Session Record IDs: '.json_encode($sessionRecordIds));
+        \Log::info('Print Preview - Request Params: '.json_encode($request->all()));
 
         // ALSO support ids from URL query parameter
         if ($request->filled('ids')) {
             $urlIds = explode(',', $request->input('ids'));
             $urlIds = array_filter(array_map('intval', $urlIds));
-            if (!empty($urlIds)) {
+            if (! empty($urlIds)) {
                 $sessionRecordIds = $urlIds;
             }
         }
@@ -1156,44 +1182,45 @@ class RoutesController extends Controller
             $records = Record::where('admin_transmittal_number', $request->input('reprint_transmittal'))
                 ->orderBy('id', 'asc')
                 ->get();
-        } elseif (!empty($sessionRecordIds)) {
+        } elseif (! empty($sessionRecordIds)) {
             $recordsQuery = Record::whereIn('id', $sessionRecordIds);
-            
+
             // Check if selection order is provided
             if ($request->filled('order') && $request->filled('sources')) {
                 $orderIds = explode(',', $request->input('order'));
                 $orderIds = array_filter(array_map('intval', $orderIds));
                 $sourceOrder = explode(',', $request->input('sources'));
                 $sourceOrder = array_filter(array_map('trim', $sourceOrder));
-                
+
                 // Get all records first
                 $records = $recordsQuery->get();
-                
+
                 // Create a map of ID to record for quick lookup
                 $recordsById = $records->keyBy('id');
-                
+
                 // Create a map of source to records
                 $recordsBySource = [];
                 foreach ($records as $record) {
                     $source = $record->source ?? 'not_indicated';
-                    if (!isset($recordsBySource[$source])) {
+                    if (! isset($recordsBySource[$source])) {
                         $recordsBySource[$source] = [];
                     }
                     $recordsBySource[$source][] = $record;
                 }
-                
+
                 // Sort records within each source based on selection order
                 foreach ($sourceOrder as $source) {
                     if (isset($recordsBySource[$source])) {
                         // Sort records within this source by their position in the selection order
-                        usort($recordsBySource[$source], function($a, $b) use ($orderIds) {
+                        usort($recordsBySource[$source], function ($a, $b) use ($orderIds) {
                             $indexA = array_search($a->id, $orderIds);
                             $indexB = array_search($b->id, $orderIds);
+
                             return $indexA - $indexB;
                         });
                     }
                 }
-                
+
                 // Rebuild records array grouped by source in source order
                 $sortedRecords = [];
                 foreach ($sourceOrder as $source) {
@@ -1201,14 +1228,14 @@ class RoutesController extends Controller
                         $sortedRecords = array_merge($sortedRecords, $recordsBySource[$source]);
                     }
                 }
-                
+
                 // Add any records from sources not in the source order (shouldn't happen but just in case)
                 foreach ($recordsBySource as $source => $sourceRecords) {
-                    if (!in_array($source, $sourceOrder)) {
+                    if (! in_array($source, $sourceOrder)) {
                         $sortedRecords = array_merge($sortedRecords, $sourceRecords);
                     }
                 }
-                
+
                 $records = collect($sortedRecords);
             } else {
                 // Fallback to original ordering if no order provided
@@ -1220,8 +1247,8 @@ class RoutesController extends Controller
             $recordsQuery = $query->orderBy('id', 'desc');
             $records = $recordsQuery->get();
         }
-        
-        \Log::info('Print Preview - Total Records Found: ' . $records->count());
+
+        \Log::info('Print Preview - Total Records Found: '.$records->count());
         $totalRecords = $records->count();
         $perPage = 40;
 
@@ -1258,12 +1285,13 @@ class RoutesController extends Controller
                 ->map(function ($record) {
                     $transmittal = $record->admin_transmittal_number;
                     preg_match('/(\d+)$/', $transmittal, $matches);
+
                     return isset($matches[1]) ? (int) $matches[1] : 0;
                 })
                 ->max() ?? 0;
 
             for ($p = 1; $p <= $totalPages; $p++) {
-                if (!isset($pageTransmittalNumbers[$p]) || $pageTransmittalNumbers[$p] === null || $pageTransmittalNumbers[$p] === '') {
+                if (! isset($pageTransmittalNumbers[$p]) || $pageTransmittalNumbers[$p] === null || $pageTransmittalNumbers[$p] === '') {
                     $pageTransmittalNumbers[$p] = (string) ($maxExisting + $p);
                 }
             }
@@ -1285,7 +1313,7 @@ class RoutesController extends Controller
     public function addToPrintPreview(Request $request)
     {
         $recordIds = [];
-        
+
         if ($request->filled('record_ids')) {
             $recordIds = json_decode($request->input('record_ids'), true);
         } else {
@@ -1301,18 +1329,18 @@ class RoutesController extends Controller
 
             // Check if any of the filtered records already have transmittal numbers
             $totalFilteredRecords = $query->count();
-            $recordsWithTransmittal = $query->where(function($q) {
+            $recordsWithTransmittal = $query->where(function ($q) {
                 $q->whereNotNull('transmittal_number')->orWhereNotNull('admin_transmittal_number');
             })->count();
 
             if ($recordsWithTransmittal > 0) {
-                return redirect()->back()->with('error', 'Cannot add records to print preview. ' . $recordsWithTransmittal . ' of the ' . $totalFilteredRecords . ' filtered records already have transmittal numbers. Please use the "Show only records without admin transmittal numbers" filter to view eligible records.');
+                return redirect()->back()->with('error', 'Cannot add records to print preview. '.$recordsWithTransmittal.' of the '.$totalFilteredRecords.' filtered records already have transmittal numbers. Please use the "Show only records without admin transmittal numbers" filter to view eligible records.');
             }
 
             $recordIds = $query->pluck('id')->toArray();
         }
-        
-        if (!is_array($recordIds)) {
+
+        if (! is_array($recordIds)) {
             $recordIds = [];
         }
 
@@ -1325,26 +1353,26 @@ class RoutesController extends Controller
     public function exportPreviewCsv(Request $request)
     {
         // Check if admin is logged in
-        if (!$request->session()->has('admin_logged_in') || !$request->session()->get('admin_logged_in')) {
+        if (! $request->session()->has('admin_logged_in') || ! $request->session()->get('admin_logged_in')) {
             return redirect()->route('welcome');
         }
 
         $sessionRecordIds = $request->session()->get('admin_print_preview_record_ids', []);
 
         // Log for debugging - remove this in production
-        \Log::info('CSV Export - Session Record IDs: ' . json_encode($sessionRecordIds));
-        \Log::info('CSV Export - Request Params: ' . json_encode($request->all()));
+        \Log::info('CSV Export - Session Record IDs: '.json_encode($sessionRecordIds));
+        \Log::info('CSV Export - Request Params: '.json_encode($request->all()));
 
         // ALSO support ids from URL query parameter
         if ($request->filled('ids')) {
             $urlIds = explode(',', $request->input('ids'));
             $urlIds = array_filter(array_map('intval', $urlIds));
-            if (!empty($urlIds)) {
+            if (! empty($urlIds)) {
                 $sessionRecordIds = $urlIds;
             }
         }
 
-        if (!empty($sessionRecordIds)) {
+        if (! empty($sessionRecordIds)) {
             $recordsQuery = Record::whereIn('id', $sessionRecordIds)
                 ->orderBy('id', 'desc');
         } else {
@@ -1356,12 +1384,12 @@ class RoutesController extends Controller
 
         // Get all records - same as printPreview
         $records = $recordsQuery->get();
-        
-        \Log::info('CSV Export - Total Records Found: ' . $records->count());
+
+        \Log::info('CSV Export - Total Records Found: '.$records->count());
 
         // Use the specific columns requested by the user
         $headers = ['ID', 'FarmerName', 'Province', 'Municipality', 'Barangay', 'Line', 'Program', 'CauseOfDamage', 'ModeOfPayment', 'Remarks', 'Source', 'Admin_Transmittal_Number', 'EncoderName', 'Date_Occurrence', 'Date_Received'];
-        
+
         // Generate CSV headers
         $csv = fopen('php://temp', 'r+');
         fputcsv($csv, $headers);
@@ -1383,7 +1411,7 @@ class RoutesController extends Controller
                 $record->admin_transmittal_number ?: '—',
                 $record->encoderName,
                 $record->date_occurrence ? (is_string($record->date_occurrence) ? $record->date_occurrence : $record->date_occurrence->format('Y-m-d')) : '—',
-                $record->date_received ? (is_string($record->date_received) ? $record->date_received : $record->date_received->format('Y-m-d')) : '—'
+                $record->date_received ? (is_string($record->date_received) ? $record->date_received : $record->date_received->format('Y-m-d')) : '—',
             ];
             fputcsv($csv, $row);
         }
@@ -1392,17 +1420,17 @@ class RoutesController extends Controller
         $csvContent = stream_get_contents($csv);
         fclose($csv);
 
-        $filename = 'transmittal_export_' . date('Y-m-d_H-i-s') . '.csv';
+        $filename = 'transmittal_export_'.date('Y-m-d_H-i-s').'.csv';
 
         return response($csvContent)
             ->header('Content-Type', 'text/csv')
-            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+            ->header('Content-Disposition', 'attachment; filename="'.$filename.'"');
     }
 
     public function assignTransmittals(Request $request)
     {
         // Check if admin is logged in
-        if (!$request->session()->has('admin_logged_in') || !$request->session()->get('admin_logged_in')) {
+        if (! $request->session()->has('admin_logged_in') || ! $request->session()->get('admin_logged_in')) {
             return redirect()->route('welcome');
         }
 
@@ -1411,8 +1439,8 @@ class RoutesController extends Controller
         // Get record IDs from URL parameter
         $urlIds = $request->input('ids', '');
         $recordIds = [];
-        
-        if (!empty($urlIds)) {
+
+        if (! empty($urlIds)) {
             // Parse comma-separated IDs from URL
             $recordIds = explode(',', $urlIds);
             // Convert to integers and filter out invalid values
@@ -1423,7 +1451,7 @@ class RoutesController extends Controller
             // If no URL IDs, return error
             return response()->json([
                 'success' => false,
-                'message' => 'No record IDs found in URL. Please provide valid record IDs.'
+                'message' => 'No record IDs found in URL. Please provide valid record IDs.',
             ]);
         }
 
@@ -1438,7 +1466,7 @@ class RoutesController extends Controller
             if ($allRecords->isEmpty()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'No records found for assigning admin transmittal number.'
+                    'message' => 'No records found for assigning admin transmittal number.',
                 ]);
             }
 
@@ -1447,7 +1475,7 @@ class RoutesController extends Controller
             })) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Transmittal number already assigned!'
+                    'message' => 'Transmittal number already assigned!',
                 ]);
             }
 
@@ -1460,6 +1488,7 @@ class RoutesController extends Controller
                 ->map(function ($record) {
                     $transmittal = $record->admin_transmittal_number;
                     preg_match('/(\d+)$/', $transmittal, $matches);
+
                     return isset($matches[1]) ? (int) $matches[1] : 0;
                 })
                 ->max() ?? 0;
@@ -1476,7 +1505,7 @@ class RoutesController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => "Admin transmittal numbers assigned successfully to {$totalRecords} records across {$totalPages} pages."
+                'message' => "Admin transmittal numbers assigned successfully to {$totalRecords} records across {$totalPages} pages.",
             ]);
         });
     }
@@ -1484,19 +1513,20 @@ class RoutesController extends Controller
     public function clearPrintPreview(Request $request)
     {
         $request->session()->forget('admin_print_preview_record_ids');
+
         return redirect()->back()->with('success', 'Print preview cleared.');
     }
 
     private function applyFilters(Request $request, $query)
     {
         if ($request->filled('farmerName')) {
-            $query->where('farmerName', 'like', '%' . $request->farmerName . '%');
+            $query->where('farmerName', 'like', '%'.$request->farmerName.'%');
         }
         if ($request->filled('address')) {
-            $query->where('address', 'like', '%' . $request->address . '%');
+            $query->where('address', 'like', '%'.$request->address.'%');
         }
         if ($request->filled('encoderName')) {
-            $query->where('encoderName', 'like', '%' . $request->encoderName . '%');
+            $query->where('encoderName', 'like', '%'.$request->encoderName.'%');
         }
         if ($request->filled('program')) {
             $query->where('program', $request->program);
@@ -1505,24 +1535,24 @@ class RoutesController extends Controller
             $query->where('line', $request->line);
         }
         if ($request->filled('province')) {
-            $query->where('province', 'like', '%' . $request->province . '%');
+            $query->where('province', 'like', '%'.$request->province.'%');
         }
         if ($request->filled('municipality')) {
-            $query->where('municipality', 'like', '%' . $request->municipality . '%');
+            $query->where('municipality', 'like', '%'.$request->municipality.'%');
         }
         if ($request->filled('barangay')) {
-            $query->where('barangay', 'like', '%' . $request->barangay . '%');
+            $query->where('barangay', 'like', '%'.$request->barangay.'%');
         }
         if ($request->filled('causeOfDamage')) {
-            $query->where('causeOfDamage', 'like', '%' . $request->causeOfDamage . '%');
+            $query->where('causeOfDamage', 'like', '%'.$request->causeOfDamage.'%');
         }
         if ($request->filled('modeOfPayment')) {
             $query->where('modeOfPayment', $request->modeOfPayment);
         }
         if ($request->filled('remarks')) {
-            $query->where('remarks', 'like', '%' . $request->remarks . '%');
+            $query->where('remarks', 'like', '%'.$request->remarks.'%');
         }
-        
+
         // Date occurrence filtering
         if ($request->filled('date_occurrence_filter_type') && $request->date_occurrence_filter_type === 'single') {
             if ($request->filled('date_occurrence')) {
@@ -1536,7 +1566,7 @@ class RoutesController extends Controller
                 $query->where('date_occurrence', '<=', $request->date_occurrence_to);
             }
         }
-        
+
         // Date received filtering
         if ($request->filled('date_received_filter_type') && $request->date_received_filter_type === 'single') {
             if ($request->filled('date_received')) {
@@ -1550,18 +1580,18 @@ class RoutesController extends Controller
                 $query->where('date_received', '<=', $request->date_received_to);
             }
         }
-        
+
         if ($request->filled('accounts')) {
-            $query->where('accounts', 'like', '%' . $request->accounts . '%');
+            $query->where('accounts', 'like', '%'.$request->accounts.'%');
         }
         if ($request->filled('source')) {
             $query->where('source', $request->source);
         }
         if ($request->filled('transmittal_number')) {
-            $query->where('transmittal_number', 'like', '%' . $request->transmittal_number . '%');
+            $query->where('transmittal_number', 'like', '%'.$request->transmittal_number.'%');
         }
         if ($request->filled('admin_transmittal_number')) {
-            $query->where('admin_transmittal_number', 'like', '%' . $request->admin_transmittal_number . '%');
+            $query->where('admin_transmittal_number', 'like', '%'.$request->admin_transmittal_number.'%');
         }
         if ($request->filled('unassigned_only')) {
             $query->where(function ($query) {
@@ -1580,7 +1610,7 @@ class RoutesController extends Controller
     public function bulkDelete(Request $request)
     {
         // Check if admin is logged in
-        if (!$request->session()->has('admin_logged_in') || !$request->session()->get('admin_logged_in')) {
+        if (! $request->session()->has('admin_logged_in') || ! $request->session()->get('admin_logged_in')) {
             return redirect()->route('welcome');
         }
 
@@ -1592,11 +1622,11 @@ class RoutesController extends Controller
         $request->merge(['record_ids' => $ids]);
         $request->validate([
             'record_ids' => 'required|array|max:100',
-            'record_ids.*' => 'integer|exists:records,id'
+            'record_ids.*' => 'integer|exists:records,id',
         ]);
 
         $count = Record::whereIn('id', $ids)->delete();
-        
+
         return redirect()->back()->with('success', "{$count} records deleted successfully!");
     }
 
@@ -1611,17 +1641,16 @@ class RoutesController extends Controller
         return redirect()->back()->with('success', 'Record approved successfully.');
     }
 
-
     public function exportExcel(Request $request)
     {
         // Check if admin is logged in
-        if (!$request->session()->has('admin_logged_in') || !$request->session()->get('admin_logged_in')) {
+        if (! $request->session()->has('admin_logged_in') || ! $request->session()->get('admin_logged_in')) {
             return redirect()->route('welcome');
         }
 
         $query = Record::query();
         $this->applyFilters($request, $query);
-        $export = new \App\Exports\RecordsExport($query->orderBy('id', 'asc'));
+        $export = new RecordsExport($query->orderBy('id', 'asc'));
         $csv = $export->toCsv();
 
         return response($csv)
@@ -1632,7 +1661,7 @@ class RoutesController extends Controller
     public function exportPdf(Request $request)
     {
         // Check if admin is logged in
-        if (!$request->session()->has('admin_logged_in') || !$request->session()->get('admin_logged_in')) {
+        if (! $request->session()->has('admin_logged_in') || ! $request->session()->get('admin_logged_in')) {
             return redirect()->route('welcome');
         }
 
@@ -1641,13 +1670,14 @@ class RoutesController extends Controller
         $records = $query->orderBy('id', 'asc')->get();
         $pdf = app('dompdf.wrapper')->loadView('pdf.records', compact('records'));
         $pdf->setPaper('a4', 'landscape');
+
         return $pdf->download('records.pdf');
     }
 
     public function updateAdmin(Request $request, $id)
     {
         $request->validate([
-            'username' => 'required|string|unique:admins,username,' . $id,
+            'username' => 'required|string|unique:admins,username,'.$id,
             'password' => 'required|string|min:6',
         ]);
 
@@ -1680,11 +1710,11 @@ class RoutesController extends Controller
         $source = $request->input('source');
         $conditions = ['source' => null, 'encoderName' => null];
 
-        if (!in_array($source, ['OD', 'Email', 'Facebook'], true)) {
+        if (! in_array($source, ['OD', 'Email', 'Facebook'], true)) {
             $source = null;
         }
 
-        if (!$source) {
+        if (! $source) {
             if ($request->session()->has('officer_name')) {
                 $source = 'OD';
                 $conditions['source'] = 'OD';
@@ -1700,19 +1730,19 @@ class RoutesController extends Controller
             $conditions['source'] = $source;
         }
 
-        if ($source === 'OD' && !$request->session()->has('officer_name')) {
+        if ($source === 'OD' && ! $request->session()->has('officer_name')) {
             return redirect()->back()->with('error', 'Please log in as Officer of the Day first.');
         }
 
-        if ($source === 'Email' && (!$request->session()->has('email_logged_in') || !$request->session()->has('email_user_name'))) {
+        if ($source === 'Email' && (! $request->session()->has('email_logged_in') || ! $request->session()->has('email_user_name'))) {
             return redirect()->back()->with('error', 'Please log in to Email handler first.');
         }
 
-        if ($source === 'Facebook' && !$request->session()->has('facebook_logged_in')) {
+        if ($source === 'Facebook' && ! $request->session()->has('facebook_logged_in')) {
             return redirect()->back()->with('error', 'Please log in to Facebook handler first.');
         }
 
-        if (!$source) {
+        if (! $source) {
             return redirect()->back()->with('error', 'You must be logged in to submit a transmittal.');
         }
 
@@ -1740,7 +1770,7 @@ class RoutesController extends Controller
 
         // Generate transmittal number: yyyy-mmdd-PNNN where P is prefix (F/E/none)
         $today = now()->format('Y-md');
-        
+
         // Determine prefix based on source
         $prefix = '';
         if ($source === 'Facebook') {
@@ -1749,14 +1779,14 @@ class RoutesController extends Controller
             $prefix = 'E';
         }
         // OD has no prefix
-        
+
         // Check for custom suffix from request (Officer of the Day only)
         if ($source === 'OD' && $request->filled('custom_transmittal_suffix')) {
             $nextNumber = $request->input('custom_transmittal_suffix');
             $nextNumber = str_pad(substr($nextNumber, 0, 3), 3, '0', STR_PAD_LEFT);
         } else {
             // Find the latest transmittal for today and this source
-            $searchPattern = $today . '-' . ($prefix ? $prefix : '') . '%';
+            $searchPattern = $today.'-'.($prefix ? $prefix : '').'%';
             $latestTransmittal = Record::where('source', $source)
                 ->whereNotNull('control_number')
                 ->where('control_number', 'like', $searchPattern);
@@ -1776,18 +1806,18 @@ class RoutesController extends Controller
                     // Remove prefix if present and get the numeric part
                     if ($prefix && str_starts_with($lastPart, $prefix)) {
                         $numericPart = substr($lastPart, 1);
-                    } elseif (!$prefix) {
+                    } elseif (! $prefix) {
                         $numericPart = $lastPart;
                     } else {
                         $numericPart = '0';
                     }
-                    $latestNumber = (int)$numericPart;
+                    $latestNumber = (int) $numericPart;
                 }
             }
 
             $nextNumber = str_pad($latestNumber + 1, 3, '0', STR_PAD_LEFT);
         }
-        $transmittalNumber = $today . '-' . $prefix . $nextNumber;
+        $transmittalNumber = $today.'-'.$prefix.$nextNumber;
 
         // Update all records with the new control number
         Record::whereIn('id', $recordsToSubmit->pluck('id'))->update([
@@ -1795,14 +1825,14 @@ class RoutesController extends Controller
         ]);
 
         $count = $recordsToSubmit->count();
+
         return redirect()->back()->with('success', "Transmittal $transmittalNumber created successfully with $count records.");
     }
-
 
     public function getActiveUsers(Request $request)
     {
         try {
-            if (!$request->session()->has('admin_logged_in') || !$request->session()->get('admin_logged_in')) {
+            if (! $request->session()->has('admin_logged_in') || ! $request->session()->get('admin_logged_in')) {
                 return response()->json(['error' => 'unauthorized'], 401);
             }
 
@@ -1814,11 +1844,11 @@ class RoutesController extends Controller
             $sessions = ActiveSession::active()->get();
 
             foreach ($sessions as $session) {
-                $userKey = $session->user_name . '_' . $session->channel;
-                if (!isset($seenUsers[$userKey])) {
+                $userKey = $session->user_name.'_'.$session->channel;
+                if (! isset($seenUsers[$userKey])) {
                     $status = $this->getUserStatus($session->last_activity, $now, $session->is_away);
 
-                    $channelDisplay = match($session->channel) {
+                    $channelDisplay = match ($session->channel) {
                         'OD' => 'Officer of the Day',
                         'Admin' => 'Admin',
                         'Email' => 'Email',
@@ -1826,12 +1856,12 @@ class RoutesController extends Controller
                         default => $session->channel,
                     };
 
-                    $emailDisplay = match($session->channel) {
+                    $emailDisplay = match ($session->channel) {
                         'OD' => 'officer@handler.com',
-                        'Admin' => $session->user_name . '@admin.com',
+                        'Admin' => $session->user_name.'@admin.com',
                         'Email' => 'email@handler.com',
                         'Facebook' => 'facebook@handler.com',
-                        default => $session->user_name . '@handler.com',
+                        default => $session->user_name.'@handler.com',
                     };
 
                     $activeUsers[] = [
@@ -1840,7 +1870,7 @@ class RoutesController extends Controller
                         'email' => $emailDisplay,
                         'channel' => $channelDisplay,
                         'last_activity' => $session->last_activity,
-                        'status' => $status
+                        'status' => $status,
                     ];
                     $seenUsers[$userKey] = true;
                 }
@@ -1854,11 +1884,12 @@ class RoutesController extends Controller
             return response()->json([
                 'success' => true,
                 'activeUsers' => $activeUsers,
-                'totalActive' => count($activeUsers)
+                'totalActive' => count($activeUsers),
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Error in getActiveUsers: ' . $e->getMessage());
+            \Log::error('Error in getActiveUsers: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
                 'error' => 'Failed to load active users',
@@ -1913,7 +1944,8 @@ class RoutesController extends Controller
 
             return response()->json(['success' => true]);
         } catch (\Exception $e) {
-            \Log::error('Error in autoLogout: ' . $e->getMessage());
+            \Log::error('Error in autoLogout: '.$e->getMessage());
+
             return response()->json(['success' => false]);
         }
     }
@@ -1933,12 +1965,12 @@ class RoutesController extends Controller
                 case 'OD':
                     $activityKey = 'officer_last_activity';
                     // Update database activity for officers
-                    if (!$isAway) {
+                    if (! $isAway) {
                         $officerName = $request->session()->get('officer_name');
                         if ($officerName) {
                             Officer::where('name', $officerName)->update([
                                 'active' => true,
-                                'last_activity' => Carbon::now()
+                                'last_activity' => Carbon::now(),
                             ]);
                         }
                     }
@@ -1953,12 +1985,12 @@ class RoutesController extends Controller
                 case 'Email':
                     $activityKey = 'email_last_activity';
                     // Update database activity for email handlers
-                    if (!$isAway) {
+                    if (! $isAway) {
                         $emailUserName = $request->session()->get('email_user_name');
                         if ($emailUserName) {
                             Officer::where('name', $emailUserName)->update([
                                 'active' => true,
-                                'last_activity' => Carbon::now()
+                                'last_activity' => Carbon::now(),
                             ]);
                         }
                     }
@@ -1983,12 +2015,12 @@ class RoutesController extends Controller
                 case 'admin':
                     $activityKey = 'admin_last_activity';
                     // Update database activity for admins
-                    if (!$isAway) {
+                    if (! $isAway) {
                         $adminUsername = $request->session()->get('admin_username');
                         if ($adminUsername) {
                             Admin::where('username', $adminUsername)->update([
                                 'active' => true,
-                                'last_activity' => Carbon::now()
+                                'last_activity' => Carbon::now(),
                             ]);
                         }
                     }
@@ -2005,58 +2037,63 @@ class RoutesController extends Controller
             if ($activityKey) {
                 if ($isAway) {
                     // Mark as away but don't update timestamp
-                    $request->session()->put($activityKey . '_away', true);
+                    $request->session()->put($activityKey.'_away', true);
                 } else {
                     // Update activity timestamp and clear away status
                     $request->session()->put($activityKey, Carbon::now());
-                    $request->session()->forget($activityKey . '_away');
+                    $request->session()->forget($activityKey.'_away');
                 }
             }
 
             return response()->json(['success' => true]);
         } catch (\Exception $e) {
-            \Log::error('Error in updateActivity: ' . $e->getMessage());
+            \Log::error('Error in updateActivity: '.$e->getMessage());
+
             return response()->json(['success' => false]);
         }
     }
 
     public function showAllRecords(Request $request)
     {
-        // Get all unique values for filter dropdowns
         $allSources = Record::distinct()->pluck('source')->filter()->sort()->values();
-        
-        // Build query with filters
-        $query = Record::query();
-        
-        // Apply filters if they exist
-        if ($request->filled('farmerName')) {
-            $query->where('farmerName', 'like', '%' . $request->farmerName . '%');
-        }
-        
-        if ($request->filled('encoderName')) {
-            $query->where('encoderName', 'like', '%' . $request->encoderName . '%');
-        }
-        
-        if ($request->filled('source')) {
-            $query->where('source', $request->source);
-        }
-        
-        if ($request->filled('municipality')) {
-            $query->where('municipality', 'like', '%' . $request->municipality . '%');
-        }
-        
-        if ($request->filled('date_received')) {
-            $query->whereDate('date_received', $request->date_received);
-        }
-        
-        if ($request->filled('created_at')) {
-            $query->whereDate('created_at', $request->created_at);
-        }
-        
-        // Order by latest and paginate
-        $records = $query->orderBy('id', 'desc')->paginate(50);
-        
+
+        $records = $this->filteredAllRecordsQuery($request)
+            ->orderByDesc('id')
+            ->paginate(50)
+            ->withQueryString();
+
         return view('all-records', compact('records', 'allSources'));
+    }
+
+    private function filteredAllRecordsQuery(Request $request): Builder
+    {
+        $query = Record::query();
+
+        if ($request->filled('farmerName')) {
+            $query->where('farmerName', 'like', '%'.$request->input('farmerName').'%');
+        }
+
+        if ($request->filled('encoderName')) {
+            $query->where('encoderName', 'like', '%'.$request->input('encoderName').'%');
+        }
+
+        if ($request->filled('source')) {
+            $query->where('source', $request->input('source'));
+        }
+
+        if ($request->filled('municipality')) {
+            $query->where('municipality', 'like', '%'.$request->input('municipality').'%');
+        }
+
+        if ($request->filled('date_received')) {
+            $query->whereDate('date_received', $request->input('date_received'));
+        }
+
+        if ($request->filled('created_at')) {
+            $query->whereDate('created_at', $request->input('created_at'));
+        }
+
+        return $query;
     }
 
     private function getUserLastActivity($userId, $type)
@@ -2072,8 +2109,9 @@ class RoutesController extends Controller
                     if (session()->get('admin_logged_in') && session()->get('admin_username') === $admin->username) {
                         return session()->get('admin_last_activity', now()->subMinutes(30));
                     }
+
                     return now()->subHours(3);
-                    
+
                 case 'officer':
                     $officer = Officer::find($userId);
                     if ($officer && $officer->last_activity) {
@@ -2083,13 +2121,15 @@ class RoutesController extends Controller
                     if (session()->get('officer_logged_in') && session()->get('officer_name') === $officer->name) {
                         return session()->get('officer_last_activity', now()->subMinutes(30));
                     }
+
                     return now()->subHours(3);
-                    
+
                 default:
                     return now()->subHours(3);
             }
         } catch (\Exception $e) {
-            \Log::error('Error getting user last activity: ' . $e->getMessage());
+            \Log::error('Error getting user last activity: '.$e->getMessage());
+
             return now()->subHours(3);
         }
     }
@@ -2097,11 +2137,11 @@ class RoutesController extends Controller
     public function getRecordDetails($id)
     {
         $record = Record::find($id);
-        
-        if (!$record) {
+
+        if (! $record) {
             return response()->json(['error' => 'Record not found'], 404);
         }
-        
+
         return response()->json([
             'id' => $record->id,
             'farmerName' => $record->farmerName,
@@ -2117,65 +2157,72 @@ class RoutesController extends Controller
             'facebook_page_url' => $record->facebook_page_url,
             'remarks' => $record->remarks,
             'causeOfDamage' => $record->causeOfDamage,
-            'date_received' => $record->date_received ? \Carbon\Carbon::parse($record->date_received)->format('M d, Y') : null,
-            'date_of_occurrence' => $record->date_occurrence ? (function($date) { try { return \Carbon\Carbon::parse($date)->format('M d, Y'); } catch (\Exception $e) { return $date; } })($record->date_occurrence) : null,
+            'date_received' => $record->date_received ? Carbon::parse($record->date_received)->format('M d, Y') : null,
+            'date_of_occurrence' => $record->date_occurrence ? (function ($date) {
+                try {
+                    return Carbon::parse($date)->format('M d, Y');
+                } catch (\Exception $e) {
+                    return $date;
+                }
+            })($record->date_occurrence) : null,
             'created_at' => $record->created_at->format('M d, Y h:i A'),
-            'admin_transmittal_number' => $record->admin_transmittal_number
+            'admin_transmittal_number' => $record->admin_transmittal_number,
         ]);
     }
 
     // User Maintenance API Methods
-    
+
     public function getOfficers(Request $request)
     {
         try {
-            if (!$request->session()->has('admin_logged_in') || !$request->session()->get('admin_logged_in')) {
+            if (! $request->session()->has('admin_logged_in') || ! $request->session()->get('admin_logged_in')) {
                 return response()->json(['error' => 'unauthorized'], 401);
             }
 
             $officers = Officer::select('id', 'name', 'username', 'created_at', 'updated_at')
                 ->orderBy('created_at', 'desc')
                 ->get();
-                
+
             return response()->json([
                 'success' => true,
-                'officers' => $officers
+                'officers' => $officers,
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Error in getOfficers: ' . $e->getMessage());
+            \Log::error('Error in getOfficers: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
                 'error' => 'Failed to load officers',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
-    
+
     public function createOfficer(Request $request)
     {
         try {
-            if (!$request->session()->has('admin_logged_in') || !$request->session()->get('admin_logged_in')) {
+            if (! $request->session()->has('admin_logged_in') || ! $request->session()->get('admin_logged_in')) {
                 return response()->json(['error' => 'unauthorized'], 401);
             }
 
             // Handle JSON input
             if ($request->header('Content-Type') === 'application/json') {
                 $data = $request->json()->all();
-                $validator = \Illuminate\Support\Facades\Validator::make($data, [
+                $validator = Validator::make($data, [
                     'name' => 'required|string|max:255|unique:officers,name',
                     'username' => 'required|string|max:255|unique:officers,username',
                     'password' => 'required|string|min:6',
                 ]);
-                
+
                 if ($validator->fails()) {
                     return response()->json([
                         'success' => false,
                         'message' => 'Validation failed',
-                        'errors' => $validator->errors()->all()
+                        'errors' => $validator->errors()->all(),
                     ], 422);
                 }
-                
+
                 $validatedData = $validator->validated();
             } else {
                 $validatedData = $request->validate([
@@ -2184,60 +2231,62 @@ class RoutesController extends Controller
                     'password' => 'required|string|min:6',
                 ]);
             }
-            
+
             $officer = Officer::create([
                 'name' => $validatedData['name'],
                 'username' => $validatedData['username'],
                 'password' => Hash::make($validatedData['password']),
             ]);
-            
+
             return response()->json([
                 'success' => true,
                 'officer' => $officer,
-                'message' => 'Officer created successfully'
+                'message' => 'Officer created successfully',
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Error in createOfficer: ' . $e->getMessage());
+            \Log::error('Error in createOfficer: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
                 'error' => 'Failed to create officer',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
-    
+
     public function getOfficer($id)
     {
         try {
-            if (!request()->session()->has('admin_logged_in') || !request()->session()->get('admin_logged_in')) {
+            if (! request()->session()->has('admin_logged_in') || ! request()->session()->get('admin_logged_in')) {
                 return response()->json(['error' => 'unauthorized'], 401);
             }
 
             $officer = Officer::findOrFail($id);
-            
+
             return response()->json([
                 'id' => $officer->id,
                 'name' => $officer->name,
                 'username' => $officer->username,
                 'created_at' => $officer->created_at,
-                'updated_at' => $officer->updated_at
+                'updated_at' => $officer->updated_at,
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Error in getOfficer: ' . $e->getMessage());
+            \Log::error('Error in getOfficer: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
                 'error' => 'Failed to load officer',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
-    
+
     public function updateOfficer(Request $request, $id)
     {
         try {
-            if (!$request->session()->has('admin_logged_in') || !$request->session()->get('admin_logged_in')) {
+            if (! $request->session()->has('admin_logged_in') || ! $request->session()->get('admin_logged_in')) {
                 return response()->json(['error' => 'unauthorized'], 401);
             }
 
@@ -2256,160 +2305,162 @@ class RoutesController extends Controller
             ]);
 
             $officer = Officer::findOrFail($id);
-            
+
             // Handle JSON input
             if ($request->header('Content-Type') === 'application/json') {
                 $data = $request->json()->all();
-                $validator = \Illuminate\Support\Facades\Validator::make($data, [
-                    'name' => 'required|string|max:255|unique:officers,name,' . $id,
-                    'username' => 'required|string|max:255|unique:officers,username,' . $id,
+                $validator = Validator::make($data, [
+                    'name' => 'required|string|max:255|unique:officers,name,'.$id,
+                    'username' => 'required|string|max:255|unique:officers,username,'.$id,
                     'password' => 'nullable|string|min:6',
                 ]);
-                
+
                 if ($validator->fails()) {
                     return response()->json([
                         'success' => false,
                         'message' => 'Validation failed',
-                        'errors' => $validator->errors()->all()
+                        'errors' => $validator->errors()->all(),
                     ], 422);
                 }
-                
+
                 $validatedData = $validator->validated();
             } else {
                 $validatedData = $request->validate([
-                    'name' => 'required|string|max:255|unique:officers,name,' . $id,
-                    'username' => 'required|string|max:255|unique:officers,username,' . $id,
+                    'name' => 'required|string|max:255|unique:officers,name,'.$id,
+                    'username' => 'required|string|max:255|unique:officers,username,'.$id,
                     'password' => 'nullable|string|min:6',
                 ]);
             }
-            
+
             $updateData = [
                 'name' => $validatedData['name'],
                 'username' => $validatedData['username'],
             ];
-            
-            if (!empty($validatedData['password'])) {
+
+            if (! empty($validatedData['password'])) {
                 $updateData['password'] = Hash::make($validatedData['password']);
             }
-            
+
             $officer->update($updateData);
-            
+
             return response()->json([
                 'success' => true,
                 'officer' => $officer,
-                'message' => 'Officer updated successfully'
+                'message' => 'Officer updated successfully',
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Error in updateOfficer: ' . $e->getMessage());
+            \Log::error('Error in updateOfficer: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
                 'error' => 'Failed to update officer',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
-    
+
     public function deleteOfficer(Request $request, $id)
     {
         try {
-            if (!$request->session()->has('admin_logged_in') || !$request->session()->get('admin_logged_in')) {
+            if (! $request->session()->has('admin_logged_in') || ! $request->session()->get('admin_logged_in')) {
                 return response()->json(['error' => 'unauthorized'], 401);
             }
 
             $officer = Officer::findOrFail($id);
             $officer->delete();
-            
+
             return response()->json([
                 'success' => true,
-                'message' => 'Officer deleted successfully'
+                'message' => 'Officer deleted successfully',
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Error in deleteOfficer: ' . $e->getMessage());
+            \Log::error('Error in deleteOfficer: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
                 'error' => 'Failed to delete officer',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
-    
+
     public function getEmailHandlers()
     {
         $handlers = EmailHandler::select('id', 'name', 'active', 'approved', 'created_at', 'updated_at')
             ->orderBy('name', 'asc')
             ->get();
-            
+
         return response()->json([
-            'emailHandlers' => $handlers
+            'emailHandlers' => $handlers,
         ]);
     }
-    
+
     public function createEmailHandler(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
             'active' => 'boolean',
-            'approved' => 'boolean'
+            'approved' => 'boolean',
         ]);
-        
+
         $handler = EmailHandler::create([
             'name' => $request->name,
             'active' => $request->boolean('active', true),
-            'approved' => $request->boolean('approved', false)
+            'approved' => $request->boolean('approved', false),
         ]);
-        
+
         return response()->json([
             'success' => true,
-            'emailHandler' => $handler
+            'emailHandler' => $handler,
         ]);
     }
-    
+
     public function getEmailHandler($id)
     {
         $handler = EmailHandler::findOrFail($id);
-        
+
         return response()->json([
             'id' => $handler->id,
             'name' => $handler->name,
             'active' => $handler->active,
             'approved' => $handler->approved,
             'created_at' => $handler->created_at,
-            'updated_at' => $handler->updated_at
+            'updated_at' => $handler->updated_at,
         ]);
     }
-    
+
     public function updateEmailHandler(Request $request, $id)
     {
         $handler = EmailHandler::findOrFail($id);
-        
+
         $request->validate([
             'name' => 'required|string|max:255',
             'active' => 'boolean',
-            'approved' => 'boolean'
+            'approved' => 'boolean',
         ]);
-        
+
         $handler->update([
             'name' => $request->name,
             'active' => $request->boolean('active'),
-            'approved' => $request->boolean('approved')
+            'approved' => $request->boolean('approved'),
         ]);
-        
+
         return response()->json([
             'success' => true,
-            'emailHandler' => $handler
+            'emailHandler' => $handler,
         ]);
     }
-    
+
     public function deleteEmailHandler($id)
     {
         $handler = EmailHandler::findOrFail($id);
         $handler->delete();
-        
+
         return response()->json([
             'success' => true,
-            'message' => 'Email handler deleted successfully'
+            'message' => 'Email handler deleted successfully',
         ]);
     }
 
@@ -2419,7 +2470,7 @@ class RoutesController extends Controller
         if ($isAway) {
             return 'away';
         }
-        
+
         $diffInMinutes = $now->diffInMinutes($lastActivity);
 
         if ($diffInMinutes < 5) {
@@ -2438,14 +2489,14 @@ class RoutesController extends Controller
     public function encoderReport(Request $request)
     {
         // Check if admin is logged in
-        if (!$request->session()->has('admin_logged_in') || !$request->session()->get('admin_logged_in')) {
+        if (! $request->session()->has('admin_logged_in') || ! $request->session()->get('admin_logged_in')) {
             return redirect()->route('welcome');
         }
 
         $request->validate([
             'user_id' => 'required|integer',
             'from_date' => 'required|date',
-            'to_date' => 'required|date|after_or_equal:from_date'
+            'to_date' => 'required|date|after_or_equal:from_date',
         ]);
 
         $userId = $request->input('user_id');
@@ -2454,19 +2505,19 @@ class RoutesController extends Controller
 
         // Get the officer/user
         $officer = Officer::find($userId);
-        if (!$officer) {
+        if (! $officer) {
             return redirect()->route('admin')->with('error', 'User not found');
         }
 
         // Query records encoded by the selected user within the date range
         $records = Record::where('encoder_id', $userId)
-            ->whereBetween('created_at', [$fromDate . ' 00:00:00', $toDate . ' 23:59:59'])
+            ->whereBetween('created_at', [$fromDate.' 00:00:00', $toDate.' 23:59:59'])
             ->orderBy('source', 'asc')
             ->orderBy('id', 'desc')
             ->get();
 
         // Group records by date for daily breakdown
-        $recordsByDate = $records->groupBy(function($record) {
+        $recordsByDate = $records->groupBy(function ($record) {
             return $record->created_at->format('Y-m-d');
         });
 
@@ -2478,33 +2529,33 @@ class RoutesController extends Controller
             'fromDate' => $fromDate,
             'toDate' => $toDate,
             'recordsByDate' => $recordsByDate,
-            'totalRecords' => $totalRecords
+            'totalRecords' => $totalRecords,
         ]);
     }
 
     public function transmittalReport(Request $request)
     {
         // Check if admin is logged in
-        if (!$request->session()->has('admin_logged_in') || !$request->session()->get('admin_logged_in')) {
+        if (! $request->session()->has('admin_logged_in') || ! $request->session()->get('admin_logged_in')) {
             return redirect()->route('welcome');
         }
 
         $request->validate([
             'from_date' => 'required|date',
-            'to_date' => 'required|date|after_or_equal:from_date'
+            'to_date' => 'required|date|after_or_equal:from_date',
         ]);
 
         $fromDate = $request->input('from_date');
         $toDate = $request->input('to_date');
 
         // Query all records within the date range
-        $records = Record::whereBetween('created_at', [$fromDate . ' 00:00:00', $toDate . ' 23:59:59'])
+        $records = Record::whereBetween('created_at', [$fromDate.' 00:00:00', $toDate.' 23:59:59'])
             ->orderBy('source', 'asc')
             ->orderBy('id', 'desc')
             ->get();
 
         // Group records by date for daily breakdown
-        $recordsByDate = $records->groupBy(function($record) {
+        $recordsByDate = $records->groupBy(function ($record) {
             return $record->created_at->format('Y-m-d');
         });
 
@@ -2515,7 +2566,7 @@ class RoutesController extends Controller
             'fromDate' => $fromDate,
             'toDate' => $toDate,
             'recordsByDate' => $recordsByDate,
-            'totalRecords' => $totalRecords
+            'totalRecords' => $totalRecords,
         ]);
     }
 }

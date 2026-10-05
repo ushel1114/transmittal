@@ -1,9 +1,23 @@
 @extends('layout.layout')
 
 @section('title', 'Public Dashboard')
+@section('body-class', 'public-dashboard-page')
 
 @section('page-styles')
 <style>
+    .public-workspace-shell { display:grid; min-height:100vh; grid-template-columns:232px minmax(0,1fr); background:#e8eef2; }
+    .public-workspace-sidebar { position:sticky; top:0; display:flex; height:100vh; box-sizing:border-box; flex-direction:column; gap:24px; padding:18px 14px; background:linear-gradient(160deg,#064e3b,#082f49); color:#fff; }
+    .public-workspace-brand { display:flex; align-items:center; gap:10px; color:inherit; text-decoration:none; }
+    .public-workspace-brand img { width:42px; height:42px; border-radius:50%; object-fit:cover; }
+    .public-workspace-brand strong,.public-workspace-brand small { display:block; }
+    .public-workspace-brand strong { font-size:12px; }
+    .public-workspace-brand small { margin-top:3px; color:#bbf7d0; font-size:10px; }
+    .public-workspace-links { display:grid; gap:7px; }
+    .public-workspace-links a,.public-workspace-back { display:block; padding:11px 12px; border:1px solid rgba(226,232,240,.16); border-radius:8px; color:#e2e8f0; font-size:12px; font-weight:750; text-decoration:none; }
+    .public-workspace-links a:hover,.public-workspace-links a[aria-current="page"] { border-color:#86efac; background:rgba(134,239,172,.14); color:#fff; }
+    .public-workspace-back { margin-top:auto; }
+    .public-workspace-content { min-width:0; }
+    @media (max-width:760px) { .public-workspace-shell { grid-template-columns:1fr; } .public-workspace-sidebar { position:static; height:auto; gap:12px; padding:12px; } .public-workspace-links { grid-template-columns:repeat(2,minmax(0,1fr)); } .public-workspace-back { margin-top:0; } }
     :root { --dashboard-ink: #17211b; --dashboard-muted: #64716a; --dashboard-green: #176b45; --dashboard-gold: #d69b2d; --dashboard-paper: #f5f7f3; }
     body { margin: 0; background: var(--dashboard-paper); color: var(--dashboard-ink); }
     .public-dashboard { min-height: 100vh; background: radial-gradient(circle at top right, rgba(214, 155, 45, .18), transparent 34rem), linear-gradient(135deg, #f5f7f3 0%, #e9f0e7 100%); }
@@ -85,6 +99,9 @@
 @endsection
 
 @section('content')
+<div class="public-workspace-shell">
+    @include('partials.public-workspace-nav')
+    <div class="public-workspace-content">
 <div class="public-dashboard">
     <header class="dashboard-header">
         <div class="dashboard-header-inner">
@@ -136,6 +153,8 @@
         <div class="modal-header"><h2 id="locationModalTitle">Locations</h2><button type="button" class="modal-close" id="closeLocationModal" aria-label="Close">&times;</button></div>
         <div class="modal-body" id="locationModalBody"><span class="empty">Select a province to begin.</span></div>
     </dialog>
+</div>
+    </div>
 </div>
 @endsection
 

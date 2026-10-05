@@ -12,14 +12,161 @@
     html, body {
         overflow-x: hidden;
     }
+
+    .channel-page-shell {
+        padding-top: 57px;
+    }
+
+    .channel-fixed-header {
+        position: fixed;
+        top: 0;
+        right: 0;
+        left: 0;
+        height: 57px;
+        border-bottom: 2px solid #94a3b8;
+        box-shadow: 0 2px 6px rgb(15 23 42 / 10%);
+    }
+
+    .channel-workspace {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: repeat(2, minmax(0, 1fr));
+        flex: 1;
+        width: 100%;
+        min-height: 0;
+        align-items: stretch;
+    }
+
+    .channel-controls,
+    .channel-records {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        min-height: 0;
+        height: 100%;
+        border: 1px solid #94a3b8;
+        border-radius: 1rem;
+        box-shadow: 0 2px 8px rgb(15 23 42 / 8%);
+    }
+
+    .contentContainer.channel-page-content {
+        flex: 1;
+        width: 100%;
+        min-height: 0;
+        max-width: none;
+        margin: 0;
+        box-sizing: border-box;
+        align-items: stretch;
+        justify-content: stretch;
+        padding: 16px 18px;
+    }
+
+    .channel-controls > #controlActions,
+    .channel-controls > #addRecordPanel {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+    }
+
+    .channel-records > .p-4 {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
+        gap: 0.75rem;
+        overflow: hidden;
+    }
+
+    .channel-records .table-scroll-sync-top,
+    .channel-records .table-scroll-sync-bottom {
+        display: none;
+    }
+
+    .channel-records .table-wrapper {
+        flex: 1;
+        min-height: 0;
+        width: 100%;
+        max-width: 100%;
+        overflow: auto;
+        border: 1px solid #94a3b8;
+        border-radius: 0.75rem;
+        background: #fff;
+    }
+
+    #recordsPanel:has(.empty-state) .table-wrapper {
+        display: none;
+    }
+
+    .channel-records .empty-state {
+        flex: 1;
+        min-height: 0;
+        padding: 1rem !important;
+    }
+
+    .channel-pagination {
+        flex: 0 0 auto;
+        margin: auto 0 0 !important;
+        padding-top: 0.5rem;
+    }
+
+    .channel-pagination #pagination-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .channel-pagination .channel-page-link,
+    .channel-pagination .channel-page-disabled,
+    .channel-pagination .channel-page-current {
+        display: inline-flex;
+        min-height: 2.25rem;
+        align-items: center;
+        justify-content: center;
+        padding: 0.5rem 0.875rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.75rem;
+        font-size: 0.8125rem;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .channel-pagination .channel-page-link {
+        border-color: #006c35;
+        background: #006c35;
+        color: #fff;
+        transition: background-color 0.15s ease;
+    }
+
+    .channel-pagination .channel-page-link:hover {
+        background: #005428;
+    }
+
+    .channel-pagination .channel-page-disabled {
+        background: #f1f5f9;
+        color: #94a3b8;
+    }
+
+    .channel-pagination .channel-page-current {
+        background: #f8fafc;
+        color: #334155;
+    }
+
+    @media (min-width: 1024px) {
+        .channel-workspace {
+            grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+            grid-template-rows: minmax(0, 1fr);
+        }
+    }
 </style>
 @endsection
 
 @section('content')
-    <div class="min-h-screen bg-gradient-to-br from-pcic-100 via-white to-pcic-100">
+    <div class="min-h-screen flex flex-col bg-gradient-to-br from-pcic-100 via-white to-pcic-100 {{ $isLoggedIn ? 'channel-page-shell' : '' }}">
         {{-- Top Header Bar --}}
-        <div class="odHeader sticky top-0 z-20 w-full bg-white/90 backdrop-blur-md border-b border-gray-200/60">
-            <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+        <div class="odHeader sticky top-0 z-20 w-full bg-white/90 backdrop-blur-md border-b border-gray-200/60 {{ $isLoggedIn ? 'channel-fixed-header' : '' }}">
+            <div class="max-w-6xl mx-auto h-full px-4 py-3 flex items-center justify-between gap-3">
                 <div class="flex items-center gap-3 min-w-0">
                     <div class="flex flex-col">
                         <h3 class="text-base font-black text-gray-900">Facebook</h3>
@@ -40,7 +187,7 @@
                 @endif
             </div>
         </div>
-        <div class="contentContainer">
+        <div class="contentContainer {{ $isLoggedIn ? 'channel-page-content' : '' }}">
     @if(!$isLoggedIn)
         <div class="w-full max-w-md bg-white rounded-2xl shadow-lg border border-gray-100/80 overflow-hidden">
             <div class="px-6 pt-6 pb-4 border-b border-gray-100 bg-gradient-to-b from-pcic-50/60 to-white text-center">
@@ -66,11 +213,12 @@
             </div>
         </div>
     @else
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 w-full">
-            <div class="no-print bg-white rounded-2xl shadow-lg border border-gray-100/80 overflow-hidden">
+                <div class="channel-workspace gap-5 w-full">
+            <div id="controlsPanel" class="channel-controls no-print">
+            <div id="controlActions" class="record-tools bg-white rounded-2xl shadow-lg border border-gray-100/80 overflow-hidden">
                 <div class="px-5 py-4 border-b border-gray-100 bg-gradient-to-b from-pcic-50/60 to-white">
-                    <h3 class="text-sm font-black text-gray-900">Session</h3>
-                    <p class="text-xs text-gray-500 font-semibold mt-0.5">Actions</p>
+                    <h3 class="text-sm font-black text-gray-900">Filters &amp; tools</h3>
+                    <p class="text-xs text-gray-500 font-semibold mt-0.5">Find and export encoded records</p>
                 </div>
                 <div class="px-5 py-4 flex flex-col gap-3">
                     <div class="filter-container">
@@ -117,7 +265,7 @@
                             </div>
                         </form>
                     </div>
-                    <button type="button" class="addRecordButton h-10 rounded-xl bg-pcic-700 text-white text-sm font-bold hover:bg-pcic-800 transition-colors cursor-pointer">Add Record</button>
+                    <button type="button" id="addRecordButton" aria-controls="addRecordPanel" aria-expanded="false" class="h-11 rounded-xl bg-pcic-700 text-white text-sm font-bold hover:bg-pcic-800 focus:outline-none focus:ring-2 focus:ring-pcic-500 focus:ring-offset-2 transition-colors cursor-pointer">Add Record</button>
                     @if($records->count() > 0)
                     <a href="{{ route('facebook.export-csv') }}" class="h-10 rounded-xl bg-white border border-gray-200 text-gray-700 text-sm font-bold hover:bg-gray-50 transition-colors cursor-pointer flex items-center justify-center gap-2">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -131,30 +279,124 @@
                 </div>
             </div>
 
-            <div class="lg:col-span-2 bg-white rounded-2xl shadow-lg border border-gray-100/80 overflow-hidden">
+            <div id="addRecordPanel" class="hidden bg-white rounded-2xl shadow-lg border border-gray-100/80 overflow-hidden">
+            <div class="px-5 py-4 border-b border-gray-100 bg-gradient-to-b from-pcic-50/60 to-white flex items-start justify-between gap-3">
+                <div>
+                    <h3 class="text-base font-black text-gray-900">Add a Facebook record</h3>
+                    <p class="text-xs text-gray-500 font-semibold mt-1">Enter the NL/CI details.</p>
+                </div>
+                <button type="button" id="returnToControlsButton" class="shrink-0 h-9 px-3 rounded-lg border border-gray-200 bg-white text-xs font-bold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer">Back to controls</button>
+            </div>
+            <form action="{{ route('records') }}" method="POST" class="grid grid-cols-1 gap-3 p-5" id="addRecordForm" data-async-record-form>
+                @csrf
+                <input type="hidden" name="source" value="Facebook">
+                <label class="block text-xs font-bold text-gray-600" for="farmerName">Farmer name
+                    <input type="text" id="farmerName" name="farmerName" required autocomplete="name" class="mt-1.5 h-10 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
+                </label>
+                <label class="block text-xs font-bold text-gray-600" for="province">Province
+                    <select name="province" id="province" required class="mt-1.5 h-10 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
+                        <option value="">Select province</option>
+                        <option value="Aurora">Aurora</option>
+                        <option value="Nueva Ecija">Nueva Ecija</option>
+                        <option value="Tarlac">Tarlac</option>
+                    </select>
+                </label>
+                <label class="block text-xs font-bold text-gray-600" for="municipality">Municipality
+                    <select name="municipality" id="municipality" required disabled class="mt-1.5 h-10 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-gray-50 uppercase">
+                        <option value="">Select municipality</option>
+                    </select>
+                </label>
+                <label class="block text-xs font-bold text-gray-600" for="barangay">Barangay
+                    <select name="barangay" id="barangay" required disabled class="mt-1.5 h-10 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-gray-50 uppercase">
+                        <option value="">Select barangay</option>
+                    </select>
+                </label>
+                <input type="hidden" name="address" id="addRecordAddress">
+                <label class="block text-xs font-bold text-gray-600" for="line">Line
+                    <select name="line" id="line" required class="mt-1.5 h-10 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
+                        <option value="">Select line</option>
+                        <option value="rice">Rice</option>
+                        <option value="corn">Corn</option>
+                        <option value="high-value">High-Value Crops</option>
+                        <option value="clti">CLTI</option>
+                        <option value="livestock">Livestock</option>
+                        <option value="non-crop">Non-Crop</option>
+                        <option value="fisheries">Fisheries</option>
+                    </select>
+                </label>
+                <label class="block text-xs font-bold text-gray-600" for="program">Program
+                    <select name="program" id="program" required class="mt-1.5 h-10 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
+                        <option value="">Select program</option>
+                        <option value="RSBSA">RSBSA</option>
+                        <option value="AGRI-SENSO">AGRI-SENSO</option>
+                        <option value="ACEF">ACEF</option>
+                        <option value="ANYO">ANYO</option>
+                        <option value="OTHER-LI LC">OTHER-LI LC</option>
+                        <option value="OTHER-LBP ACP">OTHER-LBP ACP</option>
+                        <option value="REGULAR">REGULAR</option>
+                        <option value="SELF-FINANCED">SELF-FINANCED</option>
+                        <option value="CFITF">CFITF</option>
+                    </select>
+                </label>
+                <label class="block text-xs font-bold text-gray-600" for="date_occurrence">Date of occurrence
+                    <input type="text" id="date_occurrence" name="date_occurrence" class="mt-1.5 h-10 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
+                </label>
+                <label class="block text-xs font-bold text-gray-600" for="date_received">Date received
+                    <input type="date" id="date_received" name="date_received" value="{{ now()->format('Y-m-d') }}" class="mt-1.5 h-10 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
+                </label>
+                <label class="block text-xs font-bold text-gray-600" for="causeOfDamage">Cause of damage
+                    <input type="text" id="causeOfDamage" name="causeOfDamage" required class="mt-1.5 h-10 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
+                </label>
+                <label class="block text-xs font-bold text-gray-600" for="modeOfPayment">Mode of payment
+                    <select name="modeOfPayment" id="modeOfPayment" required class="mt-1.5 h-10 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
+                        <option value="">Select payment mode</option>
+                        <option value="check">Check</option>
+                        <option value="palawan">Palawan Pay</option>
+                        <option value="gcash">GCash</option>
+                        <option value="not_indicated">Not indicated</option>
+                    </select>
+                </label>
+                <label class="block text-xs font-bold text-gray-600" for="remarks">Remarks / care of
+                    <input type="text" id="remarks" name="remarks" class="mt-1.5 h-10 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
+                </label>
+                <label class="block text-xs font-bold text-gray-600" for="accounts">Facebook account or page
+                    <input type="text" id="accounts" name="accounts" required placeholder="Name of Facebook page or account" class="mt-1.5 h-10 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
+                </label>
+                <label class="block text-xs font-bold text-gray-600" for="facebook_page_url">Facebook page link
+                    <input type="url" id="facebook_page_url" name="facebook_page_url" placeholder="https://www.facebook.com/..." class="mt-1.5 h-10 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
+                </label>
+                <label class="block text-xs font-bold text-gray-600" for="notice_image">Notice of loss / claim image <span class="font-medium text-gray-400">(optional)</span>
+                    <input type="file" id="notice_image" name="notice_image" accept="image/jpeg,image/png,image/webp" class="mt-1.5 block w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 file:mr-3 file:rounded-md file:border-0 file:bg-pcic-50 file:px-3 file:py-1.5 file:text-xs file:font-bold file:text-pcic-700 hover:file:bg-pcic-100">
+                    <span class="mt-1 block text-xs font-medium text-gray-500">JPG, PNG, or WebP. Maximum 5 MB.</span>
+                </label>
+                <div class="pt-2">
+                    <button type="submit" class="h-11 w-full rounded-xl bg-pcic-700 text-sm font-bold text-white hover:bg-pcic-800 focus:outline-none focus:ring-2 focus:ring-pcic-500 focus:ring-offset-2 transition-colors cursor-pointer">Save Facebook record</button>
+                </div>
+            </form>
+            </div>
+            </div>
+            <div id="recordsPanel" class="channel-records bg-white rounded-2xl shadow-lg border border-gray-100/80 overflow-hidden">
                 <div class="px-5 py-4 border-b border-gray-100 bg-gradient-to-b from-pcic-50/60 to-white">
                     <h3 class="text-sm font-black text-gray-900">Records</h3>
-                    <p class="text-xs text-gray-500 font-semibold mt-0.5">Latest encoded NLs</p>
+                    <p class="text-xs text-gray-500 font-semibold mt-0.5">Your encoded records stay visible while you add a new one.</p>
                 </div>
                 <div class="p-4 overflow-x-auto">
                     <x-table :records="$records" :showDelete="false" :showCheckbox="false" :showSortableHeaders="false" :hideSourceColumn="true" :hideProvinceColumn="true" />
                     @if(method_exists($records, 'links'))
-                        <div class="no-print" style="margin: 10px 0; text-align: center;">
-                            <div id="pagination-container" style="display: flex; justify-content: center; align-items: center; gap: 12px;">
+                        <div class="no-print channel-pagination">
+                            <div id="pagination-container">
                                 @if ($records->onFirstPage())
-                                    <span style="padding: 8px 16px; border-radius: 8px; background: #f1f5f9; color: #94a3b8; font-size: 14px; font-weight: 500; border: 1px solid #e2e8f0;">Previous</span>
+                                    <span class="channel-page-disabled">Previous</span>
                                 @else
-                                    <a href="{{ $records->appends(request()->query())->previousPageUrl() }}" class="pagination-link" style="padding: 8px 16px; border-radius: 8px; background: linear-gradient(135deg, #006c35 0%, #008a43 100%); color: white; font-size: 14px; font-weight: 500; text-decoration: none; border: 1px solid #005a2d; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0, 108, 53, 0.1);">Previous</a>
+                                    <a href="{{ $records->appends(request()->query())->previousPageUrl() }}" class="channel-page-link">Previous</a>
                                 @endif
-
-                                <span style="margin: 0 16px; padding: 8px 16px; border-radius: 8px; background: #f8fafc; color: #475569; font-size: 14px; font-weight: 600; border: 1px solid #e2e8f0;">
+                                <span class="channel-page-current">
                                     Page {{ $records->currentPage() }} of {{ $records->lastPage() }}
                                 </span>
-
                                 @if ($records->hasMorePages())
-                                    <a href="{{ $records->appends(request()->query())->nextPageUrl() }}" class="pagination-link" style="padding: 8px 16px; border-radius: 8px; background: linear-gradient(135deg, #006c35 0%, #008a43 100%); color: white; font-size: 14px; font-weight: 500; text-decoration: none; border: 1px solid #005a2d; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0, 108, 53, 0.1);">Next</a>
+                                    <a href="{{ $records->appends(request()->query())->nextPageUrl() }}" class="channel-page-link">Next</a>
                                 @else
-                                    <span style="padding: 8px 16px; border-radius: 8px; background: #f1f5f9; color: #94a3b8; font-size: 14px; font-weight: 500; border: 1px solid #e2e8f0;">Next</span>
+                                    <span class="channel-page-disabled">Next</span>
                                 @endif
                             </div>
                         </div>
@@ -162,87 +404,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- Backdrop -->
-        <div id="addRecordBackdrop" class="fixed inset-0 bg-gray-900/50 z-[9998] hidden" style="display: none;"></div>
-
-        <!-- Add Record Modal -->
-        <div id="addRecordDialog" class="addRecordDialog rounded-2xl shadow-2xl bg-white p-0 w-[min(640px,calc(100vw-2rem))] fixed z-[9999] hidden" style="display: none; position: fixed; z-index: 9999;">
-            <div id="addRecordDialogheader" class="px-5 pt-5 pb-3 border-b border-gray-100 cursor-move">
-                <h3 class="text-base font-black text-gray-900">Add Record</h3>
-            </div>
-            <form action="{{ route('records') }}" method="POST" class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-3 px-5 py-4 items-center" id="addRecordForm">
-                @csrf
-                <input type="hidden" name="source" value="Facebook">
-            <label for="farmerName" class="text-xs font-bold text-gray-600 text-right">Farmer Name:</label>
-            <input type="text" id="farmerName" name="farmerName" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
-            <label for="province" class="text-xs font-bold text-gray-600 text-right">Province:</label>
-            <select name="province" id="province" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
-                <option value="">Select Province</option>
-                <option value="Aurora">Aurora</option>
-                <option value="Nueva Ecija">Nueva Ecija</option>
-                <option value="Tarlac">Tarlac</option>
-            </select>
-            <label for="municipality" class="text-xs font-bold text-gray-600 text-right">Municipality:</label>
-            <select name="municipality" id="municipality" required disabled class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-gray-50 uppercase">
-                <option value="">Select Municipality</option>
-            </select>
-            <label for="barangay" class="text-xs font-bold text-gray-600 text-right">Barangay:</label>
-            <select name="barangay" id="barangay" required disabled class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-gray-50 uppercase">
-                <option value="">Select Barangay</option>
-            </select>
-            <input type="hidden" name="address" id="addRecordAddress">
-            <label for="line" class="text-xs font-bold text-gray-600 text-right">Line:</label>
-            <select name="line" id="line" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
-                <option value="">Select Line</option>
-                <option value="rice">rice</option>
-                <option value="corn">corn</option>
-                <option value="high-value">High-Value Crops</option>
-                <option value="clti">CLTI</option>
-                <option value="livestock">Livestock</option>
-                <option value="non-crop">Non-Crop</option>
-                <option value="fisheries">Fisheries</option>
-            </select>
-            <label for="program" class="text-xs font-bold text-gray-600 text-right">Program:</label>
-            <select name="program" id="program" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
-                <option value="">Select Program</option>
-                <option value="RSBSA">RSBSA</option>
-                <option value="AGRI-SENSO">AGRI-SENSO</option>
-                <option value="ACEF">ACEF</option>
-                <option value="ANYO">ANYO</option>
-                <option value="OTHER-LI LC">OTHER-LI LC</option>
-                <option value="OTHER-LBP ACP">OTHER-LBP ACP</option>
-                <option value="REGULAR">REGULAR</option>
-                <option value="SELF-FINANCED">SELF-FINANCED</option>
-                <option value="CFITF">CFITF</option>
-            </select>
-            <label for="date_occurrence" class="text-xs font-bold text-gray-600 text-right">Date occurrence:</label>
-            <input type="text" id="date_occurrence" name="date_occurrence" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
-            <label for="date_received" class="text-xs font-bold text-gray-600 text-right">Date received:</label>
-            <input type="date" id="date_received" name="date_received" value="{{ now()->format('Y-m-d') }}" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
-            <label for="causeOfDamage" class="text-xs font-bold text-gray-600 text-right">Cause of Damage:</label>
-            <input type="text" id="causeOfDamage" name="causeOfDamage" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
-            <label for="modeOfPayment" class="text-xs font-bold text-gray-600 text-right">Mode of payment:</label>
-            <select name="modeOfPayment" id="modeOfPayment" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
-                <option value="">Select Mode of payment</option>
-                <option value="check">Check</option>
-                <option value="palawan">Palawan Pay</option>
-                <option value="gcash">GCash</option>
-                <option value="not_indicated">Not indicated</option>
-            </select>
-            <label for="remarks" class="text-xs font-bold text-gray-600 text-right">Remarks - Care of:</label>
-            <input type="text" id="remarks" name="remarks" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full ">
-            <label for="accounts" class="text-xs font-bold text-gray-600 text-right">Account / page:</label>
-            <input type="text" id="accounts" name="accounts" required placeholder="Name of Facebook page or account" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
-            <label for="facebook_page_url" class="text-xs font-bold text-gray-600 text-right">FB page link:</label>
-            <input type="url" id="facebook_page_url" name="facebook_page_url" placeholder="https://www.facebook.com/..." class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
-            <div></div>
-            <div class="flex gap-2 pt-1">
-                <button type="submit" class="h-9 px-4 rounded-lg bg-pcic-700 text-white text-xs font-bold hover:bg-pcic-800 transition-colors cursor-pointer">Add Record</button>
-                <button type="button" class="closeAddRecordModal h-9 px-4 rounded-lg border border-gray-200 text-xs font-bold text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer">Close</button>
-            </div>
-        </form>
-    </div>
     <dialog class="editRecordDialog rounded-2xl shadow-2xl bg-white backdrop:bg-black/40 p-0 w-[min(640px,calc(100vw-2rem))]" id="recordEditDialog">
         <div class="px-5 pt-5 pb-3 border-b border-gray-100">
             <h3 class="text-base font-black text-gray-900">Edit Record</h3>
@@ -313,6 +474,16 @@
             <input type="text" id="accounts" name="accounts" required placeholder="Name of Facebook page or account" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
             <label for="facebook_page_url" class="text-xs font-bold text-gray-600 text-right">FB page link:</label>
             <input type="url" id="facebook_page_url" name="facebook_page_url" placeholder="https://www.facebook.com/..." class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
+            <label for="editNoticeImage" class="text-xs font-bold text-gray-600 text-right">Notice / claim image:</label>
+            <div class="flex flex-col gap-2">
+                <input type="file" id="editNoticeImage" name="notice_image" accept="image/jpeg,image/png,image/webp" class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700">
+                <div id="editNoticeImagePreviewContainer" hidden>
+                    <img id="editNoticeImagePreview" alt="Notice of loss or claim preview" hidden class="max-h-40 rounded-lg border border-gray-200 object-contain">
+                    <button type="button" id="editNoticeImagePrintButton" class="notice-image-view-btn mt-2" data-image-url="" hidden>View / Print image</button>
+                    <span class="mt-1 block text-xs text-gray-500">Current image or selected replacement</span>
+                </div>
+                <span class="text-xs text-gray-500">Optional. JPG, PNG, or WebP; maximum 5 MB. Leave empty to keep the current image.</span>
+            </div>
             <div></div>
             <div class="flex gap-2 pt-1">
                 <button type="submit" class="h-9 px-4 rounded-lg bg-pcic-700 text-white text-xs font-bold hover:bg-pcic-800 transition-colors cursor-pointer">Update Record</button>
@@ -344,18 +515,8 @@ document.addEventListener('visibilitychange', function() {
     }
 });
 
-// Add Record Modal
+// Edit Record Dialog
 document.addEventListener('DOMContentLoaded', function() {
-    var addRecordButton = document.querySelector('.addRecordButton');
-    var addRecordDialog = document.querySelector('.addRecordDialog');
-    var closeAddRecordModal = document.querySelector('.closeAddRecordModal');
-
-    if (closeAddRecordModal && addRecordDialog) {
-        closeAddRecordModal.addEventListener('click', function() {
-            addRecordDialog.close();
-        });
-    }
-
     // Edit Record Modal - Use event delegation to handle dynamically loaded buttons
     var editRecordDialog = document.getElementById('recordEditDialog');
     var closeEditRecordModal = document.querySelector('.closeEditRecordDialog');
@@ -2428,11 +2589,41 @@ Villa Rosario,Victoria,Tarlac`;
 </script>
 
 <script>
-// Add Record Modal Functionality
+// Add Record Form Functionality
 (function() {
-    var addRecordDialog = document.getElementById('addRecordDialog');
-    var addRecordBackdrop = document.getElementById('addRecordBackdrop');
-    var closeAddRecordModal = document.querySelector('.closeAddRecordModal');
+    var addRecordPanel = document.getElementById('addRecordPanel');
+    var controlActions = document.getElementById('controlActions');
+    var addRecordButton = document.getElementById('addRecordButton');
+    var returnToControlsButton = document.getElementById('returnToControlsButton');
+
+    function showAddRecordForm() {
+        if (!addRecordPanel || !controlActions) {
+            return;
+        }
+
+        controlActions.hidden = true;
+        controlActions.classList.add('hidden');
+        addRecordPanel.hidden = false;
+        addRecordPanel.classList.remove('hidden');
+        addRecordButton?.setAttribute('aria-expanded', 'true');
+        addRecordPanel.querySelector('#farmerName')?.focus();
+    }
+
+    function showControls() {
+        if (!addRecordPanel || !controlActions) {
+            return;
+        }
+
+        addRecordPanel.hidden = true;
+        addRecordPanel.classList.add('hidden');
+        controlActions.hidden = false;
+        controlActions.classList.remove('hidden');
+        addRecordButton?.setAttribute('aria-expanded', 'false');
+        addRecordButton?.focus();
+    }
+
+    addRecordButton?.addEventListener('click', showAddRecordForm);
+    returnToControlsButton?.addEventListener('click', showControls);
     
     // Function to fetch and populate latest record
     function populateFormWithLatestRecord() {
@@ -2440,36 +2631,27 @@ Villa Rosario,Victoria,Tarlac`;
             .then(response => response.json())
             .then(data => {
                 if (data.success && data.record) {
-                    const form = addRecordDialog ? addRecordDialog.querySelector('form') : null;
+                    const form = addRecordPanel ? addRecordPanel.querySelector('form') : null;
                     if (form) {
-                        // Clear all fields first
-                        if (form.querySelector('#farmerName')) form.querySelector('#farmerName').value = '';
-                        if (form.querySelector('#line')) form.querySelector('#line').value = '';
-                        if (form.querySelector('#program')) form.querySelector('#program').value = '';
-                        if (form.querySelector('#causeOfDamage')) form.querySelector('#causeOfDamage').value = '';
-                        if (form.querySelector('#date_occurrence')) form.querySelector('#date_occurrence').value = '';
-                        if (form.querySelector('#remarks')) form.querySelector('#remarks').value = '';
-                        if (form.querySelector('#controlNumber')) form.querySelector('#controlNumber').value = '';
-                        
-                        // Only populate location, mode of payment, date received, account, and fb link
-                        if (form.querySelector('#province')) {
-                            form.querySelector('#province').value = data.record.province || '';
-                            // Trigger change to enable municipality
-                            form.querySelector('#province').dispatchEvent(new Event('change'));
+                        const provinceField = form.querySelector('#province');
+                        const shouldPrefillLocation = provinceField && !provinceField.value && data.record.province;
+                        if (shouldPrefillLocation) {
+                            provinceField.value = data.record.province;
+                            provinceField.dispatchEvent(new Event('change'));
                         }
-                        if (form.querySelector('#modeOfPayment')) form.querySelector('#modeOfPayment').value = data.record.modeOfPayment || '';
-                        if (form.querySelector('#date_received')) form.querySelector('#date_received').value = data.record.date_received || '';
-                        if (form.querySelector('#accounts')) form.querySelector('#accounts').value = data.record.accounts || '';
-                        if (form.querySelector('#facebook_page_url')) form.querySelector('#facebook_page_url').value = data.record.facebook_page_url || '';
+                        if (form.querySelector('#modeOfPayment') && !form.querySelector('#modeOfPayment').value) form.querySelector('#modeOfPayment').value = data.record.modeOfPayment || '';
+                        if (form.querySelector('#date_received') && !form.querySelector('#date_received').value) form.querySelector('#date_received').value = data.record.date_received || '';
+                        if (form.querySelector('#accounts') && !form.querySelector('#accounts').value) form.querySelector('#accounts').value = data.record.accounts || '';
+                        if (form.querySelector('#facebook_page_url') && !form.querySelector('#facebook_page_url').value) form.querySelector('#facebook_page_url').value = data.record.facebook_page_url || '';
                         
                         // Handle municipality and barangay after province change
                         setTimeout(() => {
-                            if (form.querySelector('#municipality') && data.record.municipality) {
+                            if (shouldPrefillLocation && form.querySelector('#municipality') && data.record.municipality) {
                                 form.querySelector('#municipality').value = data.record.municipality;
                                 form.querySelector('#municipality').dispatchEvent(new Event('change'));
                             }
                             setTimeout(() => {
-                                if (form.querySelector('#barangay') && data.record.barangay) {
+                                if (shouldPrefillLocation && form.querySelector('#barangay') && data.record.barangay) {
                                     form.querySelector('#barangay').value = data.record.barangay;
                                 }
                             }, 100);
@@ -2480,44 +2662,7 @@ Villa Rosario,Victoria,Tarlac`;
             .catch(error => console.error('Error fetching latest record:', error));
     }
     
-    // Function to show modal
-    function showAddRecordModal() {
-        console.log('Opening modal');
-        if (addRecordDialog && addRecordBackdrop) {
-            // Center the modal
-            var viewportWidth = window.innerWidth;
-            var viewportHeight = window.innerHeight;
-            var dialogWidth = Math.min(640, viewportWidth - 32);
-            var dialogHeight = Math.min(500, viewportHeight - 32);
-            
-            var left = Math.max(16, (viewportWidth - dialogWidth) / 2);
-            var top = Math.max(16, (viewportHeight - dialogHeight) / 2);
-            
-            addRecordDialog.style.left = left + 'px';
-            addRecordDialog.style.top = top + 'px';
-            addRecordDialog.style.width = dialogWidth + 'px';
-            addRecordDialog.style.display = 'block';
-            addRecordBackdrop.style.display = 'block';
-            document.body.style.overflow = 'hidden';
-            document.documentElement.style.overflow = 'hidden';
-            
-            // Fetch and populate with latest record
-            populateFormWithLatestRecord();
-        }
-    }
-    
-    // Function to hide modal
-    function hideAddRecordModal() {
-        if (addRecordDialog && addRecordBackdrop) {
-            addRecordDialog.style.display = 'none';
-            addRecordBackdrop.style.display = 'none';
-            document.body.style.overflow = '';
-            document.documentElement.style.overflow = '';
-            
-            // Clear saved location values when manually closing
-            clearLocationValues();
-        }
-    }
+    populateFormWithLatestRecord();
     
     // Save location values to localStorage
     function saveLocationValues() {
@@ -2541,11 +2686,21 @@ Villa Rosario,Victoria,Tarlac`;
     }
     
     // Add form submission handler to save location values
-    var addRecordForm = addRecordDialog ? addRecordDialog.querySelector('form[action="{{ route('records') }}"]') : null;
+    var addRecordForm = document.getElementById('addRecordForm');
     if (addRecordForm) {
         addRecordForm.addEventListener('submit', function(e) {
             e.preventDefault();
             console.log('Form submit event triggered');
+            var provinceField = addRecordForm.querySelector('#province');
+            var municipalityField = addRecordForm.querySelector('#municipality');
+            var barangayField = addRecordForm.querySelector('#barangay');
+            var addressField = addRecordForm.querySelector('#addRecordAddress');
+            if (provinceField && municipalityField && barangayField && addressField) {
+                addressField.value = [barangayField.value, municipalityField.value, provinceField.value]
+                    .filter(Boolean)
+                    .join(', ');
+            }
+            saveLocationValues();
             
             // Save current form values before submission
             var dateReceivedValue = addRecordForm.querySelector('#date_received') ? addRecordForm.querySelector('#date_received').value : '';
@@ -2592,27 +2747,36 @@ Villa Rosario,Victoria,Tarlac`;
                     if (addRecordForm.querySelector('#date_occurrence')) addRecordForm.querySelector('#date_occurrence').value = '';
                     if (addRecordForm.querySelector('#remarks')) addRecordForm.querySelector('#remarks').value = '';
                     if (addRecordForm.querySelector('#controlNumber')) addRecordForm.querySelector('#controlNumber').value = '';
+                    if (addRecordForm.querySelector('#notice_image')) addRecordForm.querySelector('#notice_image').value = '';
                     
-                    // Refresh table data without closing dialog
-                    setTimeout(function() {
-                        fetch(window.location.href, {
+                    fetch(window.location.href, {
                             headers: {
                                 'X-Requested-With': 'XMLHttpRequest'
                             }
                         })
-                        .then(response => response.text())
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Could not refresh records. HTTP ' + response.status);
+                            }
+                            return response.text();
+                        })
                         .then(html => {
                             const parser = new DOMParser();
                             const doc = parser.parseFromString(html, 'text/html');
-                            const newTable = doc.querySelector('.overflow-x-auto');
-                            const currentTable = document.querySelector('.overflow-x-auto');
-                            if (newTable && currentTable) {
-                                currentTable.innerHTML = newTable.innerHTML;
+                            const newTable = doc.querySelector('#recordsPanel');
+                            const currentTable = document.querySelector('#recordsPanel');
+                            if (!newTable || !currentTable) {
+                                throw new Error('Could not find the updated records panel.');
                             }
+                            currentTable.innerHTML = newTable.innerHTML;
+                        })
+                        .catch(error => {
+                            console.error('Record saved but records panel refresh failed:', error);
+                            showModalMessage('Record saved, but the list could not refresh. Reload the page to view it.', 'warning');
                         });
-                    }, 1500);
                 } else {
-                    showModalMessage(data.message || 'Error adding record', 'error');
+                    var uploadError = data.errors && data.errors.notice_image ? data.errors.notice_image[0] : null;
+                    showModalMessage(uploadError || data.message || 'Error adding record', 'error');
                 }
             })
             .catch(error => {
@@ -2628,69 +2792,7 @@ Villa Rosario,Victoria,Tarlac`;
         });
     }
     
-    // Close button functionality
-    if (closeAddRecordModal) {
-        closeAddRecordModal.addEventListener('click', hideAddRecordModal);
-    }
-    
-    // Close on backdrop click
-    if (addRecordBackdrop) {
-        addRecordBackdrop.addEventListener('click', hideAddRecordModal);
-    }
-    
-    // Close on ESC key
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && addRecordDialog && addRecordDialog.style.display === 'block') {
-            hideAddRecordModal();
-        }
-    });
-    
-    // Make showAddRecordModal available globally
-    window.showAddRecordModal = showAddRecordModal;
-    
-    // Add event listener to the add record button
-    var addRecordButton = document.querySelector('.addRecordButton');
-    if (addRecordButton) {
-        addRecordButton.addEventListener('click', showAddRecordModal);
-    }
 })();
-
-// Make the DIV element draggagle (W3Schools approach)
-dragElement(document.getElementById("addRecordDialog"));
-
-function dragElement(elmnt) {
-  var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-  if (document.getElementById(elmnt.id + "header")) {
-    document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
-  } else {
-    elmnt.onmousedown = dragMouseDown;
-  }
-
-  function dragMouseDown(e) {
-    e = e || window.event;
-    e.preventDefault();
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-    document.onmouseup = closeDragElement;
-    document.onmousemove = elementDrag;
-  }
-
-  function elementDrag(e) {
-    e = e || window.event;
-    e.preventDefault();
-    pos1 = pos3 - e.clientX;
-    pos2 = pos4 - e.clientY;
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
-  }
-
-  function closeDragElement() {
-    document.onmouseup = null;
-    document.onmousemove = null;
-  }
-}
 </script>
 @endpush
 
