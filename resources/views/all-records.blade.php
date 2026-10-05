@@ -1,9 +1,92 @@
 @extends('layout.layout')
 
 @section('title', 'All NL Records')
+@section('body-class', 'public-records-page')
 
 @section('page-styles')
 <style>
+.public-workspace-shell {
+    display: grid;
+    min-height: 100vh;
+    grid-template-columns: 232px minmax(0, 1fr);
+    background: #e8eef2;
+}
+
+.public-workspace-sidebar {
+    position: sticky;
+    top: 0;
+    display: flex;
+    height: 100vh;
+    box-sizing: border-box;
+    flex-direction: column;
+    gap: 24px;
+    padding: 18px 14px;
+    background: linear-gradient(160deg, #064e3b, #082f49);
+    color: #fff;
+}
+
+.public-workspace-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: inherit;
+    text-decoration: none;
+}
+
+.public-workspace-brand img {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.public-workspace-brand strong,
+.public-workspace-brand small {
+    display: block;
+}
+
+.public-workspace-brand strong { font-size: 12px; }
+.public-workspace-brand small { margin-top: 3px; color: #bbf7d0; font-size: 10px; }
+
+.public-workspace-links {
+    display: grid;
+    gap: 7px;
+}
+
+.public-workspace-links a,
+.public-workspace-back {
+    display: block;
+    padding: 11px 12px;
+    border: 1px solid rgba(226, 232, 240, .16);
+    border-radius: 8px;
+    color: #e2e8f0;
+    font-size: 12px;
+    font-weight: 750;
+    text-decoration: none;
+}
+
+.public-workspace-links a:hover,
+.public-workspace-links a[aria-current="page"] {
+    border-color: #86efac;
+    background: rgba(134, 239, 172, .14);
+    color: #fff;
+}
+
+.public-workspace-back { margin-top: auto; }
+.public-workspace-content { min-width: 0; }
+.public-workspace-content .records-nav { display: none; }
+.public-content-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:16px 20px 8px; }
+.public-content-heading h1 { margin:0; color:#0f172a; font-size:22px; font-weight:900; }
+.public-content-heading p { margin:4px 0 0; color:#64748b; font-size:12px; }
+.public-content-shortcut { color:#166534; font-size:11px; font-weight:800; text-decoration:none; }
+
+@media (max-width: 760px) {
+    .public-workspace-shell { grid-template-columns:1fr; }
+    .public-workspace-sidebar { position:static; height:auto; gap:12px; padding:12px; }
+    .public-workspace-links { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .public-workspace-back { margin-top:0; }
+}
+
 /* System-matched navigation bar */
 .records-nav {
     position: sticky;
@@ -602,6 +685,13 @@ body:not(.dark-mode) .record-detail .detail-value {
 @endsection
 
 @section('content')
+<div class="public-workspace-shell">
+    @include('partials.public-workspace-nav')
+    <div class="public-workspace-content">
+        <header class="public-content-heading">
+            <div><h1>All Records</h1><p>Search, filter, and review Notice of Loss records.</p></div>
+            <a class="public-content-shortcut" href="{{ route('public-dashboard') }}">Open Public Dashboard →</a>
+        </header>
 <!-- Navigation Bar -->
 <nav class="records-nav no-print">
     <div class="nav-content">
@@ -754,6 +844,8 @@ body:not(.dark-mode) .record-detail .detail-value {
         </div>
     @endif
 </main>
+    </div>
+</div>
 
 <!-- View Record Modal -->
 <dialog class="largeModal rounded-2xl shadow-2xl bg-white backdrop:bg-black/40 p-0 w-[min(640px,calc(100vw-2rem))]" id="viewModal">

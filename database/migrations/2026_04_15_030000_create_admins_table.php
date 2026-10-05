@@ -2,6 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -18,7 +20,7 @@ return new class extends Migration
         // Seed initial admin
         DB::table('admins')->insert([
             'username' => 'UZZIEL',
-            'password' => 'U.MARTINEZ1114',
+            'password' => Hash::make('U.MARTINEZ1114'),
             'created_at' => now(),
             'updated_at' => now(),
         ]);

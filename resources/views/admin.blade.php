@@ -35,6 +35,1058 @@
     color: white;
     border-color: #006c35;
 }
+
+.admin-main {
+    background: linear-gradient(145deg, #f1f5f9 0%, #f8fafc 55%, #ecfdf5 100%);
+}
+
+.admin-shell {
+    --admin-sidebar-collapsed: 76px;
+    --admin-sidebar-expanded: 272px;
+    grid-template-columns: var(--admin-sidebar-collapsed) minmax(0, 1fr);
+    transition: grid-template-columns 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.admin-shell.sidebar-expanded {
+    grid-template-columns: var(--admin-sidebar-expanded) minmax(0, 1fr);
+}
+
+.admin-sidebar {
+    z-index: 35;
+    border-right: 1px solid #a7cbb5;
+    box-shadow: 8px 0 24px rgb(15 23 42 / 8%);
+    transition: padding 220ms ease, box-shadow 220ms ease;
+}
+
+.admin-sidebar,
+.admin-sidebar button {
+    -webkit-tap-highlight-color: transparent;
+}
+
+.admin-workspace-panel {
+    margin-top: 18px;
+    padding: 20px;
+    border: 1px solid #cbd5e1;
+    border-radius: 18px;
+    background: rgb(255 255 255 / 92%);
+    box-shadow: 0 12px 30px rgb(15 23 42 / 7%);
+}
+
+.admin-brand {
+    justify-content: center;
+    padding: 0;
+    border-bottom-color: #a7cbb5;
+}
+
+.admin-brand .subtitle,
+.admin-sidebar-section-label {
+    color: #475569;
+}
+
+.admin-sidebar-divider {
+    background: rgb(15 23 42 / 14%);
+}
+
+.admin-nav button {
+    border: 1px solid #86a997;
+    background: #f8fffb;
+    color: #173b2a;
+    box-shadow: 0 1px 2px rgb(15 23 42 / 5%);
+    transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, color 160ms ease;
+}
+
+.admin-nav {
+    width: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+}
+
+.admin-nav button:hover {
+    background: #e7f5ed;
+    border-color: #398457;
+    box-shadow: 0 3px 9px rgb(20 83 45 / 12%);
+    transform: none;
+}
+
+.admin-nav #btn-dashboard.active {
+    background: #166534;
+    border-color: #14532d;
+    color: #fff;
+    box-shadow: 0 3px 9px rgb(20 83 45 / 18%);
+}
+
+.admin-nav #btn-nl-records {
+    background: #eff6ff;
+    border-color: #93b4df;
+    color: #1e3a5f;
+}
+
+.admin-nav #btn-nl-records:hover {
+    background: #dbeafe;
+    border-color: #3b82f6;
+}
+
+.admin-nav #btn-nl-records.active {
+    background: #1d4ed8;
+    border-color: #1e40af;
+    color: #fff;
+    box-shadow: 0 3px 9px rgb(30 64 175 / 18%);
+}
+
+.admin-nav button.active::before {
+    display: none;
+}
+
+.admin-sidebar-tool {
+    border: 1px solid #88a99a;
+    background: #f8fffb;
+    color: #173b2a;
+    box-shadow: 0 1px 2px rgb(15 23 42 / 5%);
+    transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.admin-sidebar-actions {
+    padding: 10px;
+    border: 1px solid #c1d4c8;
+    border-radius: 14px;
+    background: rgb(255 255 255 / 38%);
+}
+
+.admin-sidebar-tool:hover {
+    background: #fff;
+    border-color: #398457;
+    box-shadow: 0 3px 9px rgb(20 83 45 / 12%);
+    transform: translateY(-1px);
+}
+
+.admin-sidebar-actions .admin-sidebar-tool:nth-child(1) {
+    background: #eff6ff;
+    border-color: #93b4df;
+    color: #1e3a5f;
+}
+
+.admin-sidebar-actions .admin-sidebar-tool:nth-child(2) {
+    background: #fff7ed;
+    border-color: #fdba74;
+    color: #7c2d12;
+}
+
+.admin-sidebar-actions .admin-sidebar-tool:nth-child(3) {
+    background: #f5f3ff;
+    border-color: #c4b5fd;
+    color: #4c1d95;
+}
+
+.admin-sidebar-actions .admin-sidebar-tool:nth-child(4) {
+    background: #ecfeff;
+    border-color: #67e8f9;
+    color: #164e63;
+}
+
+.admin-sidebar-actions .admin-sidebar-tool:nth-child(n):hover {
+    filter: brightness(0.97);
+    box-shadow: 0 3px 9px rgb(15 23 42 / 12%);
+}
+
+.admin-sidebar-toggle {
+    display: grid;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    place-items: center;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: #14532d;
+    box-shadow: none;
+    cursor: pointer;
+    transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.admin-sidebar-toggle,
+.admin-sidebar-toggle:hover,
+.admin-sidebar-toggle * {
+    cursor: pointer !important;
+}
+
+.admin-sidebar-toggle:hover {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+}
+
+.admin-sidebar-toggle:active {
+    transform: scale(0.95);
+}
+
+.admin-sidebar-toggle:focus-visible,
+.admin-nav button:focus-visible,
+.admin-sidebar-tool:focus-visible {
+    outline: 3px solid #0ea5e9;
+    outline-offset: 2px;
+    box-shadow: none;
+}
+
+.admin-sidebar-toggle .hamburger-line {
+    transform-origin: center;
+    transition: transform 220ms ease, opacity 150ms ease;
+}
+
+.admin-shell.sidebar-expanded .admin-sidebar-toggle .hamburger-line-top {
+    transform: translateY(5px) rotate(45deg);
+}
+
+.admin-shell.sidebar-expanded .admin-sidebar-toggle .hamburger-line-middle {
+    opacity: 0;
+}
+
+.admin-shell.sidebar-expanded .admin-sidebar-toggle .hamburger-line-bottom {
+    transform: translateY(-5px) rotate(-45deg);
+}
+
+.admin-sidebar-content {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    min-width: 0;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.user-maintenance-dialog {
+    width: min(960px, calc(100vw - 2rem));
+    max-width: 960px;
+    border: 1px solid #cbd5e1;
+}
+
+.user-maintenance-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 20px 24px;
+    border-bottom: 1px solid #cbd5e1;
+    background: linear-gradient(135deg, #f0fdf4, #eff6ff);
+}
+
+.user-maintenance-heading {
+    margin: 0;
+    color: #0f172a;
+    font-size: 18px;
+    font-weight: 900;
+}
+
+.user-maintenance-subheading {
+    margin: 4px 0 0;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.user-maintenance-add {
+    flex: 0 0 auto;
+    border: 1px solid #14532d;
+    background: #166534;
+}
+
+.user-maintenance-body {
+    padding: 20px 24px;
+}
+
+.user-maintenance-search-wrap {
+    position: relative;
+    margin-bottom: 14px;
+}
+
+.user-maintenance-search-wrap svg {
+    position: absolute;
+    top: 50%;
+    left: 13px;
+    width: 17px;
+    height: 17px;
+    color: #64748b;
+    pointer-events: none;
+    transform: translateY(-50%);
+}
+
+.user-maintenance-search {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 14px 10px 40px;
+    border: 1px solid #94a3b8;
+    border-radius: 11px;
+    background: #fff;
+    color: #0f172a;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.user-maintenance-search:focus {
+    border-color: #15803d;
+    box-shadow: 0 0 0 3px rgb(21 128 61 / 14%);
+}
+
+#userMaintenanceModal.is-editing .user-maintenance-search-wrap {
+    display: none;
+}
+
+.user-maintenance-table-wrap {
+    max-height: min(52vh, 480px);
+    overflow: auto;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+}
+
+.user-maintenance-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 13px;
+}
+
+.user-maintenance-table th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: 12px 14px;
+    border-bottom: 1px solid #cbd5e1;
+    background: #f1f5f9;
+    color: #334155;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-align: left;
+    text-transform: uppercase;
+}
+
+.user-maintenance-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #e2e8f0;
+    color: #334155;
+    vertical-align: middle;
+}
+
+.user-maintenance-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.user-maintenance-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+.user-maintenance-table .user-name {
+    color: #0f172a;
+    font-weight: 800;
+}
+
+.user-maintenance-table .user-username {
+    color: #475569;
+}
+
+.user-maintenance-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.user-maintenance-action {
+    min-width: 66px;
+    height: 30px;
+    padding: 0 10px;
+    border: 1px solid;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease;
+}
+
+.user-maintenance-edit {
+    border-color: #93b4df;
+    background: #eff6ff;
+    color: #1e3a5f;
+}
+
+.user-maintenance-edit:hover {
+    border-color: #3b82f6;
+    background: #dbeafe;
+}
+
+.user-maintenance-delete {
+    border-color: #fca5a5;
+    background: #fef2f2;
+    color: #991b1b;
+}
+
+.user-maintenance-delete:hover {
+    border-color: #ef4444;
+    background: #fee2e2;
+}
+
+.user-maintenance-empty {
+    padding: 30px 16px;
+    color: #64748b;
+    text-align: center;
+}
+
+.user-maintenance-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 14px 24px;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+#nl-records-section {
+    min-width: 0;
+    padding: 20px;
+    border-color: #aebfc0;
+}
+
+#nl-records-section > .nl-unassigned-card,
+#nl-records-section > .table-filters,
+#nl-records-section > .nl-record-toolbar,
+#nl-records-section > #bulk-form {
+    width: 100%;
+    min-width: 0;
+}
+
+#nl-records-section .nl-unassigned-card,
+#nl-records-section .table-filters,
+#nl-records-section .nl-record-toolbar,
+#nl-records-section #table-wrapper {
+    border: 1px solid #b8c8c7 !important;
+    border-radius: 15px !important;
+    background: #fff !important;
+    box-shadow: 0 5px 16px rgb(15 23 42 / 5%) !important;
+}
+
+#nl-records-section .nl-unassigned-card {
+    display: flex;
+    align-items: center;
+    min-height: 70px;
+    padding: 14px 18px !important;
+}
+
+#nl-records-section .nl-unassigned-card label {
+    display: flex !important;
+    align-items: center !important;
+    gap: 14px !important;
+}
+
+#nl-records-section .nl-unassigned-copy strong {
+    display: block;
+    color: #0f172a;
+    font-size: 14px;
+    font-weight: 850;
+}
+
+#nl-records-section .nl-unassigned-copy span {
+    display: block;
+    margin-top: 3px;
+    color: #64748b;
+    font-size: 12px;
+}
+
+#nl-records-section .table-filters {
+    padding: 20px !important;
+}
+
+#nl-records-section .nl-filter-heading {
+    margin-bottom: 14px !important;
+    padding-bottom: 13px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+#nl-records-section .table-filters #active-filters-display {
+    border-color: #cbd5e1 !important;
+    border-radius: 10px !important;
+}
+
+#nl-records-section #filter-form > div:first-of-type {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr)) !important;
+    gap: 14px !important;
+}
+
+#nl-records-section #filter-form input:not([type="hidden"]),
+#nl-records-section #filter-form select {
+    width: 100%;
+    min-width: 0;
+    min-height: 42px;
+    padding: 9px 12px !important;
+    border: 1px solid #b8c8d4 !important;
+    border-radius: 9px !important;
+    background-color: #fff !important;
+    color: #0f172a !important;
+    font-size: 13px !important;
+    box-shadow: none !important;
+}
+
+#nl-records-section #filter-form input:focus,
+#nl-records-section #filter-form select:focus {
+    border-color: #15803d !important;
+    outline: none;
+    box-shadow: 0 0 0 3px rgb(21 128 61 / 13%) !important;
+}
+
+#nl-records-section #filter-form label {
+    color: #475569 !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+}
+
+#nl-records-section #filter-form > div:last-child {
+    flex-wrap: wrap;
+    gap: 10px !important;
+    margin-top: 16px !important;
+    padding-top: 14px !important;
+}
+
+#nl-records-section #apply-filters-btn,
+#nl-records-section #clear-filters-shortcut-btn {
+    min-height: 40px;
+    padding: 9px 16px !important;
+    border: 1px solid transparent !important;
+    border-radius: 9px !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    box-shadow: none !important;
+}
+
+#nl-records-section #apply-filters-btn {
+    border-color: #14532d !important;
+    background: #166534 !important;
+}
+
+#nl-records-section #clear-filters-shortcut-btn {
+    border-color: #fca5a5 !important;
+    background: #fff1f2 !important;
+    color: #991b1b !important;
+}
+
+#nl-records-section .nl-record-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 14px;
+    flex-wrap: nowrap !important;
+    margin-bottom: 12px !important;
+    padding: 10px 12px !important;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+    scrollbar-color: #94a3b8 transparent;
+}
+
+#nl-records-section .nl-record-toolbar::-webkit-scrollbar {
+    height: 6px;
+}
+
+#nl-records-section .nl-record-toolbar::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: #94a3b8;
+}
+
+#nl-records-section .nl-record-toolbar-title {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 9px;
+    white-space: nowrap;
+}
+
+#nl-records-section .nl-record-toolbar-title h3 {
+    margin: 0 !important;
+    color: #0f172a !important;
+    font-size: 16px !important;
+    font-weight: 900 !important;
+}
+
+#nl-records-section .nl-record-toolbar-title p {
+    margin: 3px 0 0;
+    color: #64748b;
+    font-size: 12px;
+}
+
+#nl-records-section .nl-record-toolbar-actions {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 6px;
+    flex-wrap: nowrap !important;
+    white-space: nowrap;
+}
+
+#nl-records-section .nl-record-toolbar-actions .btn {
+    min-height: 38px;
+    flex: 0 0 auto;
+    padding: 7px 10px !important;
+    border: 1px solid rgb(15 23 42 / 10%) !important;
+    border-radius: 9px !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    box-shadow: none !important;
+}
+
+#nl-records-section #bulk-selected-count {
+    min-width: 104px !important;
+    padding: 8px 11px !important;
+    border: 1px solid #b8c8d4 !important;
+    border-radius: 999px !important;
+    background: #f1f5f9 !important;
+    color: #334155 !important;
+    font-weight: 800 !important;
+}
+
+#nl-records-section #table-container {
+    overflow: hidden;
+    border: 1px solid #b8c8d4;
+    border-radius: 15px;
+    background: #fff;
+}
+
+#nl-records-section #table-wrapper > .table-wrapper {
+    width: 100%;
+    min-width: 0;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+#nl-records-section #table-wrapper > .table-wrapper::-webkit-scrollbar {
+    display: none;
+}
+
+#nl-records-section .records-table {
+    width: max-content !important;
+    min-width: 100%;
+    max-width: none !important;
+    margin: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    table-layout: auto !important;
+    background: #fff !important;
+}
+
+#nl-records-section .records-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    height: 44px;
+    padding: 11px 13px !important;
+    border-right: 1px solid rgb(255 255 255 / 16%) !important;
+    border-bottom: 2px solid #14532d !important;
+    background: #166534 !important;
+    color: #fff !important;
+    font-size: 11px !important;
+    font-weight: 850 !important;
+    letter-spacing: 0.045em;
+    line-height: 1.25;
+    text-align: left;
+    vertical-align: middle;
+}
+
+#nl-records-section .records-table thead th:last-child {
+    border-right: 0 !important;
+}
+
+#nl-records-section .records-table thead th a {
+    color: inherit !important;
+}
+
+#nl-records-section .records-table tbody td {
+    height: 44px;
+    padding: 9px 13px !important;
+    border-right: 1px solid #e2e8f0 !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    color: #334155;
+    font-size: 12px;
+    line-height: 1.4;
+    vertical-align: middle;
+}
+
+#nl-records-section .records-table tbody td:last-child {
+    border-right: 0 !important;
+}
+
+#nl-records-section .records-table tbody tr:last-child td {
+    border-bottom: 0 !important;
+}
+
+#nl-records-section .records-table tbody tr:nth-child(even) {
+    background: #f8fafc;
+}
+
+#nl-records-section .records-table tbody tr:hover {
+    background: #ecfdf5;
+}
+
+#nl-records-section .records-table .col-checkbox,
+#nl-records-section .records-table .col-checkbox-transmit,
+#nl-records-section .records-table .col-edit,
+#nl-records-section .records-table .col-delete,
+#nl-records-section .records-table .col-view {
+    min-width: 76px;
+    text-align: center;
+}
+
+#nl-records-section .records-table .col-notice-image {
+    min-width: 112px;
+    text-align: center;
+}
+
+#nl-records-section .records-table .col-date-received,
+#nl-records-section .records-table .col-date-occurrence,
+#nl-records-section .records-table .col-date-encoded,
+#nl-records-section .records-table .col-admin-transmittal-number {
+    white-space: nowrap;
+}
+
+#nl-records-section .records-table .col-farmer-name {
+    min-width: 220px;
+}
+
+#nl-records-section .records-table .col-remarks,
+#nl-records-section .records-table .col-causeOfDamage {
+    min-width: 180px;
+    max-width: 280px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#nl-records-section #table-wrapper {
+    max-height: min(62vh, 680px) !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    border: 0 !important;
+    border-radius: 14px !important;
+    box-shadow: none !important;
+}
+
+#nl-records-section .table-scroll-sync-top,
+#nl-records-section .table-scroll-sync-bottom {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+#nl-records-section #pagination-container {
+    justify-content: space-between !important;
+    gap: 10px !important;
+    padding: 14px 4px 2px;
+}
+
+#nl-records-section #pagination-container > * {
+    margin: 0 !important;
+}
+
+#nl-records-section #pagination-container a,
+#nl-records-section #pagination-container span {
+    border-radius: 9px !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+}
+
+body.dark-mode #nl-records-section .nl-unassigned-copy strong,
+body.dark-mode #nl-records-section .nl-record-toolbar-title h3 {
+    color: #f8fafc !important;
+}
+
+body.dark-mode #nl-records-section .nl-unassigned-copy span,
+body.dark-mode #nl-records-section .nl-record-toolbar-title p {
+    color: #cbd5e1;
+}
+
+body.dark-mode #nl-records-section .nl-unassigned-card,
+body.dark-mode #nl-records-section .table-filters,
+body.dark-mode #nl-records-section .nl-record-toolbar,
+body.dark-mode #nl-records-section #table-container,
+body.dark-mode #nl-records-section #table-wrapper {
+    border-color: rgba(148, 163, 184, 0.36) !important;
+    background: #0f172a !important;
+}
+
+body.dark-mode #nl-records-section .records-table tbody td {
+    border-color: rgba(148, 163, 184, 0.22) !important;
+    color: #e2e8f0;
+}
+
+body.dark-mode #nl-records-section .records-table {
+    background: #0f172a !important;
+}
+
+body.dark-mode #nl-records-section .records-table tbody tr:nth-child(even) {
+    background: #111827 !important;
+}
+
+body.dark-mode #nl-records-section .records-table tbody tr:hover {
+    background: #123524 !important;
+}
+
+body.dark-mode #nl-records-section #filter-form input:not([type="hidden"]),
+body.dark-mode #nl-records-section #filter-form select {
+    border-color: rgba(148, 163, 184, 0.4) !important;
+    background-color: #111827 !important;
+    color: #f8fafc !important;
+}
+
+body.dark-mode #nl-records-section #filter-form label {
+    color: #cbd5e1 !important;
+}
+
+body.dark-mode #nl-records-section #clear-filters-shortcut-btn {
+    border-color: #7f1d1d !important;
+    background: #450a0a !important;
+    color: #fecaca !important;
+}
+
+body.dark-mode #nl-records-section #bulk-selected-count {
+    border-color: rgba(148, 163, 184, 0.4) !important;
+    background: #1e293b !important;
+    color: #e2e8f0 !important;
+}
+
+@media (max-width: 760px) {
+    #nl-records-section {
+        padding: 12px;
+    }
+
+    #nl-records-section .table-filters {
+        padding: 14px !important;
+    }
+
+    #nl-records-section .nl-record-toolbar {
+        align-items: center;
+        padding: 9px !important;
+    }
+
+    #nl-records-section .nl-record-toolbar-actions {
+        justify-content: flex-start;
+    }
+
+    #nl-records-section #pagination-container {
+        justify-content: center !important;
+        flex-wrap: wrap;
+    }
+}
+
+body.dark-mode .user-maintenance-header,
+body.dark-mode .user-maintenance-footer {
+    border-color: rgba(148, 163, 184, 0.28);
+    background: #111827;
+}
+
+body.dark-mode .user-maintenance-heading,
+body.dark-mode .user-maintenance-table .user-name {
+    color: #f8fafc;
+}
+
+body.dark-mode .user-maintenance-subheading,
+body.dark-mode .user-maintenance-table td,
+body.dark-mode .user-maintenance-empty {
+    color: #cbd5e1;
+}
+
+body.dark-mode .user-maintenance-search,
+body.dark-mode .user-maintenance-table-wrap {
+    border-color: rgba(148, 163, 184, 0.4);
+    background: #0f172a;
+    color: #f8fafc;
+}
+
+body.dark-mode .user-maintenance-table th {
+    border-color: rgba(148, 163, 184, 0.28);
+    background: #1e293b;
+    color: #e2e8f0;
+}
+
+body.dark-mode .user-maintenance-table td {
+    border-color: rgba(148, 163, 184, 0.2);
+}
+
+body.dark-mode .user-maintenance-form {
+    border-color: rgba(148, 163, 184, 0.3);
+    background: #111827;
+}
+
+@media (max-width: 640px) {
+    .user-maintenance-header,
+    .user-maintenance-body {
+        padding: 16px;
+    }
+
+    .user-maintenance-header {
+        align-items: flex-start;
+    }
+
+    .user-maintenance-heading {
+        font-size: 16px;
+    }
+
+    .user-maintenance-table th,
+    .user-maintenance-table td {
+        padding: 10px;
+    }
+
+    .user-maintenance-table th:first-child,
+    .user-maintenance-table td:first-child,
+    .user-maintenance-table th:nth-child(4),
+    .user-maintenance-table td:nth-child(4) {
+        display: none;
+    }
+
+    .user-maintenance-footer {
+        padding: 12px 16px;
+    }
+}
+
+body.dark-mode .admin-workspace-panel {
+    border-color: rgba(148, 163, 184, 0.28);
+    background: rgba(15, 23, 42, 0.95);
+}
+
+body.dark-mode .admin-sidebar .admin-brand,
+body.dark-mode .admin-sidebar .admin-nav button,
+body.dark-mode .admin-sidebar .admin-sidebar-section-label,
+body.dark-mode .admin-sidebar .admin-sidebar-tool {
+    color: #f8fafc;
+}
+
+body.dark-mode .admin-sidebar .admin-nav button.active {
+    background: rgba(22, 163, 74, 0.24);
+    border-color: rgba(74, 222, 128, 0.4);
+}
+
+body.dark-mode .admin-sidebar .admin-nav #btn-dashboard.active {
+    background: #166534 !important;
+    border-color: #4ade80 !important;
+    color: #fff !important;
+}
+
+body.dark-mode .admin-sidebar .admin-nav #btn-nl-records {
+    background: #172554 !important;
+    border-color: #3b82f6 !important;
+    color: #dbeafe !important;
+}
+
+body.dark-mode .admin-sidebar .admin-nav #btn-nl-records.active {
+    background: #1d4ed8 !important;
+    border-color: #93c5fd !important;
+    color: #fff !important;
+}
+
+body.dark-mode .admin-sidebar .admin-nav #btn-dashboard.active::before,
+body.dark-mode .admin-sidebar .admin-nav #btn-nl-records.active::before {
+    background: #fff !important;
+}
+
+body.dark-mode .admin-sidebar-actions .admin-sidebar-tool {
+    border-color: rgba(148, 163, 184, 0.4);
+    color: #f8fafc !important;
+}
+
+body.dark-mode .admin-sidebar-actions .admin-sidebar-tool:nth-child(1) {
+    background: #172554 !important;
+}
+
+body.dark-mode .admin-sidebar-actions .admin-sidebar-tool:nth-child(2) {
+    background: #431407 !important;
+}
+
+body.dark-mode .admin-sidebar-actions .admin-sidebar-tool:nth-child(3) {
+    background: #2e1065 !important;
+}
+
+body.dark-mode .admin-sidebar-actions .admin-sidebar-tool:nth-child(4) {
+    background: #083344 !important;
+}
+
+body.dark-mode .admin-sidebar-toggle {
+    border-color: rgba(148, 163, 184, 0.4);
+    background: transparent;
+    color: #bbf7d0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .admin-shell,
+    .admin-sidebar,
+    .admin-sidebar button,
+    .admin-sidebar-toggle .hamburger-line {
+        transition-duration: 0.01ms !important;
+    }
+}
+
+@media (max-width: 640px) {
+    .admin-shell {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto minmax(0, 1fr);
+        height: 100dvh;
+    }
+
+    .admin-sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        max-height: 72px;
+        overflow: hidden;
+        padding: 8px 10px;
+        transition: max-height 240ms ease, padding 200ms ease;
+    }
+
+    .admin-shell.sidebar-expanded {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto minmax(0, 1fr);
+    }
+
+    .admin-shell.sidebar-expanded .admin-sidebar {
+        max-height: min(55vh, 440px);
+        overflow-y: auto;
+    }
+
+    .admin-sidebar .admin-brand {
+        justify-content: center;
+        padding: 0;
+    }
+
+    .admin-shell:not(.sidebar-expanded) .admin-sidebar .admin-brand .title,
+    .admin-shell:not(.sidebar-expanded) .admin-sidebar .admin-brand .subtitle {
+        display: block;
+    }
+
+    .admin-shell:not(.sidebar-expanded) .admin-sidebar-content {
+        visibility: hidden;
+        opacity: 0;
+    }
+
+    .admin-shell.sidebar-expanded .admin-sidebar-content {
+        visibility: visible;
+        opacity: 1;
+        transition: opacity 140ms ease 80ms;
+    }
+
+    .admin-sidebar .admin-sidebar-actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        margin-top: 8px;
+        padding: 8px 4px;
+    }
+
+    .admin-main {
+        height: auto;
+        min-height: 0;
+        padding: 10px;
+    }
+
+    .admin-workspace-panel {
+        padding: 12px;
+    }
+}
 </style>
 @endpush
 
@@ -42,19 +1094,23 @@
     <div class="admin-shell">
         <aside class="admin-sidebar no-print">
             <div class="admin-brand">
-                <div>
-                    <div class="title">PCIC</div>
-                    <div class="subtitle">NL Monitoring</div>
-                </div>
+                <button type="button" class="admin-sidebar-toggle" id="adminSidebarToggle" aria-label="Expand navigation" aria-expanded="false" aria-controls="adminSidebarContent" title="Expand navigation">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path class="hamburger-line hamburger-line-top" d="M4 7h16"></path>
+                        <path class="hamburger-line hamburger-line-middle" d="M4 12h16"></path>
+                        <path class="hamburger-line hamburger-line-bottom" d="M4 17h16"></path>
+                    </svg>
+                </button>
             </div>
 
+            <div id="adminSidebarContent" class="admin-sidebar-content">
             <div class="admin-sidebar-section-label">Navigation</div>
             <nav class="admin-nav" aria-label="Admin navigation">
-                <button type="button" class="active" id="btn-dashboard">
+                <button type="button" class="active" id="btn-dashboard" aria-controls="dashboard-section" aria-current="page" title="Dashboard">
                     <span class="icon" aria-hidden="true"><img src="/images/dashboard.svg" alt="" width="18" height="18"></span>
                     <span>Dashboard</span>
                 </button>
-                <button type="button" id="btn-nl-records">
+                <button type="button" id="btn-nl-records" aria-controls="nl-records-section" title="NL Records">
                     <span class="icon" aria-hidden="true"><img src="/images/file-svgrepo-com.svg" alt="" width="18" height="18"></span>
                     <span>NL Records</span>
                 </button>
@@ -100,6 +1156,7 @@
                         <span class="label">Reports</span>
                     </div>
                 </button>
+            </div>
             </div>
         </aside>
 
@@ -277,7 +1334,7 @@
     </dialog>
 
     <!-- Dashboard Section -->
-    <div id="dashboard-section">
+    <div id="dashboard-section" class="admin-workspace-panel" role="region" aria-label="Dashboard" aria-hidden="false">
     <!-- DashboardDD -->
         @php
             $summaryDate = '';
@@ -779,17 +1836,20 @@
     </div> <!-- END Dashboard Section -->
 
     <!-- NL Records Section -->
-    <div id="nl-records-section" style="display: none;">
+    <div id="nl-records-section" class="admin-workspace-panel" role="region" aria-label="NL records" aria-hidden="true" style="display: none;">
 
     <!-- Transmittal Management -->
-    <div class="no-print" style="margin-bottom: 12px; padding: 16px 20px; border-radius: 12px; background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);">
+    <div class="no-print nl-unassigned-card" style="margin-bottom: 12px; padding: 16px 20px; border-radius: 12px; background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);">
         <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; margin: 0;">
             <div style="position: relative; width: 48px; height: 24px;">
                 <input type="checkbox" id="unassigned-toggle" {{ request('unassigned_only') ? 'checked' : '' }} style="opacity: 0; width: 0; height: 0;">
                 <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: 0.3s; border-radius: 24px;" id="unassigned-toggle-bg"></span>
                 <span style="position: absolute; cursor: pointer; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: 0.3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);" id="unassigned-toggle-dot"></span>
             </div>
-            <span style="font-size: 14px; font-weight: 500; color: #1e293b;">Show only records without admin transmittal numbers</span>
+            <span class="nl-unassigned-copy">
+                <strong>Show records awaiting an admin transmittal</strong>
+                <span>Filters the table to records that have not yet been assigned a transmittal number.</span>
+            </span>
         </label>
     </div>
 
@@ -825,13 +1885,16 @@
 
     <!-- TABLE FILTERS -->
     <div class="no-print table-filters" style="margin-bottom: 16px; padding: 20px; border-radius: 12px; background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);">
-        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+        <div class="nl-filter-heading" style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
             <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #006c35 0%, #008a43 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
                 <svg width="18" height="18" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
                 </svg>
             </div>
-            <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: #1e293b;">Table Filters</h3>
+            <div>
+                <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: #1e293b;">Find and filter records</h3>
+                <p style="margin: 3px 0 0; font-size: 12px; color: #64748b;">Narrow the list before selecting records for transmittal.</p>
+            </div>
         </div>
         
         <!-- Active Filters Display -->
@@ -3135,17 +4198,19 @@ Villa Rosario,Victoria,Tarlac`;
         </script>
     </div>
 
-    <div class="no-print" style="margin-bottom: 16px; padding: 20px; border-radius: 12px; background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);">
-        <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
-            <div style="display: flex; align-items: center; gap: 12px;">
+    <div class="no-print nl-record-toolbar" style="margin-bottom: 16px; padding: 20px; border-radius: 12px; background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);">
+            <div class="nl-record-toolbar-title">
                 <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #006c35 0%, #008a43 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
                     <svg width="18" height="18" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
                 </div>
-                <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: #1e293b;">NL Records</h3>
+                <div>
+                    <h3>Records</h3>
+                    <p>{{ number_format($records->total()) }} matching {{ $records->total() === 1 ? 'record' : 'records' }}</p>
+                </div>
             </div>
-            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <div class="nl-record-toolbar-actions">
                 <button id="delete-multiple" class="btn" style="padding: 10px 16px; background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; box-shadow: 0 2px 4px rgba(220, 38, 38, 0.2); transition: all 0.2s;">Delete Multiple</button>
                 <button id="delete-selected" class="btn" disabled style="padding: 10px 16px; background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); color: white; border: none; border-radius: 8px; cursor: not-allowed; font-weight: 600; font-size: 13px; box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2); transition: all 0.2s; opacity: 0.6;">Delete Selected</button>
                 <button type="button" id="select-records-transmit" class="btn" style="padding: 10px 16px; background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; box-shadow: 0 2px 4px rgba(14, 165, 233, 0.2); transition: all 0.2s;">Select for Transmit</button>
@@ -3154,7 +4219,6 @@ Villa Rosario,Victoria,Tarlac`;
                 <button type="button" id="clear-selections" class="btn" style="padding: 10px 16px; background: linear-gradient(135deg, #64748b 0%, #94a3b8 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; box-shadow: 0 2px 4px rgba(100, 116, 139, 0.2); transition: all 0.2s;">Clear Selections</button>
                 <span id="bulk-selected-count" style="padding: 8px 12px; background: #f1f5f9; color: #64748b; border-radius: 8px; font-size: 12px; font-weight: 600; border: 1px solid #e2e8f0; min-width: 80px; text-align: center;">0 selected</span>
             </div>
-        </div>
     </div>
     <form id="bulk-form" method="POST" action="{{ route('admin.bulk-delete') }}">
         @csrf
@@ -3164,11 +4228,11 @@ Villa Rosario,Victoria,Tarlac`;
         <!-- Main table container with proper sticky header support -->
         <div id="table-container">
             <div id="table-wrapper" class="table-wrapper-outer" style="width: 100%; border-radius: 16px; border: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); overflow-y: auto; max-height: 500px;">
-                <x-table :records="$records" :showEncoder="true" :showFilters="false" :showAdminTransmittal="true" :allPrograms="$allPrograms" :allLines="$allLines" :allSources="$allSources" :allModes="$allModes" :showCheckbox="true" />
+                <x-table :records="$records" :showEncoder="true" :showFilters="false" :showAdminTransmittal="true" :showNoticeImage="true" :allPrograms="$allPrograms" :allLines="$allLines" :allSources="$allSources" :allModes="$allModes" :showCheckbox="true" />
             </div>
         </div>
         @if($records->isEmpty())
-            <div style="padding: 16px; margin-bottom: 12px; border: 1px solid #e0e0e0; background: #fafafa; color: #555;">
+            <div class="nl-empty-records" style="padding: 16px; margin-bottom: 12px; border: 1px solid #e0e0e0; background: #fafafa; color: #555;">
                 No records found for the current filters.
             </div>
         @endif
@@ -3285,6 +4349,16 @@ Villa Rosario,Victoria,Tarlac`;
             <input type="text" id="accounts" name="accounts" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full auto-caps">
             <label for="facebook_page_url" class="text-xs font-bold text-gray-600 text-right">FB page link:</label>
             <input type="url" id="facebook_page_url" name="facebook_page_url" placeholder="https://www.facebook.com/..." class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
+            <label for="editNoticeImage" class="text-xs font-bold text-gray-600 text-right">Notice / claim image:</label>
+            <div class="flex flex-col gap-2">
+                <input type="file" id="editNoticeImage" name="notice_image" accept="image/jpeg,image/png,image/webp" class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700">
+                <div id="editNoticeImagePreviewContainer" hidden>
+                    <img id="editNoticeImagePreview" alt="Notice of loss or claim preview" hidden class="max-h-40 rounded-lg border border-gray-200 object-contain">
+                    <button type="button" id="editNoticeImagePrintButton" class="notice-image-view-btn mt-2" data-image-url="" hidden>View / Print image</button>
+                    <span class="mt-1 block text-xs text-gray-500">Current image or selected replacement</span>
+                </div>
+                <span class="text-xs text-gray-500">Optional. JPG, PNG, or WebP; maximum 5 MB. Leave empty to keep the current image.</span>
+            </div>
             <div></div>
             <label for="clear_admin_transmittal_number" class="flex items-center gap-2 text-xs font-bold text-gray-600">
                 <input type="checkbox" id="clear_admin_transmittal_number" name="clear_admin_transmittal_number" value="1" class="w-4 h-4 accent-pcic-700">
@@ -3411,50 +4485,58 @@ Villa Rosario,Victoria,Tarlac`;
         const nlRecordsSection = document.getElementById('nl-records-section');
         const adminActiveTabKey = 'admin_active_tab';
 
-        function setTabInUrl(tabValue) {
+        const adminMain = document.querySelector('.admin-main');
+
+        function setTabInUrl(tabValue, replace = false) {
             const params = new URLSearchParams(window.location.search);
             params.set('tab', tabValue);
             const nextUrl = `${window.location.pathname}?${params.toString()}`;
-            window.history.replaceState({}, '', nextUrl);
+            const updateHistory = replace ? 'replaceState' : 'pushState';
+            window.history[updateHistory]({ tab: tabValue }, '', nextUrl);
         }
 
-        function showDashboard() {
-            dashboardSection.style.display = 'block';
-            nlRecordsSection.style.display = 'none';
-            btnDashboard.classList.add('active');
-            btnNlRecords.classList.remove('active');
-            localStorage.setItem(adminActiveTabKey, 'dashboard');
-            setTabInUrl('dashboard');
+        function showTab(tabValue, updateUrl = true) {
+            const showNlRecords = tabValue === 'nl-records';
+            dashboardSection.style.display = showNlRecords ? 'none' : 'block';
+            nlRecordsSection.style.display = showNlRecords ? 'block' : 'none';
+            dashboardSection.setAttribute('aria-hidden', String(showNlRecords));
+            nlRecordsSection.setAttribute('aria-hidden', String(!showNlRecords));
+            btnDashboard.classList.toggle('active', !showNlRecords);
+            btnNlRecords.classList.toggle('active', showNlRecords);
+            btnDashboard.toggleAttribute('aria-current', !showNlRecords);
+            btnNlRecords.toggleAttribute('aria-current', showNlRecords);
+            localStorage.setItem(adminActiveTabKey, showNlRecords ? 'nl-records' : 'dashboard');
+
+            const selectedTab = showNlRecords ? 'nl-records' : 'dashboard';
+            if (updateUrl && new URLSearchParams(window.location.search).get('tab') !== selectedTab) {
+                setTabInUrl(selectedTab);
+            }
+
+            adminMain?.scrollTo({ top: 0, behavior: 'auto' });
         }
 
-        function showNlRecords() {
-            dashboardSection.style.display = 'none';
-            nlRecordsSection.style.display = 'block';
-            btnDashboard.classList.remove('active');
-            btnNlRecords.classList.add('active');
-            localStorage.setItem(adminActiveTabKey, 'nl-records');
-            setTabInUrl('nl-records');
-        }
+        window.adminShowTab = showTab;
 
         if (btnDashboard && btnNlRecords && dashboardSection && nlRecordsSection) {
             btnDashboard.addEventListener('click', function (event) {
                 event.preventDefault();
-                showDashboard();
+                showTab('dashboard');
             });
 
             btnNlRecords.addEventListener('click', function (event) {
                 event.preventDefault();
-                showNlRecords();
+                showTab('nl-records');
             });
 
             const tabFromUrl = new URLSearchParams(window.location.search).get('tab');
             const savedTab = localStorage.getItem(adminActiveTabKey);
             const defaultTab = tabFromUrl || savedTab;
-            if (defaultTab === 'nl-records') {
-                showNlRecords();
-            } else {
-                showDashboard();
-            }
+            showTab(defaultTab === 'nl-records' ? 'nl-records' : 'dashboard', false);
+            setTabInUrl(defaultTab === 'nl-records' ? 'nl-records' : 'dashboard', true);
+            window.addEventListener('popstate', function () {
+                const tab = new URLSearchParams(window.location.search).get('tab');
+                showTab(tab === 'nl-records' ? 'nl-records' : 'dashboard', false);
+            });
         } else {
             console.error('Required elements not found:', {
                 btnDashboard: !!btnDashboard,
@@ -3534,81 +4616,16 @@ Villa Rosario,Victoria,Tarlac`;
         const openUserMaintenanceModal = document.getElementById('openUserMaintenanceModal');
         const userMaintenanceModal = document.getElementById('userMaintenanceModal');
         const closeUserMaintenanceModal = document.querySelector('.closeUserMaintenanceModal');
+        const userMaintenanceSearch = document.getElementById('userMaintenanceSearch');
+
+        userMaintenanceSearch?.addEventListener('input', filterUserMaintenanceList);
 
         if (openUserMaintenanceModal && userMaintenanceModal) {
             openUserMaintenanceModal.addEventListener('click', function() {
                 console.log('Opening User Maintenance modal...');
-                
-                // Load officers data
-                fetch('/api/officers')
-                    .then(response => {
-                        console.log('Initial load response status:', response.status);
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        console.log('Initial users data received:', data);
-                        const content = document.getElementById('userMaintenanceContent');
-                        if (data.success && data.officers) {
-                            let html = `
-                                <div class="overflow-x-auto">
-                                    <table class="w-full border-collapse">
-                                        <thead>
-                                            <tr class="border-b border-gray-200">
-                                                <th class="text-left px-3 py-2 text-xs font-bold text-gray-500 w-1/6">ID</th>
-                                                <th class="text-left px-3 py-2 text-xs font-bold text-gray-500 w-1/4">Name</th>
-                                                <th class="text-left px-3 py-2 text-xs font-bold text-gray-500 w-1/4">Username</th>
-                                                <th class="text-left px-3 py-2 text-xs font-bold text-gray-500 w-1/6">Created</th>
-                                                <th class="text-left px-3 py-2 text-xs font-bold text-gray-500 w-1/4">Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                            `;
-                            
-                            data.officers.forEach(officer => {
-                                const createdDate = new Date(officer.created_at).toLocaleDateString('en-US', { 
-                                    year: 'numeric', 
-                                    month: 'short', 
-                                    day: 'numeric' 
-                                });
-                                
-                                html += `
-                                    <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                                        <td class="px-3 py-2 text-sm text-gray-800 font-medium">${officer.id}</td>
-                                        <td class="px-3 py-2 text-sm text-gray-800">${officer.name}</td>
-                                        <td class="px-3 py-2 text-sm text-gray-600">${officer.username}</td>
-                                        <td class="px-3 py-2 text-sm text-gray-500">${createdDate}</td>
-                                        <td class="px-3 py-2">
-                                            <button data-user-id="${officer.id}" class="edit-user-btn h-7 px-3 rounded-lg border border-gray-200 text-xs font-bold text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer mr-2">Edit</button>
-                                            <button data-user-id="${officer.id}" class="delete-user-btn h-7 px-3 rounded-lg bg-red-600 text-white text-xs font-bold hover:bg-red-700 transition-colors cursor-pointer">Delete</button>
-                                        </td>
-                                    </tr>
-                                `;
-                            });
-                            
-                            html += `
-                                        </tbody>
-                                    </table>
-                                </div>
-                            `;
-                            content.innerHTML = html;
-                        
-                        // Add event delegation for dynamically created buttons
-                        attachUserButtonListeners();
-                        
-                        } else {
-                            content.innerHTML = '<p class="text-center py-8 text-sm text-gray-400">No users found.</p>';
-                        }
-                        userMaintenanceModal.showModal();
-                    })
-                    .catch(error => {
-                        console.error('Error loading officers:', error);
-                        const content = document.getElementById('userMaintenanceContent');
-                        content.innerHTML = '<p class="text-center py-8 text-sm text-red-600">Error loading users. Please try again.</p>';
-                        userMaintenanceModal.showModal();
-                    });
+                userMaintenanceSearch.value = '';
+                userMaintenanceModal.showModal();
+                loadUsers();
             });
         }
 
@@ -3706,9 +4723,10 @@ Villa Rosario,Victoria,Tarlac`;
         function showUserForm(user = null) {
             const content = document.getElementById('userMaintenanceContent');
             const isEdit = user !== null;
+            userMaintenanceModal.classList.add('is-editing');
             
             let html = `
-                <form id="officerForm" class="space-y-4">
+                <form id="officerForm" class="user-maintenance-form space-y-4 rounded-xl border border-slate-200 bg-slate-50 p-5">
                     <input type="hidden" id="officerId" value="${user ? user.id : ''}">
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-1">Name</label>
@@ -3884,10 +4902,107 @@ Villa Rosario,Victoria,Tarlac`;
             }
         }
 
+        function escapeUserHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, function(character) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                }[character];
+            });
+        }
+
+        function filterUserMaintenanceList() {
+            const query = userMaintenanceSearch.value.trim().toLocaleLowerCase();
+            const rows = document.querySelectorAll('#userMaintenanceContent .user-maintenance-row');
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const matches = row.dataset.search.includes(query);
+                row.hidden = !matches;
+                if (matches) {
+                    visibleCount += 1;
+                }
+            });
+
+            const noResults = document.getElementById('userMaintenanceNoResults');
+            if (noResults) {
+                noResults.hidden = visibleCount > 0;
+                noResults.textContent = query ? 'No users match that name or username.' : 'No users found.';
+            }
+
+            const count = document.getElementById('userMaintenanceCount');
+            if (count) {
+                count.textContent = `${visibleCount} ${visibleCount === 1 ? 'user' : 'users'}`;
+            }
+        }
+
+        function renderUserMaintenanceList(officers) {
+            const content = document.getElementById('userMaintenanceContent');
+            userMaintenanceModal.classList.remove('is-editing');
+
+            if (!officers.length) {
+                content.innerHTML = '<div class="user-maintenance-empty">No users found.</div>';
+                return;
+            }
+
+            const rows = officers.map(officer => {
+                const createdDate = officer.created_at
+                    ? new Date(officer.created_at).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    })
+                    : '—';
+                const searchValue = `${officer.name ?? ''} ${officer.username ?? ''}`.toLocaleLowerCase();
+
+                return `
+                    <tr class="user-maintenance-row" data-search="${escapeUserHtml(searchValue)}">
+                        <td>${escapeUserHtml(officer.id)}</td>
+                        <td class="user-name">${escapeUserHtml(officer.name)}</td>
+                        <td class="user-username">${escapeUserHtml(officer.username)}</td>
+                        <td>${escapeUserHtml(createdDate)}</td>
+                        <td>
+                            <div class="user-maintenance-actions">
+                                <button type="button" data-user-id="${escapeUserHtml(officer.id)}" class="user-maintenance-action user-maintenance-edit edit-user-btn">Edit</button>
+                                <button type="button" data-user-id="${escapeUserHtml(officer.id)}" class="user-maintenance-action user-maintenance-delete delete-user-btn">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            content.innerHTML = `
+                <div class="flex items-center justify-between gap-3 mb-2">
+                    <p class="text-xs text-gray-500">Officer accounts</p>
+                    <p id="userMaintenanceCount" class="text-xs font-bold text-gray-600">${officers.length} ${officers.length === 1 ? 'user' : 'users'}</p>
+                </div>
+                <div class="user-maintenance-table-wrap">
+                    <table class="user-maintenance-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Username</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>
+                <div id="userMaintenanceNoResults" class="user-maintenance-empty" hidden>No users match that name or username.</div>
+            `;
+
+            filterUserMaintenanceList();
+            attachUserButtonListeners();
+        }
+
         function loadUsers() {
             console.log('Loading users...');
-            
-            // Reload users list
+            userMaintenanceModal.classList.remove('is-editing');
             fetch('/api/officers')
                 .then(response => {
                     console.log('Load users response status:', response.status);
@@ -3899,61 +5014,16 @@ Villa Rosario,Victoria,Tarlac`;
                 .then(data => {
                     console.log('Users data received:', data);
                     const content = document.getElementById('userMaintenanceContent');
-                    if (data.success && data.officers) {
-                        let html = `
-                            <div class="overflow-x-auto">
-                                <table class="w-full border-collapse">
-                                    <thead>
-                                        <tr class="border-b border-gray-200">
-                                            <th class="text-left px-3 py-2 text-xs font-bold text-gray-500 w-1/6">ID</th>
-                                            <th class="text-left px-3 py-2 text-xs font-bold text-gray-500 w-1/4">Name</th>
-                                            <th class="text-left px-3 py-2 text-xs font-bold text-gray-500 w-1/4">Username</th>
-                                            <th class="text-left px-3 py-2 text-xs font-bold text-gray-500 w-1/6">Created</th>
-                                            <th class="text-left px-3 py-2 text-xs font-bold text-gray-500 w-1/4">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                        `;
-                        
-                        data.officers.forEach(officer => {
-                            const createdDate = new Date(officer.created_at).toLocaleDateString('en-US', { 
-                                year: 'numeric', 
-                                month: 'short', 
-                                day: 'numeric' 
-                            });
-                            
-                            html += `
-                                <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                                    <td class="px-3 py-2 text-sm text-gray-800 font-medium">${officer.id}</td>
-                                    <td class="px-3 py-2 text-sm text-gray-800">${officer.name}</td>
-                                    <td class="px-3 py-2 text-sm text-gray-600">${officer.username}</td>
-                                    <td class="px-3 py-2 text-sm text-gray-500">${createdDate}</td>
-                                    <td class="px-3 py-2">
-                                        <button data-user-id="${officer.id}" class="edit-user-btn h-7 px-3 rounded-lg border border-gray-200 text-xs font-bold text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer mr-2">Edit</button>
-                                        <button data-user-id="${officer.id}" class="delete-user-btn h-7 px-3 rounded-lg bg-red-600 text-white text-xs font-bold hover:bg-red-700 transition-colors cursor-pointer">Delete</button>
-                                    </td>
-                                </tr>
-                            `;
-                        });
-                        
-                        html += `
-                                    </tbody>
-                                </table>
-                            </div>
-                        `;
-                        content.innerHTML = html;
-                        
-                        // Add event delegation for dynamically created buttons
-                        attachUserButtonListeners();
-                        
-                    } else {
-                        content.innerHTML = '<p class="text-center py-8 text-sm text-gray-400">No users found.</p>';
+                    if (!data.success || !Array.isArray(data.officers)) {
+                        throw new Error(data.message || data.error || 'The users list could not be loaded.');
                     }
+
+                    renderUserMaintenanceList(data.officers);
                 })
                 .catch(error => {
                     console.error('Error loading users:', error);
                     const content = document.getElementById('userMaintenanceContent');
-                    content.innerHTML = '<p class="text-center py-8 text-sm text-red-600">Error loading users. Please try again.</p>';
+                    content.innerHTML = `<div class="user-maintenance-empty text-red-600">${escapeUserHtml(error.message)} Please try again.</div>`;
                 });
         }
 
@@ -5720,12 +6790,12 @@ Villa Rosario,Victoria,Tarlac`;
                 return;
             }
             if (event.key.toLowerCase() === 'd') {
-                showDashboard();
+                window.adminShowTab?.('dashboard');
             } else if (event.key.toLowerCase() === 'n') {
-                showNlRecords();
+                window.adminShowTab?.('nl-records');
             } else if (event.key === '/') {
                 event.preventDefault();
-                showNlRecords();
+                window.adminShowTab?.('nl-records');
                 document.querySelector('input[name="farmerName"]')?.focus();
             }
         });
@@ -5734,106 +6804,6 @@ Villa Rosario,Victoria,Tarlac`;
         const editRecordDialog = document.getElementById('recordEditDialog');
         const closeEditRecordModal = document.querySelector('.closeEditRecordDialog');
         const editRecordForm = document.getElementById('recordEditForm');
-
-        // Use event delegation on the document to handle edit button clicks
-        document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('editButton') || e.target.closest('.editButton')) {
-                const button = e.target.classList.contains('editButton') ? e.target : e.target.closest('.editButton');
-
-                if (!editRecordDialog || !editRecordForm) {
-                    console.error('Edit dialog or form not found');
-                    return;
-                }
-
-                try {
-                    const recordId = button.getAttribute('data-id');
-                    
-                    // Verify record exists before opening edit dialog
-                    if (!recordId || recordId === 'null' || recordId === '') {
-                        showModalMessage('Invalid record ID. Please refresh the page and try again.', 'error');
-                        return;
-                    }
-                    const farmerName = button.getAttribute('data-farmer-name');
-                    const province = button.getAttribute('data-province');
-                    const municipality = button.getAttribute('data-municipality');
-                    const barangay = button.getAttribute('data-barangay');
-                    const address = button.getAttribute('data-address');
-                    const program = button.getAttribute('data-program');
-                    const line = button.getAttribute('data-line');
-                    const causeOfDamage = button.getAttribute('data-cause-of-damage');
-                    const modeOfPayment = button.getAttribute('data-mode-of-payment');
-                    const accounts = button.getAttribute('data-accounts');
-                    const fbPageUrl = button.getAttribute('data-fb-page-url');
-                    const dateOccurrence = button.getAttribute('data-date-occurrence');
-                    const dateReceived = button.getAttribute('data-date-received');
-                    const remarks = button.getAttribute('data-remarks');
-                    const source = button.getAttribute('data-source');
-                    const transmittalNumber = button.getAttribute('data-transmittal-number');
-                    const adminTransmittalNumber = button.getAttribute('data-admin-transmittal-number');
-
-                    // Populate form fields
-                    const farmerNameField = editRecordForm.querySelector('#farmerName');
-                    const editProvinceField = editRecordForm.querySelector('#editProvince');
-                    const editMunicipalityField = editRecordForm.querySelector('#editMunicipality');
-                    const editBarangayField = editRecordForm.querySelector('#editBarangay');
-                    const addressField = editRecordForm.querySelector('#editRecordAddress');
-                    const programField = editRecordForm.querySelector('#program');
-                    const lineField = editRecordForm.querySelector('#line');
-                    const causeOfDamageField = editRecordForm.querySelector('#causeOfDamage');
-                    const modeOfPaymentField = editRecordForm.querySelector('#modeOfPayment');
-                    const accountsField = editRecordForm.querySelector('#accounts');
-                    const fbPageUrlField = editRecordForm.querySelector('#facebook_page_url');
-                    const dateOccurrenceField = editRecordForm.querySelector('#date_occurrence');
-                    const dateReceivedField = editRecordForm.querySelector('#date_received');
-                    const remarksField = editRecordForm.querySelector('#remarks');
-                    const transmittalNumberField = editRecordForm.querySelector('#transmittal_number');
-                    const adminTransmittalNumberField = editRecordForm.querySelector('#admin_transmittal_number');
-                    const sourceField = editRecordForm.querySelector('#source');
-
-                    if (farmerNameField) farmerNameField.value = farmerName || '';
-                    if (editProvinceField) editProvinceField.value = province || '';
-                    if (editMunicipalityField) editMunicipalityField.value = municipality || '';
-                    if (editBarangayField) editBarangayField.value = barangay || '';
-                    if (addressField) addressField.value = address || '';
-                    if (programField) programField.value = program || '';
-                    if (lineField) lineField.value = line || '';
-                    if (causeOfDamageField) causeOfDamageField.value = causeOfDamage || '';
-                    if (modeOfPaymentField) modeOfPaymentField.value = modeOfPayment || '';
-                    if (accountsField) accountsField.value = accounts || '';
-                    if (fbPageUrlField) fbPageUrlField.value = fbPageUrl || '';
-                    if (dateOccurrenceField) dateOccurrenceField.value = dateOccurrence || '';
-                    if (dateReceivedField) dateReceivedField.value = dateReceived || '';
-                    if (remarksField) remarksField.value = remarks || '';
-                    if (transmittalNumberField) transmittalNumberField.value = transmittalNumber || '';
-                    if (adminTransmittalNumberField) adminTransmittalNumberField.value = adminTransmittalNumber || '';
-                    if (sourceField) sourceField.value = source || '';
-
-                    // Set form action
-                    editRecordForm.action = '/records/' + recordId;
-
-                    // Enable municipality and barangay selects based on province
-                    if (editProvinceField && editMunicipalityField && editBarangayField) {
-                        if (editProvinceField.value) {
-                            editMunicipalityField.disabled = false;
-                            // Trigger municipality update
-                            const event = new Event('change');
-                            editProvinceField.dispatchEvent(event);
-
-                            if (editMunicipalityField.value) {
-                                editBarangayField.disabled = false;
-                                // Trigger barangay update
-                                const municipalityEvent = new Event('change');
-                                editMunicipalityField.dispatchEvent(municipalityEvent);
-                            }
-                        }
-                    }
-
-                    editRecordDialog.showModal();
-                } catch (error) {
-                    console.error('Error opening edit dialog:', error);
-                }
-            }
-        });
 
         if (closeEditRecordModal && editRecordDialog) {
             closeEditRecordModal.addEventListener('click', function() {
@@ -5980,21 +6950,31 @@ Villa Rosario,Victoria,Tarlac`;
     </dialog>
 
     <!-- User Maintenance Modal -->
-    <dialog class="largeModal rounded-2xl shadow-2xl bg-white backdrop:bg-black/40 p-0 w-[min(800px,calc(100vw-2rem))]" id="userMaintenanceModal">
-        <div class="px-5 pt-5 pb-3 border-b border-gray-100 flex items-center justify-between">
-            <h3 class="text-base font-black text-gray-900">User Maintenance - Users</h3>
-            <button type="button" class="addOfficerButton h-8 px-3 rounded-lg bg-pcic-700 text-white text-xs font-bold hover:bg-pcic-800 transition-colors cursor-pointer">Add New User</button>
+    <dialog class="user-maintenance-dialog largeModal rounded-2xl shadow-2xl bg-white backdrop:bg-black/40 p-0" id="userMaintenanceModal">
+        <div class="user-maintenance-header">
+            <div>
+                <h3 class="user-maintenance-heading">User Maintenance</h3>
+                <p class="user-maintenance-subheading">User management</p>
+            </div>
+            <button type="button" class="addOfficerButton user-maintenance-add h-9 px-4 rounded-lg text-white text-xs font-bold hover:bg-pcic-800 transition-colors cursor-pointer">Add New User</button>
         </div>
-        <div class="px-5 py-4">
+        <div class="user-maintenance-body">
+            <label class="user-maintenance-search-wrap block" for="userMaintenanceSearch">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="11" cy="11" r="7"></circle>
+                    <path stroke-linecap="round" d="m20 20-4-4"></path>
+                </svg>
+                <input type="search" id="userMaintenanceSearch" class="user-maintenance-search" placeholder="Search by name or username" autocomplete="off">
+            </label>
             <div id="userMaintenanceContent">
                 <div class="text-center py-8">
                     <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-pcic-700"></div>
                     <p class="text-sm text-gray-500 mt-2">Loading users...</p>
                 </div>
             </div>
-            <div class="mt-5 flex justify-end">
-                <button type="button" class="closeUserMaintenanceModal h-9 px-4 rounded-lg border border-gray-200 text-xs font-bold text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer">Close</button>
-            </div>
+        </div>
+        <div class="user-maintenance-footer">
+            <button type="button" class="closeUserMaintenanceModal h-9 px-4 rounded-lg border border-gray-300 bg-white text-xs font-bold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer">Close</button>
         </div>
     </dialog>
 

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Officer;
 use App\Models\Admin;
+use App\Models\Officer;
 use App\Models\Session as ActiveSession;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -14,6 +14,7 @@ class AuthController extends Controller
     public function showLogin(Request $request)
     {
         $channel = $request->input('channel'); // OD, Email, or Facebook
+
         return view('auth.login', compact('channel'));
     }
 
@@ -47,7 +48,7 @@ class AuthController extends Controller
     {
         $officer = Officer::where('username', $username)->first();
 
-        if (!$officer || !Hash::check($password, $officer->password)) {
+        if (! $officer || ! Hash::check($password, $officer->password)) {
             return back()->with('error', 'Invalid credentials');
         }
 
@@ -82,17 +83,17 @@ class AuthController extends Controller
     {
         // Find the officer by exact username match only
         $officer = Officer::where('username', $username)->first();
-        if (!$officer) {
+        if (! $officer) {
             return back()->with('error', 'Invalid username. Please select a valid user from the list.');
         }
 
         // Check if officer has a password
-        if (!$officer->password) {
+        if (! $officer->password) {
             return back()->with('error', 'Account not configured. Please contact administrator.');
         }
 
         // Verify password
-        if (!Hash::check($password, $officer->password)) {
+        if (! Hash::check($password, $officer->password)) {
             return back()->with('error', 'Invalid password. Please try again.');
         }
 
@@ -124,14 +125,25 @@ class AuthController extends Controller
     {
         $admin = Admin::where('username', $username)->first();
 
-        if (!$admin || !Hash::check($password, $admin->password)) {
+        if (! $admin) {
+            return back()->with('error', 'Invalid credentials');
+        }
+
+        $storedPassword = $admin->password;
+        if (is_string($storedPassword) && Hash::isHashed($storedPassword)) {
+            if (! Hash::check($password, $storedPassword)) {
+                return back()->with('error', 'Invalid credentials');
+            }
+        } elseif (is_string($storedPassword) && hash_equals($storedPassword, $password)) {
+            $admin->update(['password' => Hash::make($password)]);
+        } else {
             return back()->with('error', 'Invalid credentials');
         }
 
         // Update admin activity in database
         $admin->update([
             'active' => true,
-            'last_activity' => now()
+            'last_activity' => now(),
         ]);
 
         $request->session()->put('admin_logged_in', true);
@@ -186,7 +198,7 @@ class AuthController extends Controller
                 if ($adminUsername) {
                     Admin::where('username', $adminUsername)->update([
                         'active' => false,
-                        'last_activity' => now()
+                        'last_activity' => now(),
                     ]);
                 }
                 $request->session()->forget(['admin_logged_in', 'admin_username', 'admin_last_activity']);
@@ -202,17 +214,17 @@ class AuthController extends Controller
     {
         // Find the officer by exact username match only
         $officer = Officer::where('username', $username)->first();
-        if (!$officer) {
+        if (! $officer) {
             return back()->with('error', 'Invalid username. Please select a valid officer.');
         }
 
         // Check if officer has a password
-        if (!$officer->password) {
+        if (! $officer->password) {
             return back()->with('error', 'Account not configured. Please contact administrator.');
         }
 
         // Verify password
-        if (!Hash::check($password, $officer->password)) {
+        if (! Hash::check($password, $officer->password)) {
             return back()->with('error', 'Invalid password. Please try again.');
         }
 

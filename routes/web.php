@@ -1,9 +1,11 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\RoutesController;
-use App\Http\Controllers\RecordsController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\RecordsController;
+use App\Http\Controllers\RoutesController;
+use App\Models\Admin;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', [RoutesController::class, 'showWelcome'])->name('welcome');
 Route::get('/public-dashboard', [RoutesController::class, 'showPublicDashboard'])->name('public-dashboard');
@@ -51,7 +53,6 @@ Route::get('/admin/api/pending-approvals', [RoutesController::class, 'pendingApp
 Route::get('/admin/encoder-report', [RoutesController::class, 'encoderReport'])->name('admin.encoder-report');
 Route::get('/admin/transmittal-report', [RoutesController::class, 'transmittalReport'])->name('admin.transmittal-report');
 
-
 // Auto-logout and activity tracking routes
 Route::post('/auto-logout', [RoutesController::class, 'autoLogout'])->name('auto.logout');
 Route::post('/update-activity', [RoutesController::class, 'updateActivity'])->name('update.activity');
@@ -64,6 +65,7 @@ Route::put('/admin/officers/{id}', [RoutesController::class, 'updateOfficer'])->
 Route::delete('/admin/officers/{id}', [RoutesController::class, 'deleteOfficer'])->name('admin.officers.destroy');
 
 Route::post('/records', [RecordsController::class, 'storeRecord'])->name('records');
+Route::get('/admin/records/{record}/notice-image', [RecordsController::class, 'showNoticeImage'])->name('admin.records.notice-image');
 Route::post('/records/submit-transmittal', [RoutesController::class, 'submitTransmittal'])->name('records.submit-transmittal');
 Route::get('/records/latest', [RecordsController::class, 'getLatestRecord'])->name('records.latest');
 Route::get('/officer/export-csv', [RoutesController::class, 'exportOfficerCsv'])->name('officer.export-csv');
@@ -84,82 +86,81 @@ Route::get('/api/officers/{id}', [RoutesController::class, 'getOfficer'])->name(
 Route::put('/api/officers/{id}', [RoutesController::class, 'updateOfficer'])->name('api.officers.update');
 Route::delete('/api/officers/{id}', [RoutesController::class, 'deleteOfficer'])->name('api.officers.destroy');
 
-
 // Debug route for testing session
-Route::get('/debug-session', function(Request $request) {
+Route::get('/debug-session', function (Request $request) {
     return response()->json([
         'session_id' => session()->getId(),
         'admin_logged_in' => session()->get('admin_logged_in'),
         'admin_username' => session()->get('admin_username'),
-        'all_data' => session()->all()
+        'all_data' => session()->all(),
     ]);
 });
 
 // Simple admin login test
-Route::get('/test-admin-login', function(Request $request) {
+Route::get('/test-admin-login', function (Request $request) {
     // Test admin credentials directly
-    $admin = \App\Models\Admin::where('username', 'UZZIEL')->first();
-    
-    if ($admin && \Illuminate\Support\Facades\Hash::check('U.MARTINEZ1114', $admin->password)) {
+    $admin = Admin::where('username', 'UZZIEL')->first();
+
+    if ($admin && Hash::check('U.MARTINEZ1114', $admin->password)) {
         // Set session manually
         session()->put('admin_logged_in', true);
         session()->put('admin_username', $admin->username);
-        
+
         return response()->json([
             'success' => true,
             'message' => 'Admin login test successful',
             'admin' => $admin->username,
-            'session_data' => session()->all()
+            'session_data' => session()->all(),
         ]);
     } else {
         return response()->json([
             'success' => false,
             'message' => 'Admin login test failed',
             'admin_found' => $admin !== null,
-            'password_check' => $admin ? \Illuminate\Support\Facades\Hash::check('U.MARTINEZ1114', $admin->password) : false
+            'password_check' => $admin ? Hash::check('U.MARTINEZ1114', $admin->password) : false,
         ]);
     }
 });
 
 // Direct admin access (bypass login for testing)
-Route::get('/direct-admin', function(Request $request) {
+Route::get('/direct-admin', function (Request $request) {
     // Temporarily set session
     session()->put('admin_logged_in', true);
     session()->put('admin_username', 'UZZIEL');
     session()->save();
-    
+
     // Redirect to admin page
     return redirect()->route('admin');
 });
 
 // Test admin session
-Route::get('/test-admin-session', function(Request $request) {
+Route::get('/test-admin-session', function (Request $request) {
     return response()->json([
         'admin_logged_in' => session()->get('admin_logged_in'),
         'admin_username' => session()->get('admin_username'),
         'session_id' => session()->getId(),
-        'all_session_data' => session()->all()
+        'all_session_data' => session()->all(),
     ]);
 });
 
 // Test admin login directly
-Route::post('/test-admin-login', function(Request $request) {
-    $admin = \App\Models\Admin::where('username', $request->username)->first();
-    
-    if ($admin && \Illuminate\Support\Facades\Hash::check($request->password, $admin->password)) {
+Route::post('/test-admin-login', function (Request $request) {
+    $admin = Admin::where('username', $request->username)->first();
+
+    if ($admin && Hash::check($request->password, $admin->password)) {
         session()->put('admin_logged_in', true);
         session()->put('admin_username', $admin->username);
         session()->save();
-        
+
         return response()->json([
             'success' => true,
             'message' => 'Login successful',
-            'redirect' => route('admin')
+            'redirect' => route('admin'),
         ]);
     } else {
         return response()->json([
             'success' => false,
-            'message' => 'Invalid credentials'
+            'message' => 'Invalid credentials',
         ]);
     }
 });

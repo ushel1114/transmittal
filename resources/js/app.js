@@ -1,33 +1,29 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Admin sidebar: collapse by default, expand on hover/focus
     const adminShell = document.querySelector('.admin-shell');
     const adminSidebar = document.querySelector('.admin-sidebar');
     if (adminShell && adminSidebar) {
-        const expand = () => adminShell.classList.add('sidebar-expanded');
-        const collapse = () => adminShell.classList.remove('sidebar-expanded');
+        const toggle = document.getElementById('adminSidebarToggle');
+        const expandedKey = 'admin_sidebar_expanded';
+        let isExpanded = localStorage.getItem(expandedKey) === 'true';
 
-        // Hover behavior
-        adminSidebar.addEventListener('mouseenter', expand);
-        adminSidebar.addEventListener('mouseleave', () => {
-            // Keep expanded if focus is still inside sidebar
-            if (!adminSidebar.matches(':focus-within')) {
-                collapse();
+        const updateSidebar = () => {
+            adminShell.classList.toggle('sidebar-expanded', isExpanded);
+            if (!toggle) {
+                return;
             }
+
+            toggle.setAttribute('aria-expanded', String(isExpanded));
+            toggle.setAttribute('aria-label', isExpanded ? 'Collapse navigation' : 'Expand navigation');
+            toggle.setAttribute('title', isExpanded ? 'Collapse navigation' : 'Expand navigation');
+        };
+
+        toggle?.addEventListener('click', () => {
+            isExpanded = !isExpanded;
+            localStorage.setItem(expandedKey, String(isExpanded));
+            updateSidebar();
         });
 
-        // Focus behavior (keyboard navigation)
-        adminSidebar.addEventListener('focusin', expand);
-        adminSidebar.addEventListener('focusout', () => {
-            // If the next focused element is outside the sidebar, collapse
-            setTimeout(() => {
-                if (!adminSidebar.matches(':focus-within') && !adminSidebar.matches(':hover')) {
-                    collapse();
-                }
-            }, 0);
-        });
-
-        // Start collapsed
-        collapse();
+        updateSidebar();
     }
 
     // Admin Login functionality
@@ -1957,6 +1953,9 @@ Santa Lucia,Victoria,Tarlac`;
                     setSelectValueOrAddOption(editBarangay, barangay);
                 }
             }
+
+            editMunicipality.disabled = !editProvince.value;
+            editBarangay.disabled = !editProvince.value || !editMunicipality.value;
         }
 
         const addressInput = formRoot.querySelector('input[name="address"]');
@@ -2083,7 +2082,7 @@ Santa Lucia,Victoria,Tarlac`;
 
         // Filter out the edit record form from the forms to handle
         // The edit record form has its own submit handler defined above (line 1456-1461)
-        const formsToHandle = Array.from(addRecordForms).filter(form => form.id !== 'recordEditForm');
+        const formsToHandle = Array.from(addRecordForms).filter(form => form.id !== 'recordEditForm' && !form.hasAttribute('data-async-record-form'));
         
         console.log('Found forms to handle:', formsToHandle.length);
         formsToHandle.forEach((form, index) => {
