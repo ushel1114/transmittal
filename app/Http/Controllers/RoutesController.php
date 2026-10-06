@@ -8,6 +8,7 @@ use App\Models\Officer;
 use App\Models\Record;
 use App\Models\Session as ActiveSession;
 use Carbon\Carbon;
+use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -16,9 +17,45 @@ use Illuminate\Support\Facades\Validator;
 
 class RoutesController extends Controller
 {
-    public function showWelcome()
+    public function showWelcome(Request $request): View
     {
-        return view('welcome');
+        $query = Record::query();
+
+        foreach (['province', 'municipality', 'barangay'] as $filter) {
+            if ($request->filled($filter)) {
+                $query->whereRaw('UPPER(TRIM(`'.$filter.'`)) = ?', [mb_strtoupper(trim((string) $request->input($filter)), 'UTF-8')]);
+            }
+        }
+
+        if ($request->filled('name')) {
+            $query->whereRaw('UPPER(`farmerName`) LIKE ?', ['%'.mb_strtoupper(trim((string) $request->input('name')), 'UTF-8').'%']);
+        }
+
+        $records = (clone $query)
+            ->latest('created_at')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('welcome', [
+            'landingRecords' => $records,
+            'landingTotalRecords' => (clone $query)->count(),
+            'landingRecentRecords' => (clone $query)->where('created_at', '>=', now()->subDays(7))->count(),
+            'landingRecordsBySource' => (clone $query)
+                ->selectRaw('source, count(*) as count')
+                ->groupBy('source')
+                ->orderByRaw('count(*) desc')
+                ->pluck('count', 'source'),
+            'landingFilters' => $request->only('name', 'province', 'municipality', 'barangay'),
+            'landingProvinces' => Record::query()->whereNotNull('province')->where('province', '!=', '')->distinct()->orderBy('province')->pluck('province'),
+            'landingMunicipalities' => Record::query()->whereNotNull('municipality')->where('municipality', '!=', '')->when($request->filled('province'), function ($locations) use ($request) {
+                $locations->whereRaw('UPPER(TRIM(`province`)) = ?', [mb_strtoupper(trim((string) $request->input('province')), 'UTF-8')]);
+            })->distinct()->orderBy('municipality')->pluck('municipality'),
+            'landingBarangays' => Record::query()->whereNotNull('barangay')->where('barangay', '!=', '')->when($request->filled('province'), function ($locations) use ($request) {
+                $locations->whereRaw('UPPER(TRIM(`province`)) = ?', [mb_strtoupper(trim((string) $request->input('province')), 'UTF-8')]);
+            })->when($request->filled('municipality'), function ($locations) use ($request) {
+                $locations->whereRaw('UPPER(TRIM(`municipality`)) = ?', [mb_strtoupper(trim((string) $request->input('municipality')), 'UTF-8')]);
+            })->distinct()->orderBy('barangay')->pluck('barangay'),
+        ]);
     }
 
     public function showPublicDashboard(Request $request)

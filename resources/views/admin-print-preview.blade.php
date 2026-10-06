@@ -8,6 +8,24 @@
         size: 13in 8.5in;
         margin: 0.12in;
     }
+
+    @page admin-print-a4 {
+        size: A4 landscape;
+        margin: 0.08in;
+    }
+
+    @page admin-print-long {
+        size: 13in 8.5in;
+        margin: 0.12in;
+    }
+
+    body.paper-a4 {
+        page: admin-print-a4;
+    }
+
+    body.paper-long {
+        page: admin-print-long;
+    }
 @endsection
 
 @section('page-styles')
@@ -61,6 +79,23 @@
             display: flex;
             align-items: center;
             gap: 8px;
+        }
+
+        .paper-size-label {
+            color: #475569;
+            font-size: 12px;
+            font-weight: 750;
+        }
+
+        .paper-size-select {
+            min-height: 40px;
+            padding: 0 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            background: #fff;
+            color: #0f172a;
+            font-size: 13px;
+            font-weight: 700;
         }
 
         .print-preview-card {
@@ -442,6 +477,10 @@
             box-shadow: 0 16px 42px rgb(15 23 42 / 13%);
         }
 
+        body.paper-a4 .page-section {
+            min-height: min(816px, calc((100vw - 40px) * 0.707));
+        }
+
         .print-preview-card {
             display: flex;
             min-height: min(782px, calc((100vw - 40px) * 0.65385 - 34px));
@@ -450,6 +489,10 @@
             border-radius: 0;
             background: #fff;
             box-shadow: none;
+        }
+
+        body.paper-a4 .print-preview-card {
+            min-height: min(782px, calc((100vw - 40px) * 0.707 - 34px));
         }
 
         .print-preview-card .meta {
@@ -563,6 +606,69 @@
             .print-preview-card .meta > div:nth-child(2),
             .print-preview-card .meta > div:last-child {
                 text-align: left;
+            }
+        }
+
+        @media print {
+            body.paper-long .print-preview-wrap,
+            body.paper-long .page-section,
+            body.paper-long .print-preview-card,
+            body.paper-long .print-preview-card .table-wrap,
+            body.paper-long .print-preview-table {
+                box-sizing: border-box !important;
+                width: 12.76in !important;
+                max-width: none !important;
+                margin-right: 0 !important;
+                margin-left: 0 !important;
+            }
+
+            body.paper-a4 .print-preview-wrap {
+                box-sizing: border-box !important;
+                width: 100% !important;
+                max-width: none !important;
+                margin-right: 0 !important;
+                margin-left: 0 !important;
+            }
+
+            body.paper-a4 .page-section,
+            body.paper-a4 .print-preview-card,
+            body.paper-a4 .print-preview-card .table-wrap,
+            body.paper-a4 .print-preview-table {
+                box-sizing: border-box !important;
+                width: 100% !important;
+                max-width: none !important;
+                margin-right: 0 !important;
+                margin-left: 0 !important;
+            }
+
+            body.paper-a4 .print-preview-card .meta {
+                gap: 3px !important;
+                padding: 4px 6px !important;
+                font-size: 7pt !important;
+            }
+
+            body.paper-a4 .print-preview-table th {
+                padding: 2px 3px !important;
+                font-size: 7pt !important;
+                line-height: 1 !important;
+            }
+
+            body.paper-a4 .print-preview-table td {
+                padding: 1px 3px !important;
+                font-size: 7pt !important;
+                line-height: 1 !important;
+            }
+
+            body.paper-a4 .received-by {
+                height: 0.42in !important;
+                min-height: 0.42in !important;
+                margin-top: 3px !important;
+                padding: 3px 6px !important;
+                font-size: 7pt !important;
+            }
+
+            body.paper-a4 .received-by strong {
+                font-size: 7pt !important;
             }
         }
 
@@ -752,9 +858,14 @@
         <div class="admin-topbar print-preview-topbar no-print">
             <div class="heading">
                 <h1>Transmittal Print Preview</h1>
-                <p>13 × 8.5 in landscape • 40 records per page</p>
+                <p id="paperSizeDescription">Long paper • 13 × 8.5 in landscape • {{ $perPage }} records per page</p>
             </div>
             <div class="actions">
+                <label for="paperSize" class="paper-size-label">Paper size</label>
+                <select id="paperSize" class="paper-size-select" aria-label="Choose print paper size">
+                    <option value="long">Long (13 × 8.5 in)</option>
+                    <option value="a4">A4 (landscape)</option>
+                </select>
                 <button type="button" class="btn btn-outline btn-sm" onclick="window.print()">Print</button>
                 <a href="{{ route('admin') }}" class="btn btn-sm">Back to Admin</a>
             </div>
@@ -895,6 +1006,29 @@
     @endif
     
     <script>
+        (function () {
+            const paperSizeSelect = document.getElementById('paperSize');
+            const paperSizeDescription = document.getElementById('paperSizeDescription');
+            const savedPaperSize = localStorage.getItem('admin_print_paper_size');
+            const defaultPaperSize = savedPaperSize === 'a4' ? 'a4' : 'long';
+
+            const applyPaperSize = function (paperSize) {
+                document.body.classList.toggle('paper-a4', paperSize === 'a4');
+                document.body.classList.toggle('paper-long', paperSize === 'long');
+                paperSizeSelect.value = paperSize;
+                paperSizeDescription.textContent = paperSize === 'a4'
+                    ? 'A4 paper • landscape • {{ $perPage }} records per page'
+                    : 'Long paper • 13 × 8.5 in landscape • {{ $perPage }} records per page';
+            };
+
+            applyPaperSize(defaultPaperSize);
+            paperSizeSelect.addEventListener('change', function () {
+                const paperSize = this.value === 'a4' ? 'a4' : 'long';
+                localStorage.setItem('admin_print_paper_size', paperSize);
+                applyPaperSize(paperSize);
+            });
+        })();
+
         function handleAssignTransmittal(event) {
             event.preventDefault();
             

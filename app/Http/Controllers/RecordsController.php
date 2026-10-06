@@ -38,7 +38,8 @@ class RecordsController extends Controller
                 'max:5000',
                 Rule::when($request->filled('facebook_page_url'), ['regex:/^https?:\/\/.+/i']),
             ],
-            'notice_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
+            'notice_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:30720',
+            'notice_pdf' => 'nullable|file|mimes:pdf|max:30720',
             'date_occurrence' => 'nullable|string|max:500',
             'date_received' => 'nullable|date',
             'remarks' => 'nullable|string|max:255',
@@ -55,7 +56,8 @@ class RecordsController extends Controller
         }
 
         $noticeImage = $request->file('notice_image');
-        unset($validatedData['notice_image']);
+        $noticePdf = $request->file('notice_pdf');
+        unset($validatedData['notice_image'], $validatedData['notice_pdf']);
 
         // Check authentication based on source
         if ($source === 'OD') {
@@ -121,6 +123,7 @@ class RecordsController extends Controller
         ])));
 
         $noticeImagePath = null;
+        $noticePdfPath = null;
         $recordCreated = false;
 
         try {
@@ -140,6 +143,14 @@ class RecordsController extends Controller
                 }
             }
 
+            if ($noticePdf) {
+                $noticePdfPath = $noticePdf->store('claim-pdfs', 'local');
+
+                if (! $noticePdfPath) {
+                    throw new \RuntimeException('Unable to store the notice PDF.');
+                }
+            }
+
             // Prepare record data
             $recordData = array_merge($validatedData, [
                 'address' => $address,
@@ -148,6 +159,7 @@ class RecordsController extends Controller
                 'approved' => true,
                 'approved_at' => now(),
                 'notice_image_path' => $noticeImagePath,
+                'notice_pdf_path' => $noticePdfPath,
             ]);
 
             // Add encoder_id if available
@@ -267,6 +279,12 @@ class RecordsController extends Controller
                     'path' => $noticeImagePath,
                 ]);
             }
+
+            if ($noticePdfPath && ! $recordCreated && ! Storage::disk('local')->delete($noticePdfPath)) {
+                Log::warning('Unable to remove notice PDF after failed record creation', [
+                    'path' => $noticePdfPath,
+                ]);
+            }
         }
     }
 
@@ -326,9 +344,35 @@ class RecordsController extends Controller
             'control_number' => 'nullable|string|max:255',
             'transmittal_number' => 'nullable|string|max:255',
             'admin_transmittal_number' => 'nullable|string|max:255',
-            'notice_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
+            'notice_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:30720',
+            'remove_notice_image' => 'nullable|boolean',
+            'notice_pdf' => 'nullable|file|mimes:pdf|max:30720',
+            'remove_notice_pdf' => 'nullable|boolean',
         ]);
-        unset($validatedData['notice_image']);
+        unset($validatedData['notice_image'], $validatedData['remove_notice_image'], $validatedData['notice_pdf'], $validatedData['remove_notice_pdf']);
+        $removeNoticeImage = $request->boolean('remove_notice_image') && ! $request->hasFile('notice_image');
+        $removeNoticePdf = $request->boolean('remove_notice_pdf') && ! $request->hasFile('notice_pdf');
+
+        if ($removeNoticeImage || $removeNoticePdf) {
+            $isAdmin = (bool) $request->session()->get('admin_logged_in', false);
+            $emailEncoderId = $request->session()->get('email_user_id');
+            $isEmailEncoder = $record->source === 'Email'
+                && (bool) $request->session()->get('email_logged_in', false)
+                && filled($emailEncoderId)
+                && (string) $emailEncoderId === (string) $record->encoder_id;
+            $facebookEncoderId = $request->session()->get('facebook_user_id');
+            $isFacebookEncoder = $record->source === 'Facebook'
+                && (bool) $request->session()->get('facebook_logged_in', false)
+                && filled($facebookEncoderId)
+                && (string) $facebookEncoderId === (string) $record->encoder_id;
+            $officerId = $request->session()->get('officer_id');
+            $isOfficerEncoder = $record->source === 'OD'
+                && filled($request->session()->get('officer_name'))
+                && filled($officerId)
+                && (string) $officerId === (string) $record->encoder_id;
+
+            abort_unless($isAdmin || $isEmailEncoder || $isFacebookEncoder || $isOfficerEncoder, 403);
+        }
 
         if (($validatedData['source'] ?? '') !== 'Facebook') {
             $validatedData['facebook_page_url'] = null;
@@ -365,6 +409,8 @@ class RecordsController extends Controller
 
         $newNoticeImagePath = null;
         $oldNoticeImagePath = $record->notice_image_path;
+        $newNoticePdfPath = null;
+        $oldNoticePdfPath = $record->notice_pdf_path;
 
         try {
             // Use database transaction to ensure data consistency
@@ -378,6 +424,20 @@ class RecordsController extends Controller
                 }
 
                 $updateData['notice_image_path'] = $newNoticeImagePath;
+            } elseif ($removeNoticeImage) {
+                $updateData['notice_image_path'] = null;
+            }
+
+            if ($request->hasFile('notice_pdf')) {
+                $newNoticePdfPath = $request->file('notice_pdf')->store('claim-pdfs', 'local');
+
+                if (! $newNoticePdfPath) {
+                    throw new \RuntimeException('Unable to store the notice PDF.');
+                }
+
+                $updateData['notice_pdf_path'] = $newNoticePdfPath;
+            } elseif ($removeNoticePdf) {
+                $updateData['notice_pdf_path'] = null;
             }
 
             Log::info('About to update record', ['id' => $id, 'updateData' => $updateData]);
@@ -388,10 +448,19 @@ class RecordsController extends Controller
 
             DB::commit();
 
-            if ($newNoticeImagePath && $oldNoticeImagePath && ! Storage::disk('local')->delete($oldNoticeImagePath)) {
-                Log::warning('Unable to remove replaced notice image', [
+            if (($newNoticeImagePath || $removeNoticeImage) && $oldNoticeImagePath) {
+                if (! Storage::disk('local')->delete($oldNoticeImagePath)) {
+                    Log::warning('Unable to remove replaced or deleted notice image', [
+                        'record_id' => $record->id,
+                        'path' => $oldNoticeImagePath,
+                    ]);
+                }
+            }
+
+            if (($newNoticePdfPath || $removeNoticePdf) && $oldNoticePdfPath && ! Storage::disk('local')->delete($oldNoticePdfPath)) {
+                Log::warning('Unable to remove replaced or deleted notice PDF', [
                     'record_id' => $record->id,
-                    'path' => $oldNoticeImagePath,
+                    'path' => $oldNoticePdfPath,
                 ]);
             }
 
@@ -416,6 +485,13 @@ class RecordsController extends Controller
                 Log::warning('Unable to remove notice image after failed record update', [
                     'record_id' => $record->id,
                     'path' => $newNoticeImagePath,
+                ]);
+            }
+
+            if ($newNoticePdfPath && ! Storage::disk('local')->delete($newNoticePdfPath)) {
+                Log::warning('Unable to remove notice PDF after failed record update', [
+                    'record_id' => $record->id,
+                    'path' => $newNoticePdfPath,
                 ]);
             }
 
@@ -446,12 +522,20 @@ class RecordsController extends Controller
     {
         $record = Record::findOrFail($id);
         $noticeImagePath = $record->notice_image_path;
+        $noticePdfPath = $record->notice_pdf_path;
         $record->delete();
 
         if ($noticeImagePath && ! Storage::disk('local')->delete($noticeImagePath)) {
             Log::warning('Unable to remove notice image after record deletion', [
                 'record_id' => $record->id,
                 'path' => $noticeImagePath,
+            ]);
+        }
+
+        if ($noticePdfPath && ! Storage::disk('local')->delete($noticePdfPath)) {
+            Log::warning('Unable to remove notice PDF after record deletion', [
+                'record_id' => $record->id,
+                'path' => $noticePdfPath,
             ]);
         }
 

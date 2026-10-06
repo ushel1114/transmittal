@@ -287,7 +287,7 @@
                 </div>
                 <button type="button" id="returnToControlsButton" class="shrink-0 h-9 px-3 rounded-lg border border-gray-200 bg-white text-xs font-bold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer">Back to controls</button>
             </div>
-            <form action="{{ route('records') }}" method="POST" class="grid grid-cols-1 gap-3 p-5" id="addRecordForm" data-async-record-form>
+            <form action="{{ route('records') }}" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 gap-3 p-5" id="addRecordForm" data-async-record-form>
                 @csrf
                 <input type="hidden" name="source" value="Email">
                 <label class="block text-xs font-bold text-gray-600" for="farmerName">Farmer name
@@ -364,8 +364,14 @@
                 </label>
                 <label class="block text-xs font-bold text-gray-600" for="notice_image">Notice of loss / claim image <span class="font-medium text-gray-400">(optional)</span>
                     <input type="file" id="notice_image" name="notice_image" accept="image/jpeg,image/png,image/webp" class="mt-1.5 block w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 file:mr-3 file:rounded-md file:border-0 file:bg-pcic-50 file:px-3 file:py-1.5 file:text-xs file:font-bold file:text-pcic-700 hover:file:bg-pcic-100">
-                    <span class="mt-1 block text-xs font-medium text-gray-500">JPG, PNG, or WebP. Maximum 5 MB.</span>
+                    <span class="mt-1 block text-xs font-medium text-gray-500">JPG, PNG, or WebP. Maximum 30 MB.</span>
                 </label>
+                <button type="button" class="clear-add-notice-image-selection w-fit rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50" hidden>Clear selected image</button>
+                <label class="block text-xs font-bold text-gray-600" for="notice_pdf">Supporting document <span class="font-medium text-gray-400">(PDF, optional)</span>
+                    <input type="file" id="notice_pdf" name="notice_pdf" accept="application/pdf,.pdf" class="mt-1.5 block w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 file:mr-3 file:rounded-md file:border-0 file:bg-pcic-50 file:px-3 file:py-1.5 file:text-xs file:font-bold file:text-pcic-700 hover:file:bg-pcic-100">
+                    <span class="mt-1 block text-xs font-medium text-gray-500">PDF only. Maximum 30 MB.</span>
+                </label>
+                <button type="button" class="clear-add-notice-pdf-selection w-fit rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50" hidden>Clear selected PDF</button>
                 <div class="pt-2">
                     <button type="submit" class="h-11 w-full rounded-xl bg-pcic-700 text-sm font-bold text-white hover:bg-pcic-800 focus:outline-none focus:ring-2 focus:ring-pcic-500 focus:ring-offset-2 transition-colors cursor-pointer">Save email record</button>
                     <p class="mt-2 text-center text-xs text-gray-500">After saving, the record list updates without leaving this form.</p>
@@ -409,9 +415,11 @@
         <div class="px-5 pt-5 pb-3 border-b border-gray-100">
             <h3 class="text-base font-black text-gray-900">Edit Record</h3>
         </div>
-        <form class="editRecordform grid grid-cols-[auto_1fr] gap-x-4 gap-y-3 px-5 py-4 items-center" id="recordEditForm" method="POST">
+        <form class="editRecordform grid grid-cols-[auto_1fr] gap-x-4 gap-y-3 px-5 py-4 items-center" id="recordEditForm" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
+            <input type="hidden" name="remove_notice_image" value="0">
+            <input type="hidden" name="remove_notice_pdf" value="0">
             <input type="hidden" name="source" value="Email" id="editRecordSourceEmail">
             <label for="farmerName" class="text-xs font-bold text-gray-600 text-right">Farmer Name:</label>
             <input type="text" id="farmerName" name="farmerName" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
@@ -476,12 +484,22 @@
             <label for="editNoticeImage" class="text-xs font-bold text-gray-600 text-right">Notice / claim image:</label>
             <div class="flex flex-col gap-2">
                 <input type="file" id="editNoticeImage" name="notice_image" accept="image/jpeg,image/png,image/webp" class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700">
+                <button type="button" class="clear-notice-image-selection w-fit rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50" hidden>Clear selected image</button>
                 <div id="editNoticeImagePreviewContainer" hidden>
                     <img id="editNoticeImagePreview" alt="Notice of loss or claim preview" hidden class="max-h-40 rounded-lg border border-gray-200 object-contain">
                     <button type="button" id="editNoticeImagePrintButton" class="notice-image-view-btn mt-2" data-image-url="" hidden>View / Print image</button>
-                    <span class="mt-1 block text-xs text-gray-500">Current image or selected replacement</span>
                 </div>
-                <span class="text-xs text-gray-500">Optional. JPG, PNG, or WebP; maximum 5 MB. Leave empty to keep the current image.</span>
+                <button type="button" id="removeNoticeImageButton" class="mt-1 w-fit rounded-lg border border-red-200 px-3 py-1.5 text-xs font-bold text-red-700 hover:bg-red-50" hidden>Remove current image</button>
+                <span id="editNoticeImageStatus" class="text-xs text-gray-500"></span>
+                <span class="text-xs text-gray-500">Optional. JPG, PNG, or WebP; maximum 30 MB. Leave empty to keep the current image.</span>
+            </div>
+            <label for="editNoticePdf" class="text-xs font-bold text-gray-600 text-right">Supporting PDF:</label>
+            <div class="flex flex-col gap-2">
+                <input type="file" id="editNoticePdf" name="notice_pdf" accept="application/pdf,.pdf" class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700">
+                <button type="button" class="clear-notice-pdf-selection w-fit rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50" hidden>Clear selected PDF</button>
+                <span id="editNoticePdfStatus" class="text-xs text-gray-500"></span>
+                <button type="button" id="removeNoticePdfButton" class="w-fit rounded-lg border border-red-200 px-3 py-1.5 text-xs font-bold text-red-700 hover:bg-red-50" hidden>Remove current PDF</button>
+                <span class="text-xs text-gray-500">PDF only, maximum 30 MB. Leave empty to keep the current file.</span>
             </div>
             <div></div>
             <div class="flex gap-2 pt-1">
@@ -1010,6 +1028,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (addRecordForm.querySelector('#remarks')) addRecordForm.querySelector('#remarks').value = '';
                     if (addRecordForm.querySelector('#controlNumber')) addRecordForm.querySelector('#controlNumber').value = '';
                     if (addRecordForm.querySelector('#notice_image')) addRecordForm.querySelector('#notice_image').value = '';
+                    if (addRecordForm.querySelector('#notice_pdf')) addRecordForm.querySelector('#notice_pdf').value = '';
+                    addRecordForm.querySelector('.clear-add-notice-image-selection')?.setAttribute('hidden', '');
+                    addRecordForm.querySelector('.clear-add-notice-pdf-selection')?.setAttribute('hidden', '');
                     
                     fetch(window.location.href, {
                             headers: {
@@ -1037,7 +1058,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             showModalMessage('Record saved, but the list could not refresh. Reload the page to view it.', 'warning');
                         });
                 } else {
-                    var uploadError = data.errors && data.errors.notice_image ? data.errors.notice_image[0] : null;
+                    var uploadError = data.errors?.notice_image?.[0] || data.errors?.notice_pdf?.[0] || null;
                     showModalMessage(uploadError || data.message || 'Error adding record', 'error');
                 }
             })

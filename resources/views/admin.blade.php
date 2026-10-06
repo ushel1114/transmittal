@@ -41,21 +41,17 @@
 }
 
 .admin-shell {
-    --admin-sidebar-collapsed: 76px;
-    --admin-sidebar-expanded: 272px;
-    grid-template-columns: var(--admin-sidebar-collapsed) minmax(0, 1fr);
-    transition: grid-template-columns 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    grid-template-columns: 232px minmax(0, 1fr);
 }
 
 .admin-shell.sidebar-expanded {
-    grid-template-columns: var(--admin-sidebar-expanded) minmax(0, 1fr);
+    grid-template-columns: 232px minmax(0, 1fr);
 }
 
 .admin-sidebar {
     z-index: 35;
-    border-right: 1px solid #a7cbb5;
-    box-shadow: 8px 0 24px rgb(15 23 42 / 8%);
-    transition: padding 220ms ease, box-shadow 220ms ease;
+    border: 0;
+    box-shadow: none;
 }
 
 .admin-sidebar,
@@ -1033,10 +1029,9 @@ body.dark-mode .admin-sidebar-toggle {
         position: relative;
         width: 100%;
         height: auto;
-        max-height: 72px;
-        overflow: hidden;
-        padding: 8px 10px;
-        transition: max-height 240ms ease, padding 200ms ease;
+        max-height: none;
+        overflow: visible;
+        padding: 12px;
     }
 
     .admin-shell.sidebar-expanded {
@@ -1091,74 +1086,8 @@ body.dark-mode .admin-sidebar-toggle {
 @endpush
 
 @section('content')
-    <div class="admin-shell">
-        <aside class="admin-sidebar no-print">
-            <div class="admin-brand">
-                <button type="button" class="admin-sidebar-toggle" id="adminSidebarToggle" aria-label="Expand navigation" aria-expanded="false" aria-controls="adminSidebarContent" title="Expand navigation">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                        <path class="hamburger-line hamburger-line-top" d="M4 7h16"></path>
-                        <path class="hamburger-line hamburger-line-middle" d="M4 12h16"></path>
-                        <path class="hamburger-line hamburger-line-bottom" d="M4 17h16"></path>
-                    </svg>
-                </button>
-            </div>
-
-            <div id="adminSidebarContent" class="admin-sidebar-content">
-            <div class="admin-sidebar-section-label">Navigation</div>
-            <nav class="admin-nav" aria-label="Admin navigation">
-                <button type="button" class="active" id="btn-dashboard" aria-controls="dashboard-section" aria-current="page" title="Dashboard">
-                    <span class="icon" aria-hidden="true"><img src="/images/dashboard.svg" alt="" width="18" height="18"></span>
-                    <span>Dashboard</span>
-                </button>
-                <button type="button" id="btn-nl-records" aria-controls="nl-records-section" title="NL Records">
-                    <span class="icon" aria-hidden="true"><img src="/images/file-svgrepo-com.svg" alt="" width="18" height="18"></span>
-                    <span>NL Records</span>
-                </button>
-            </nav>
-
-            <div class="admin-sidebar-divider"></div>
-            <div class="admin-sidebar-section-label">Tools</div>
-            <div class="admin-sidebar-actions">
-                <button type="button" class="admin-sidebar-tool" id="openActiveUsersModal" title="View active users">
-                    <div class="tool-content">
-                        <span class="icon" aria-hidden="true">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                            </svg>
-                        </span>
-                        <span class="label">Active users</span>
-                    </div>
-                </button>
-                <button type="button" class="admin-sidebar-tool" id="openUserMaintenanceModal" title="User Maintenance - Manage Officers">
-                    <div class="tool-content">
-                        <span class="icon" aria-hidden="true">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                            </svg>
-                        </span>
-                        <span class="label">User maintenance</span>
-                    </div>
-                </button>
-                <button type="button" class="admin-sidebar-tool" id="openAdminUsersModal" title="Admin Users">
-                    <div class="tool-content">
-                        <span class="icon" aria-hidden="true"><img src="/images/admin.svg" alt="" width="18" height="18"></span>
-                        <span class="label">Admin users</span>
-                    </div>
-                </button>
-                <button type="button" class="admin-sidebar-tool" id="openReportsModal" title="Reports">
-                    <div class="tool-content">
-                        <span class="icon" aria-hidden="true">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                            </svg>
-                        </span>
-                        <span class="label">Reports</span>
-                    </div>
-                </button>
-            </div>
-            </div>
-        </aside>
+    <div class="admin-shell public-workspace-shell">
+        @include('partials.public-workspace-nav', ['adminNavigation' => true])
 
         <main class="admin-main">
             <div class="admin-topbar no-print">
@@ -4357,7 +4286,7 @@ Villa Rosario,Victoria,Tarlac`;
                     <button type="button" id="editNoticeImagePrintButton" class="notice-image-view-btn mt-2" data-image-url="" hidden>View / Print image</button>
                     <span class="mt-1 block text-xs text-gray-500">Current image or selected replacement</span>
                 </div>
-                <span class="text-xs text-gray-500">Optional. JPG, PNG, or WebP; maximum 5 MB. Leave empty to keep the current image.</span>
+                <span class="text-xs text-gray-500">Optional. JPG, PNG, or WebP; maximum 30 MB. Leave empty to keep the current image.</span>
             </div>
             <div></div>
             <label for="clear_admin_transmittal_number" class="flex items-center gap-2 text-xs font-bold text-gray-600">

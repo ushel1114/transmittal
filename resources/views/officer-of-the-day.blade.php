@@ -155,7 +155,7 @@
             <div id="addRecordDialogheader" class="px-5 pt-5 pb-3 border-b border-gray-100 cursor-move">
                 <h3 class="text-base font-black text-gray-900">Add record</h3>
             </div>
-            <form action="{{ route('records') }}" method="POST" class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-3 px-5 py-4 items-center" id="addRecordForm">
+            <form action="{{ route('records') }}" method="POST" enctype="multipart/form-data" class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-3 px-5 py-4 items-center" id="addRecordForm">
                 @csrf
                 <input type="hidden" name="source" value="OD">
             <label for="farmerName" class="text-xs font-bold text-gray-600 text-right">Farmer Name:</label>
@@ -219,6 +219,12 @@
             <input type="text" id="remarks" name="remarks" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
             <label for="controlNumber" class="text-xs font-bold text-gray-600 text-right">Control Number:</label>
             <input type="text" id="controlNumber" name="control_number" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
+            <label for="noticePdf" class="text-xs font-bold text-gray-600 text-right">Supporting PDF:</label>
+            <div class="flex flex-col gap-2">
+                <input type="file" id="noticePdf" name="notice_pdf" accept="application/pdf,.pdf" class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700">
+                <button type="button" class="clear-add-notice-pdf-selection w-fit rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50" hidden>Clear selected PDF</button>
+                <span class="text-xs text-gray-500">PDF only. Maximum 30 MB.</span>
+            </div>
             <div></div>
             <div class="flex gap-2 pt-1">
                 <button type="submit" class="h-9 px-4 rounded-lg bg-pcic-700 text-white text-xs font-bold hover:bg-pcic-800 transition-colors cursor-pointer">Add record</button>
@@ -359,6 +365,8 @@
                             if (addRecordForm.querySelector('#causeOfDamage')) addRecordForm.querySelector('#causeOfDamage').value = '';
                             if (addRecordForm.querySelector('#date_occurrence')) addRecordForm.querySelector('#date_occurrence').value = '';
                             if (addRecordForm.querySelector('#remarks')) addRecordForm.querySelector('#remarks').value = '';
+                            if (addRecordForm.querySelector('#noticePdf')) addRecordForm.querySelector('#noticePdf').value = '';
+                            addRecordForm.querySelector('.clear-add-notice-pdf-selection')?.setAttribute('hidden', '');
                             
                             // Refresh table data without closing dialog
                             setTimeout(function() {
@@ -379,7 +387,8 @@
                                 });
                             }, 1500);
                         } else {
-                            showModalMessage(data.message || 'Error adding record', 'error');
+                            const uploadError = data.errors?.notice_pdf?.[0];
+                            showModalMessage(uploadError || data.message || 'Error adding record', 'error');
                         }
                     })
                     .catch(error => {
@@ -436,9 +445,10 @@
         <div class="px-5 pt-5 pb-3 border-b border-gray-100">
             <h3 class="text-base font-black text-gray-900">Edit Record</h3>
         </div>
-        <form class="editRecordform grid grid-cols-[auto_1fr] gap-x-4 gap-y-3 px-5 py-4 items-center" id="recordEditForm" method="POST">
+        <form class="editRecordform grid grid-cols-[auto_1fr] gap-x-4 gap-y-3 px-5 py-4 items-center" id="recordEditForm" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
+            <input type="hidden" name="remove_notice_pdf" value="0">
             <input type="hidden" name="source" value="OD" id="editRecordSourceOd">
             <label for="farmerName" class="text-xs font-bold text-gray-600 text-right">Farmer Name:</label>
             <input type="text" id="farmerName" name="farmerName" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
@@ -501,6 +511,14 @@
             <input type="text" id="remarks" name="remarks" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
             <label for="controlNumber" class="text-xs font-bold text-gray-600 text-right">Control Number:</label>
             <input type="text" id="controlNumber" name="control_number" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
+            <label for="editNoticePdf" class="text-xs font-bold text-gray-600 text-right">Supporting PDF:</label>
+            <div class="flex flex-col gap-2">
+                <input type="file" id="editNoticePdf" name="notice_pdf" accept="application/pdf,.pdf" class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700">
+                <button type="button" class="clear-notice-pdf-selection w-fit rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50" hidden>Clear selected PDF</button>
+                <span id="editNoticePdfStatus" class="text-xs text-gray-500"></span>
+                <button type="button" id="removeNoticePdfButton" class="w-fit rounded-lg border border-red-200 px-3 py-1.5 text-xs font-bold text-red-700 hover:bg-red-50" hidden>Remove current PDF</button>
+                <span class="text-xs text-gray-500">PDF only, maximum 30 MB. Leave empty to keep the current file.</span>
+            </div>
             <div></div>
             <div class="flex gap-2 pt-1">
                 <button type="submit" class="h-9 px-4 rounded-lg bg-pcic-700 text-white text-xs font-bold hover:bg-pcic-800 transition-colors cursor-pointer">Update Record</button>

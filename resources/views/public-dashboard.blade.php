@@ -4,7 +4,7 @@
 @section('body-class', 'public-dashboard-page')
 
 @section('page-styles')
-<style>
+<style id="public-page-styles">
     .public-workspace-shell { display:grid; min-height:100vh; grid-template-columns:232px minmax(0,1fr); background:#e8eef2; }
     .public-workspace-sidebar { position:sticky; top:0; display:flex; height:100vh; box-sizing:border-box; flex-direction:column; gap:24px; padding:18px 14px; background:linear-gradient(160deg,#064e3b,#082f49); color:#fff; }
     .public-workspace-brand { display:flex; align-items:center; gap:10px; color:inherit; text-decoration:none; }
@@ -159,8 +159,8 @@
 @endsection
 
 @push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function () {
+<script data-public-view-script>
+window.initializePublicDashboardPage = function () {
     const modal = document.getElementById('locationModal');
     const title = document.getElementById('locationModalTitle');
     const body = document.getElementById('locationModalBody');
@@ -287,6 +287,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.province-trigger').forEach(button => button.addEventListener('click', () => loadLocations(button.dataset.province)));
     document.getElementById('closeLocationModal').addEventListener('click', () => modal.close());
     modal.addEventListener('click', event => { if (event.target === modal) modal.close(); });
-});
+};
+window.initializePublicDashboardPage();
 </script>
 @endpush

@@ -1,30 +1,261 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const adminShell = document.querySelector('.admin-shell');
-    const adminSidebar = document.querySelector('.admin-sidebar');
-    if (adminShell && adminSidebar) {
-        const toggle = document.getElementById('adminSidebarToggle');
-        const expandedKey = 'admin_sidebar_expanded';
-        let isExpanded = localStorage.getItem(expandedKey) === 'true';
+    document.addEventListener('change', function (event) {
+        const uploadInput = event.target.closest('#addRecordForm input[type="file"][name="notice_image"], #addRecordForm input[type="file"][name="notice_pdf"]');
+        if (!uploadInput) {
+            return;
+        }
 
-        const updateSidebar = () => {
-            adminShell.classList.toggle('sidebar-expanded', isExpanded);
-            if (!toggle) {
-                return;
+        const clearClass = uploadInput.name === 'notice_pdf'
+            ? '.clear-add-notice-pdf-selection'
+            : '.clear-add-notice-image-selection';
+        const clearButton = uploadInput.form?.querySelector(clearClass);
+        if (clearButton) {
+            clearButton.hidden = !uploadInput.files?.length;
+        }
+
+        if (uploadInput.name === 'notice_pdf') {
+            const removeInput = uploadInput.form?.querySelector('[name="remove_notice_pdf"]');
+            if (removeInput && uploadInput.files?.length) {
+                removeInput.value = '0';
             }
+        }
+    });
 
-            toggle.setAttribute('aria-expanded', String(isExpanded));
-            toggle.setAttribute('aria-label', isExpanded ? 'Collapse navigation' : 'Expand navigation');
-            toggle.setAttribute('title', isExpanded ? 'Collapse navigation' : 'Expand navigation');
+    document.addEventListener('click', function (event) {
+        const addClearButton = event.target.closest('.clear-add-notice-image-selection, .clear-add-notice-pdf-selection');
+        if (addClearButton) {
+            const form = addClearButton.closest('#addRecordForm');
+            const fieldName = addClearButton.classList.contains('clear-add-notice-pdf-selection') ? 'notice_pdf' : 'notice_image';
+            const uploadInput = form?.querySelector(`input[type="file"][name="${fieldName}"]`);
+            if (uploadInput) {
+                uploadInput.value = '';
+                addClearButton.hidden = true;
+            }
+            return;
+        }
+
+        const editButton = event.target.closest('.editButton');
+        if (editButton) {
+            const editForm = document.getElementById('recordEditForm');
+            const pdfInput = editForm?.querySelector('#editNoticePdf');
+            const pdfStatus = editForm?.querySelector('#editNoticePdfStatus');
+            const removePdfInput = editForm?.querySelector('[name="remove_notice_pdf"]');
+            const removePdfButton = editForm?.querySelector('#removeNoticePdfButton');
+            const clearPdfButton = editForm?.querySelector('.clear-notice-pdf-selection');
+            const pdfName = editButton.dataset.noticePdfName || '';
+
+            if (editForm && pdfInput && pdfStatus && removePdfInput && removePdfButton && clearPdfButton) {
+                editForm.dataset.noticePdfName = pdfName;
+                pdfInput.value = '';
+                pdfStatus.textContent = pdfName ? `Current PDF: ${pdfName}` : 'No PDF currently attached.';
+                removePdfInput.value = '0';
+                removePdfButton.hidden = !pdfName;
+                clearPdfButton.hidden = true;
+            }
+            return;
+        }
+
+        const clearPdfButton = event.target.closest('.clear-notice-pdf-selection');
+        if (clearPdfButton) {
+            const editForm = clearPdfButton.closest('#recordEditForm');
+            const pdfInput = editForm?.querySelector('#editNoticePdf');
+            const pdfStatus = editForm?.querySelector('#editNoticePdfStatus');
+            const removePdfInput = editForm?.querySelector('[name="remove_notice_pdf"]');
+            const removeCurrentButton = editForm?.querySelector('#removeNoticePdfButton');
+            if (pdfInput && pdfStatus && removePdfInput && removeCurrentButton) {
+                pdfInput.value = '';
+                clearPdfButton.hidden = true;
+                removePdfInput.value = '0';
+                pdfStatus.textContent = editForm.dataset.noticePdfName
+                    ? `Current PDF: ${editForm.dataset.noticePdfName}`
+                    : 'No PDF currently attached.';
+                removeCurrentButton.hidden = !editForm.dataset.noticePdfName;
+            }
+            return;
+        }
+
+        const removePdfButton = event.target.closest('#removeNoticePdfButton');
+        if (removePdfButton) {
+            const editForm = removePdfButton.closest('#recordEditForm');
+            const removePdfInput = editForm?.querySelector('[name="remove_notice_pdf"]');
+            const pdfStatus = editForm?.querySelector('#editNoticePdfStatus');
+            const pdfInput = editForm?.querySelector('#editNoticePdf');
+            const clearPdfButton = editForm?.querySelector('.clear-notice-pdf-selection');
+            if (removePdfInput && pdfStatus && pdfInput && clearPdfButton) {
+                removePdfInput.value = '1';
+                pdfInput.value = '';
+                clearPdfButton.hidden = true;
+                pdfStatus.textContent = 'The current PDF will be removed when you save.';
+                removePdfButton.hidden = true;
+            }
+        }
+    });
+
+    document.addEventListener('change', function (event) {
+        const pdfInput = event.target.closest('#recordEditForm input[type="file"][name="notice_pdf"]');
+        if (!pdfInput) {
+            return;
+        }
+
+        const form = pdfInput.form;
+        const clearButton = form?.querySelector('.clear-notice-pdf-selection');
+        const status = form?.querySelector('#editNoticePdfStatus');
+        const removePdfInput = form?.querySelector('[name="remove_notice_pdf"]');
+        const removeCurrentButton = form?.querySelector('#removeNoticePdfButton');
+        if (pdfInput.files?.length) {
+            if (clearButton) {
+                clearButton.hidden = false;
+            }
+            if (status) {
+                status.textContent = `Selected PDF: ${pdfInput.files[0].name}`;
+            }
+            if (removePdfInput) {
+                removePdfInput.value = '0';
+            }
+            if (removeCurrentButton) {
+                removeCurrentButton.hidden = true;
+            }
+        }
+    });
+
+    const workspaceShell = document.querySelector('.public-workspace-shell');
+    const workspaceToggle = workspaceShell?.querySelector('.public-workspace-toggle');
+    if (workspaceShell && workspaceToggle) {
+        const isAdminWorkspace = workspaceShell.classList.contains('admin-shell');
+        const collapsedKey = 'public_workspace_nav_collapsed';
+        let isCollapsed = localStorage.getItem(collapsedKey) === 'true';
+
+        const updateWorkspaceNavigation = () => {
+            workspaceShell.classList.toggle('sidebar-collapsed', isCollapsed);
+            if (isAdminWorkspace) {
+                workspaceShell.classList.toggle('sidebar-expanded', !isCollapsed);
+            }
+            workspaceToggle.setAttribute('aria-expanded', String(!isCollapsed));
+            workspaceToggle.setAttribute('aria-label', isCollapsed ? 'Expand navigation' : 'Collapse navigation');
+            workspaceToggle.setAttribute('title', isCollapsed ? 'Expand navigation' : 'Collapse navigation');
         };
 
-        toggle?.addEventListener('click', () => {
-            isExpanded = !isExpanded;
-            localStorage.setItem(expandedKey, String(isExpanded));
-            updateSidebar();
+        workspaceToggle.addEventListener('click', () => {
+            isCollapsed = !isCollapsed;
+            localStorage.setItem(collapsedKey, String(isCollapsed));
+            updateWorkspaceNavigation();
         });
 
-        updateSidebar();
+        updateWorkspaceNavigation();
     }
+
+    const publicWorkspaceRoutes = ['/all-records', '/public-dashboard'];
+
+    function isPublicWorkspaceUrl(url) {
+        return url.origin === window.location.origin
+            && publicWorkspaceRoutes.includes(url.pathname.replace(/\/$/, '') || '/');
+    }
+
+    async function navigatePublicWorkspace(url, addHistoryEntry = true) {
+        const response = await fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        });
+        if (!response.ok) {
+            throw new Error(`Public workspace navigation failed: ${response.status}`);
+        }
+
+        const html = await response.text();
+        const nextDocument = new DOMParser().parseFromString(html, 'text/html');
+        const nextContent = nextDocument.querySelector('.public-workspace-content');
+        const currentContent = document.querySelector('.public-workspace-content');
+        const nextStyles = nextDocument.getElementById('public-page-styles');
+        const currentStyles = document.getElementById('public-page-styles');
+        const nextPageScript = nextDocument.querySelector('[data-public-view-script]');
+
+        if (!nextContent || !currentContent || !nextStyles || !currentStyles || !nextPageScript) {
+            throw new Error('The requested page is missing public workspace navigation content.');
+        }
+
+        currentContent.innerHTML = nextContent.innerHTML;
+        currentStyles.replaceWith(nextStyles.cloneNode(true));
+        document.body.classList.remove('public-records-page', 'public-dashboard-page');
+        nextDocument.body.classList.forEach(className => document.body.classList.add(className));
+        document.title = nextDocument.title;
+
+        const activePage = nextDocument.querySelector('.public-workspace-links a[aria-current="page"]');
+        document.querySelectorAll('.public-workspace-links a[aria-current="page"]').forEach(link => {
+            link.removeAttribute('aria-current');
+        });
+        const matchingLink = activePage && Array.from(document.querySelectorAll('.public-workspace-links a')).find(link => {
+            return new URL(link.href).pathname === new URL(activePage.href).pathname;
+        });
+        matchingLink?.setAttribute('aria-current', 'page');
+
+        if (addHistoryEntry) {
+            window.history.pushState({}, '', url);
+        }
+
+        const pageScript = document.createElement('script');
+        pageScript.textContent = nextPageScript.textContent;
+        document.body.appendChild(pageScript);
+        pageScript.remove();
+
+        currentContent.querySelectorAll('[data-public-content-script]').forEach(script => {
+            const contentScript = document.createElement('script');
+            contentScript.textContent = script.textContent;
+            document.body.appendChild(contentScript);
+            contentScript.remove();
+        });
+
+    }
+
+    document.addEventListener('click', function (event) {
+        if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+            return;
+        }
+
+        const link = event.target.closest('a[href]');
+        if (!link || link.target || link.hasAttribute('download')) {
+            return;
+        }
+
+        const url = new URL(link.href, window.location.href);
+        const isSidebarLink = link.closest('.public-workspace-links') && isPublicWorkspaceUrl(url);
+        const isRecordPagination = link.matches('.pagination-link') && document.body.classList.contains('public-records-page');
+        if (!isSidebarLink && !isRecordPagination) {
+            return;
+        }
+
+        event.preventDefault();
+        navigatePublicWorkspace(url).catch(error => {
+            console.error(error);
+            window.location.assign(url);
+        });
+    });
+
+    document.addEventListener('submit', function (event) {
+        const form = event.target;
+        if (!(form instanceof HTMLFormElement) || !form.matches('.public-workspace-content form[method="GET" i]')) {
+            return;
+        }
+
+        const url = new URL(form.action || window.location.href, window.location.href);
+        url.search = new URLSearchParams(new FormData(form)).toString();
+        event.preventDefault();
+        navigatePublicWorkspace(url).catch(error => {
+            console.error(error);
+            window.location.assign(url);
+        });
+    });
+
+    window.addEventListener('popstate', function () {
+        const url = new URL(window.location.href);
+        if (isPublicWorkspaceUrl(url)) {
+            navigatePublicWorkspace(url, false).catch(error => {
+                console.error(error);
+                window.location.reload();
+            });
+        } else {
+            window.location.reload();
+        }
+    });
 
     // Admin Login functionality
     const adminButton = document.querySelector('.adminLoginButton');

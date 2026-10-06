@@ -884,6 +884,7 @@ if (! function_exists('getSortIndicator')) {
                 data-admin-transmittal-number="{{ e($record->admin_transmittal_number) }}"
                 data-admin-transmittal-assigned-at="{{ $record->admin_transmittal_assigned_at ? e(is_string($record->admin_transmittal_assigned_at) ? date('M d, Y', strtotime($record->admin_transmittal_assigned_at)) : $record->admin_transmittal_assigned_at->format('M d, Y')) : 'N/A' }}"
                 data-notice-image-url="{{ $record->notice_image_path ? route('admin.records.notice-image', $record) : '' }}"
+                data-notice-pdf-name="{{ $record->notice_pdf_path ? basename($record->notice_pdf_path) : '' }}"
                 >edit</button>
             </td>
             @if($showDelete)
@@ -1241,26 +1242,103 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 </div>
 
-<dialog id="noticeImagePrintDialog" class="notice-image-dialog">
-    <div class="notice-image-dialog-header">
-        <h2 id="noticeImageDialogTitle">Notice of loss / claim</h2>
-        <button type="button" class="notice-image-dialog-close" aria-label="Close image preview">&times;</button>
-    </div>
-    <div class="notice-image-dialog-content">
-        <img id="noticeImagePreview" alt="Uploaded notice of loss or claim">
-        <p id="noticeImagePreviewError" hidden role="alert" class="text-sm font-semibold text-red-700">Unable to load this image. It may have been moved or deleted; refresh the Admin page and try again.</p>
-    </div>
-    <div class="notice-image-dialog-actions">
-        <button type="button" class="notice-image-dialog-close secondary">Close</button>
-        <button type="button" id="printNoticeImageButton" class="primary">Print image</button>
-    </div>
-</dialog>
+@include('components.notice-image-print-dialog')
 
 <script>
 (function () {
     let selectedPreviewUrl = null;
 
     document.addEventListener('click', function (event) {
+        const clearSelectionButton = event.target.closest('.clear-notice-image-selection');
+        if (clearSelectionButton) {
+            const form = clearSelectionButton.closest('form');
+            const imageInput = form?.querySelector('input[type="file"][name="notice_image"]');
+
+            if (imageInput) {
+                imageInput.value = '';
+                clearSelectionButton.hidden = true;
+            }
+
+            if (imageInput?.id === 'editNoticeImage') {
+                if (selectedPreviewUrl) {
+                    URL.revokeObjectURL(selectedPreviewUrl);
+                    selectedPreviewUrl = null;
+                }
+
+                const currentImageUrl = imageInput.dataset.currentImageUrl || '';
+                const preview = form.querySelector('#editNoticeImagePreview');
+                const previewContainer = form.querySelector('#editNoticeImagePreviewContainer');
+                const printButton = form.querySelector('#editNoticeImagePrintButton');
+                const removeImageInput = form.querySelector('[name="remove_notice_image"]');
+                const removeImageButton = form.querySelector('#removeNoticeImageButton');
+                const status = form.querySelector('#editNoticeImageStatus');
+
+                if (preview && previewContainer) {
+                    preview.hidden = !currentImageUrl;
+                    preview.src = currentImageUrl;
+                    previewContainer.hidden = !currentImageUrl;
+                }
+                if (printButton) {
+                    printButton.dataset.imageUrl = currentImageUrl;
+                    printButton.hidden = !currentImageUrl;
+                }
+                if (removeImageInput) {
+                    removeImageInput.value = '0';
+                }
+                if (removeImageButton) {
+                    removeImageButton.hidden = !currentImageUrl;
+                }
+                if (status) {
+                    status.textContent = currentImageUrl
+                        ? 'Current image restored. Choose a replacement or remove it.'
+                        : 'No image uploaded.';
+                }
+            }
+
+            return;
+        }
+
+        const removeImageButton = event.target.closest('#removeNoticeImageButton');
+        if (removeImageButton) {
+            if (selectedPreviewUrl) {
+                URL.revokeObjectURL(selectedPreviewUrl);
+                selectedPreviewUrl = null;
+            }
+
+            const form = removeImageButton.closest('form');
+            const imageInput = form?.querySelector('#editNoticeImage');
+            const removeImageInput = form?.querySelector('[name="remove_notice_image"]');
+            const preview = form?.querySelector('#editNoticeImagePreview');
+            const previewContainer = form?.querySelector('#editNoticeImagePreviewContainer');
+            const printButton = form?.querySelector('#editNoticeImagePrintButton');
+            const status = form?.querySelector('#editNoticeImageStatus');
+
+            if (imageInput) {
+                imageInput.value = '';
+            }
+            if (removeImageInput) {
+                removeImageInput.value = '1';
+            }
+            if (preview) {
+                preview.hidden = true;
+                preview.removeAttribute('src');
+            }
+            if (previewContainer) {
+                previewContainer.hidden = true;
+            }
+            if (printButton) {
+                printButton.hidden = true;
+                printButton.dataset.imageUrl = '';
+            }
+
+            removeImageButton.hidden = true;
+            if (status) {
+                status.textContent = 'This image will be removed when you save.';
+            }
+
+            return;
+        }
+
         const editButton = event.target.closest('.editButton');
         if (!editButton) {
             return;
@@ -1271,6 +1349,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const previewContainer = form?.querySelector('#editNoticeImagePreviewContainer');
         const imageInput = form?.querySelector('#editNoticeImage');
         const printButton = form?.querySelector('#editNoticeImagePrintButton');
+        const removeImageInput = form?.querySelector('[name="remove_notice_image"]');
+        const removeImageButton = form?.querySelector('#removeNoticeImageButton');
+        const clearSelectionButton = form?.querySelector('.clear-notice-image-selection');
+        const status = form?.querySelector('#editNoticeImageStatus');
+        const imageUrl = editButton.dataset.noticeImageUrl;
 
         if (selectedPreviewUrl) {
             URL.revokeObjectURL(selectedPreviewUrl);
@@ -1279,10 +1362,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (imageInput) {
             imageInput.value = '';
+            imageInput.dataset.currentImageUrl = imageUrl || '';
+        }
+        if (clearSelectionButton) {
+            clearSelectionButton.hidden = true;
+        }
+        if (removeImageInput) {
+            removeImageInput.value = '0';
         }
 
         if (preview && previewContainer) {
-            const imageUrl = editButton.dataset.noticeImageUrl;
             previewContainer.hidden = !imageUrl;
             preview.hidden = !imageUrl;
             preview.src = imageUrl || '';
@@ -1291,20 +1380,38 @@ document.addEventListener('DOMContentLoaded', function() {
                 printButton.hidden = !imageUrl;
             }
         }
+        if (removeImageButton) {
+            removeImageButton.hidden = !imageUrl;
+        }
+        if (status) {
+            status.textContent = imageUrl ? 'Current image. Choose a replacement or remove it.' : 'No image uploaded.';
+        }
     });
 
     document.addEventListener('change', function (event) {
-        const imageInput = event.target.closest('#editNoticeImage');
+        const imageInput = event.target.closest('input[type="file"][name="notice_image"]');
         if (!imageInput) {
             return;
         }
 
         const form = imageInput.form;
+        const clearSelectionButton = form?.querySelector('.clear-notice-image-selection');
+        const image = imageInput.files?.[0];
+
+        if (clearSelectionButton) {
+            clearSelectionButton.hidden = !image;
+        }
+
+        if (imageInput.id !== 'editNoticeImage') {
+            return;
+        }
+
         const preview = form?.querySelector('#editNoticeImagePreview');
         const previewContainer = form?.querySelector('#editNoticeImagePreviewContainer');
         const printButton = form?.querySelector('#editNoticeImagePrintButton');
-        const image = imageInput.files?.[0];
-
+        const removeImageInput = form?.querySelector('[name="remove_notice_image"]');
+        const removeImageButton = form?.querySelector('#removeNoticeImageButton');
+        const status = form?.querySelector('#editNoticeImageStatus');
         if (!preview || !previewContainer) {
             return;
         }
@@ -1323,6 +1430,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 printButton.dataset.imageUrl = selectedPreviewUrl;
                 printButton.hidden = false;
             }
+            if (removeImageInput) {
+                removeImageInput.value = '0';
+            }
+            if (removeImageButton) {
+                removeImageButton.hidden = false;
+            }
+            if (status) {
+                status.textContent = 'Selected image will replace the current image when you save.';
+            }
         }
     });
 
@@ -1338,148 +1454,6 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <style>
-/* View Record Button Styling */
-.notice-image-dialog {
-    width: min(900px, calc(100vw - 2rem));
-    max-height: calc(100vh - 2rem);
-    padding: 0;
-    border: 1px solid #cbd5e1;
-    border-radius: 16px;
-    color: #0f172a;
-    box-shadow: 0 24px 64px rgb(15 23 42 / 24%);
-}
-
-.notice-image-dialog::backdrop {
-    background: rgb(15 23 42 / 60%);
-}
-
-.notice-image-dialog-header,
-.notice-image-dialog-actions {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 14px 18px;
-}
-
-.notice-image-dialog-header {
-    border-bottom: 1px solid #e2e8f0;
-}
-
-.notice-image-dialog-header h2 {
-    margin: 0;
-    font-size: 16px;
-    font-weight: 800;
-}
-
-.notice-image-dialog-content {
-    display: grid;
-    min-height: 180px;
-    max-height: 70vh;
-    place-items: center;
-    overflow: auto;
-    padding: 16px;
-    background: #f8fafc;
-}
-
-.notice-image-dialog-content img {
-    display: block;
-    max-width: 100%;
-    max-height: 66vh;
-    object-fit: contain;
-}
-
-.notice-image-dialog-actions {
-    justify-content: flex-end;
-    border-top: 1px solid #e2e8f0;
-}
-
-.notice-image-dialog-actions button,
-.notice-image-dialog-close {
-    border: 0;
-    border-radius: 8px;
-    padding: 8px 14px;
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-}
-
-.notice-image-dialog-actions .primary {
-    background: #006c35;
-    color: white;
-}
-
-.notice-image-dialog-actions .secondary,
-.notice-image-dialog-close {
-    background: #e2e8f0;
-    color: #334155;
-}
-
-.notice-image-view-btn {
-    border: 1px solid #bbf7d0;
-    border-radius: 7px;
-    padding: 6px 10px;
-    background: #f0fdf4;
-    color: #166534;
-    font-size: 12px;
-    font-weight: 700;
-    cursor: pointer;
-}
-
-.notice-image-view-btn:hover {
-    border-color: #16a34a;
-    background: #dcfce7;
-}
-
-.notice-image-unavailable {
-    color: #94a3b8;
-}
-
-@media print {
-    body * {
-        visibility: hidden !important;
-    }
-
-    #noticeImagePrintDialog[open],
-    #noticeImagePrintDialog[open] * {
-        visibility: visible !important;
-    }
-
-    #noticeImagePrintDialog[open] {
-        position: fixed;
-        inset: 0;
-        display: block;
-        width: 100%;
-        max-width: none;
-        max-height: none;
-        overflow: visible;
-        border: 0;
-        border-radius: 0;
-        box-shadow: none;
-    }
-
-    #noticeImagePrintDialog .notice-image-dialog-header,
-    #noticeImagePrintDialog .notice-image-dialog-actions {
-        display: none !important;
-    }
-
-    #noticeImagePrintDialog .notice-image-dialog-content {
-        display: block;
-        max-height: none;
-        overflow: visible;
-        padding: 0;
-        background: white;
-    }
-
-    #noticeImagePrintDialog .notice-image-dialog-content img {
-        width: auto;
-        max-width: 100%;
-        height: auto;
-        max-height: 95vh;
-        margin: 0 auto;
-    }
-}
-
 .view-record-btn {
     display: inline-flex;
     align-items: center;
@@ -1888,68 +1862,3 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 })();
 </script>
-
-    <script>
-    (function () {
-        const dialog = document.getElementById('noticeImagePrintDialog');
-        const preview = document.getElementById('noticeImagePreview');
-        const previewError = document.getElementById('noticeImagePreviewError');
-        const title = document.getElementById('noticeImageDialogTitle');
-        const printButton = document.getElementById('printNoticeImageButton');
-
-        if (!dialog || !preview || !previewError || !title || !printButton) {
-            return;
-        }
-
-        preview.addEventListener('load', function () {
-            previewError.hidden = true;
-        });
-
-        preview.addEventListener('error', function () {
-            preview.hidden = true;
-            previewError.hidden = false;
-        });
-
-        document.addEventListener('click', function (event) {
-            const viewButton = event.target.closest('.notice-image-view-btn');
-            if (viewButton) {
-                event.preventDefault();
-                event.stopPropagation();
-                preview.hidden = false;
-                previewError.hidden = true;
-                preview.src = viewButton.dataset.imageUrl;
-                title.textContent = `Notice of loss / claim — ${viewButton.dataset.farmerName}`;
-                dialog.showModal();
-                return;
-            }
-
-            const closeButton = event.target.closest('.notice-image-dialog-close');
-            if (closeButton && dialog.open) {
-                dialog.close();
-            }
-
-            if (event.target === dialog && dialog.open) {
-                dialog.close();
-            }
-        });
-
-        dialog.addEventListener('close', function () {
-            preview.removeAttribute('src');
-            preview.hidden = false;
-            previewError.hidden = true;
-        });
-
-        printButton.addEventListener('click', function () {
-            if (!preview.complete || preview.naturalWidth === 0) {
-                console.error('The notice image is not ready to print.');
-                if (typeof window.showModalMessage === 'function') {
-                    window.showModalMessage('The notice image could not be loaded for printing.', 'error');
-                }
-
-                return;
-            }
-
-            window.print();
-        });
-    })();
-    </script>

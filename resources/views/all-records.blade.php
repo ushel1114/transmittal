@@ -4,7 +4,7 @@
 @section('body-class', 'public-records-page')
 
 @section('page-styles')
-<style>
+<style id="public-page-styles">
 .public-workspace-shell {
     display: grid;
     min-height: 100vh;
@@ -74,10 +74,6 @@
 
 .public-workspace-back { margin-top: auto; }
 .public-workspace-content { min-width: 0; }
-.public-workspace-content .records-nav { display: none; }
-.public-content-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:16px 20px 8px; }
-.public-content-heading h1 { margin:0; color:#0f172a; font-size:22px; font-weight:900; }
-.public-content-heading p { margin:4px 0 0; color:#64748b; font-size:12px; }
 .public-content-shortcut { color:#166534; font-size:11px; font-weight:800; text-decoration:none; }
 
 @media (max-width: 760px) {
@@ -85,127 +81,6 @@
     .public-workspace-sidebar { position:static; height:auto; gap:12px; padding:12px; }
     .public-workspace-links { grid-template-columns:repeat(2,minmax(0,1fr)); }
     .public-workspace-back { margin-top:0; }
-}
-
-/* System-matched navigation bar */
-.records-nav {
-    position: sticky;
-    top: 0;
-    z-index: 30;
-    padding: 0;
-    border: none;
-    border-radius: 0;
-    background: linear-gradient(135deg, #020617 0%, #111827 100%);
-    backdrop-filter: blur(20px);
-    box-shadow: 0 4px 20px rgba(2, 6, 23, 0.35), 0 1px 3px rgba(0, 0, 0, 0.2);
-    border-bottom: 1px solid rgba(148, 163, 184, 0.18);
-}
-
-.nav-content {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    padding: 10px 20px;
-    min-height: 52px;
-}
-
-.nav-left {
-    display: flex;
-    align-items: center;
-    flex: 1;
-}
-
-.nav-right {
-    display: flex;
-    align-items: center;
-}
-
-.nav-brand {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
-
-.nav-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    background: linear-gradient(135deg, #006c35 0%, #008a43 100%);
-    border-radius: 10px;
-    color: white;
-    box-shadow: 0 4px 12px rgba(0, 108, 53, 0.25);
-    transition: all 0.3s ease;
-}
-
-.nav-icon:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0, 108, 53, 0.35);
-}
-
-.nav-icon svg {
-    width: 18px;
-    height: 18px;
-}
-
-.nav-text h1 {
-    font-size: 16px;
-    margin: 0;
-    font-weight: 900;
-    color: #f8fafc;
-    letter-spacing: -0.02em;
-    line-height: 1.2;
-}
-
-.nav-text p {
-    margin: 2px 0 0 0;
-    font-size: 11px;
-    color: #cbd5e1;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    opacity: 0.8;
-}
-
-.nav-actions {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.back-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    background: rgba(15, 23, 42, 0.85);
-    border: 1px solid rgba(148, 163, 184, 0.24);
-    border-radius: 6px;
-    color: #f8fafc;
-    font-weight: 600;
-    font-size: 11px;
-    text-decoration: none;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(2, 6, 23, 0.2);
-}
-
-.back-btn:hover {
-    background: rgba(30, 41, 59, 0.95);
-    border-color: rgba(96, 165, 250, 0.35);
-    color: #e2e8f0;
-    box-shadow: 0 2px 8px rgba(2, 6, 23, 0.25);
-    transform: translateY(-1px);
-}
-
-.back-btn svg {
-    width: 16px;
-    height: 16px;
-    transition: transform 0.2s ease;
-}
-
-.back-btn:hover svg {
-    transform: translateX(-2px);
 }
 
 /* Main content area */
@@ -499,22 +374,6 @@ table input[type="checkbox"] {
 }
 
 /* Light-mode overrides (when body does NOT have .dark-mode) */
-body:not(.dark-mode) .records-nav {
-    background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
-    box-shadow: 0 2px 8px rgba(2,6,23,0.04);
-    border-bottom: 1px solid rgba(2,6,23,0.06);
-}
-
-body:not(.dark-mode) .nav-text h1 { color: #0f172a; }
-body:not(.dark-mode) .nav-text p { color: #475569; }
-body:not(.dark-mode) .nav-icon { background: linear-gradient(135deg,#06a55f 0%,#0ea37a 100%); color: #fff; }
-body:not(.dark-mode) .back-btn {
-    background: #ffffff;
-    color: #0f172a;
-    border: 1px solid rgba(2,6,23,0.06);
-    box-shadow: 0 1px 2px rgba(2,6,23,0.04);
-}
-
 body:not(.dark-mode) .table-filters {
     background: #ffffff !important;
     border: 1px solid rgba(2,6,23,0.06) !important;
@@ -639,30 +498,6 @@ body:not(.dark-mode) .record-detail .detail-value {
 
 /* Responsive design */
 @media (max-width: 768px) {
-    .nav-content {
-        padding: 12px 16px;
-        gap: 16px;
-        min-height: 60px;
-    }
-    
-    .nav-icon {
-        width: 40px;
-        height: 40px;
-    }
-    
-    .nav-icon svg {
-        width: 20px;
-        height: 20px;
-    }
-    
-    .nav-text h1 {
-        font-size: 18px;
-    }
-    
-    .nav-text p {
-        font-size: 12px;
-    }
-    
     .filter-grid {
         grid-template-columns: 1fr;
     }
@@ -681,6 +516,286 @@ body:not(.dark-mode) .record-detail .detail-value {
         padding: 10px 8px;
     }
 }
+
+body.public-records-page .records-main {
+    display: flex;
+    min-height: 0;
+    flex: 1;
+    flex-direction: column;
+    padding: 20px;
+    background: #f1f5f2;
+    overflow: hidden;
+}
+
+body.public-records-page,
+body.public-records-page #app,
+body.public-records-page .public-workspace-shell {
+    height: 100vh;
+    overflow: hidden;
+}
+
+body.public-records-page .public-workspace-shell {
+    min-height: 0;
+}
+
+body.public-records-page .public-workspace-content {
+    display: flex;
+    height: 100vh;
+    min-height: 0;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+body.public-records-page .table-filters {
+    flex: 0 0 auto;
+    margin-bottom: 16px !important;
+    padding: 20px !important;
+    border: 1px solid #b8c8c7 !important;
+    border-radius: 15px !important;
+    background: #fff !important;
+    box-shadow: 0 5px 16px rgb(15 23 42 / 5%) !important;
+}
+
+body.public-records-page .nl-filter-heading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px !important;
+    padding-bottom: 13px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+body.public-records-page .nl-filter-heading h3 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 16px;
+    font-weight: 900;
+}
+
+body.public-records-page .nl-filter-heading p {
+    margin: 3px 0 0;
+    color: #64748b;
+    font-size: 12px;
+}
+
+body.public-records-page .filter-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+    gap: 14px;
+}
+
+body.public-records-page .form-field label {
+    color: #475569;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+body.public-records-page .form-field input,
+body.public-records-page .form-field select {
+    width: 100%;
+    min-width: 0;
+    min-height: 42px;
+    padding: 9px 12px;
+    border: 1px solid #b8c8d4;
+    border-radius: 9px;
+    background: #fff;
+    color: #0f172a;
+    font-size: 13px;
+    box-shadow: none;
+}
+
+body.public-records-page .form-field input:focus,
+body.public-records-page .form-field select:focus {
+    border-color: #15803d;
+    box-shadow: 0 0 0 3px rgb(21 128 61 / 13%);
+}
+
+body.public-records-page .filter-actions {
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-color: #e2e8f0;
+}
+
+body.public-records-page .filter-actions .btn {
+    min-height: 40px;
+    padding: 9px 16px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 800;
+    box-shadow: none;
+}
+
+body.public-records-page .filter-actions .btn-primary {
+    border-color: #14532d;
+    background: #166534;
+}
+
+body.public-records-page .filter-actions .btn-muted {
+    border-color: #fca5a5;
+    background: #fff1f2;
+    color: #991b1b;
+}
+
+body.public-records-page .table-wrapper {
+    min-height: 0;
+    flex: 1 1 auto;
+    max-height: none;
+    overflow: auto;
+    border: 1px solid #b8c8d4;
+    border-radius: 15px;
+    background: #fff;
+    box-shadow: 0 5px 16px rgb(15 23 42 / 5%);
+}
+
+body.public-records-page .table-wrapper table {
+    width: max-content;
+    min-width: 100%;
+    max-width: none;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    background: #fff;
+    box-shadow: none;
+}
+
+body.public-records-page .table-wrapper table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    height: 44px;
+    padding: 11px 13px;
+    border-right: 1px solid rgb(255 255 255 / 16%);
+    border-bottom: 2px solid #14532d;
+    background: #166534;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 850;
+    letter-spacing: .045em;
+    line-height: 1.25;
+    text-align: left;
+    vertical-align: middle;
+}
+
+body.public-records-page .table-wrapper table thead th:last-child {
+    border-right: 0;
+}
+
+body.public-records-page .table-wrapper table tbody td {
+    height: 44px;
+    padding: 9px 13px;
+    border-right: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e2e8f0;
+    color: #334155;
+    font-size: 12px;
+    line-height: 1.4;
+    vertical-align: middle;
+}
+
+body.public-records-page .table-wrapper table tbody td:last-child {
+    border-right: 0;
+}
+
+body.public-records-page .table-wrapper table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+body.public-records-page .table-wrapper table tbody tr:nth-child(even) {
+    background: #f8fafc;
+}
+
+body.public-records-page .table-wrapper table tbody tr:hover {
+    background: #ecfdf5;
+}
+
+body.public-records-page .pagination-container {
+    justify-content: space-between;
+    gap: 10px;
+    padding: 14px 4px 2px;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+body.public-records-page .pagination-info,
+body.public-records-page .pagination-link {
+    border-radius: 9px;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+body.dark-mode.public-records-page .records-main {
+    background: #0b1220;
+}
+
+body.dark-mode.public-records-page .table-filters,
+body.dark-mode.public-records-page .table-wrapper {
+    border-color: rgba(148, 163, 184, .36) !important;
+    background: #0f172a !important;
+}
+
+body.dark-mode.public-records-page .nl-filter-heading h3,
+body.dark-mode.public-records-page .table-wrapper table tbody td {
+    color: #e2e8f0;
+}
+
+body.dark-mode.public-records-page .nl-filter-heading p,
+body.dark-mode.public-records-page .form-field label {
+    color: #cbd5e1;
+}
+
+body.dark-mode.public-records-page .form-field input,
+body.dark-mode.public-records-page .form-field select {
+    border-color: rgba(148, 163, 184, .4);
+    background: #111827;
+    color: #f8fafc;
+}
+
+body.dark-mode.public-records-page .filter-actions .btn-muted {
+    border-color: #7f1d1d;
+    background: #450a0a;
+    color: #fecaca;
+}
+
+body.dark-mode.public-records-page .table-wrapper table tbody td {
+    border-color: rgba(148, 163, 184, .22);
+}
+
+body.dark-mode.public-records-page .table-wrapper table tbody tr:nth-child(even) {
+    background: #111827;
+}
+
+body.dark-mode.public-records-page .table-wrapper table tbody tr:hover {
+    background: #123524;
+}
+
+@media (max-width: 760px) {
+    body.public-records-page .public-workspace-shell {
+        grid-template-rows: auto minmax(0, 1fr);
+    }
+
+    body.public-records-page .public-workspace-sidebar {
+        height: auto;
+    }
+
+    body.public-records-page .public-workspace-content {
+        height: auto;
+    }
+
+    body.public-records-page .records-main {
+        padding: 12px;
+    }
+
+    body.public-records-page .table-filters {
+        padding: 14px !important;
+    }
+
+    body.public-records-page .pagination-container {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+}
 </style>
 @endsection
 
@@ -688,12 +803,8 @@ body:not(.dark-mode) .record-detail .detail-value {
 <div class="public-workspace-shell">
     @include('partials.public-workspace-nav')
     <div class="public-workspace-content">
-        <header class="public-content-heading">
-            <div><h1>All Records</h1><p>Search, filter, and review Notice of Loss records.</p></div>
-            <a class="public-content-shortcut" href="{{ route('public-dashboard') }}">Open Public Dashboard →</a>
-        </header>
 <!-- Navigation Bar -->
-<nav class="records-nav no-print">
+{{-- <nav class="records-nav no-print">
     <div class="nav-content">
         <div class="nav-left">
             <div class="nav-brand">
@@ -719,19 +830,22 @@ body:not(.dark-mode) .record-detail .detail-value {
             </div>
         </div>
     </div>
-</nav>
+    </nav> --}}
 
 <!-- Main Content -->
 <main class="records-main">
     <!-- Filters Section -->
     <div class="no-print table-filters">
-        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+        <div class="nl-filter-heading">
             <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #006c35 0%, #008a43 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
                 <svg width="18" height="18" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
                 </svg>
             </div>
-            <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: #1e293b;">Table Filters</h3>
+            <div>
+                <h3>Find and filter records</h3>
+                <p>Narrow the list to find Notice of Loss records.</p>
+            </div>
         </div>
 
         <form id="filterForm" method="GET" action="{{ route('all-records') }}">
@@ -798,9 +912,30 @@ body:not(.dark-mode) .record-detail .detail-value {
             </thead>
             <tbody>
                 @forelse($records as $record)
+                    @php
+                        $canViewNoticeImage = (bool) session('admin_logged_in', false)
+                            || (
+                                $record->source === 'Email'
+                                && (bool) session('email_logged_in', false)
+                                && (string) session('email_user_id') === (string) $record->encoder_id
+                            )
+                            || (
+                                $record->source === 'Facebook'
+                                && (bool) session('facebook_logged_in', false)
+                                && (string) session('facebook_user_id') === (string) $record->encoder_id
+                            );
+                    @endphp
                     <tr>
                         <td>
                             <button class="view-btn" onclick="viewRecord({{ $record->id }})">View</button>
+                            @if ($record->notice_image_path && $canViewNoticeImage)
+                                <button
+                                    type="button"
+                                    class="notice-image-view-btn"
+                                    data-image-url="{{ route('admin.records.notice-image', $record) }}"
+                                    data-farmer-name="{{ $record->farmerName }}"
+                                >View / Print image</button>
+                            @endif
                         </td>
                         <td><span class="farmer-name-copy cursor-pointer" style="user-select: none; transition: color 0.2s;" data-farmer-name="{{ e($record->farmerName) }}" title="Click to copy farmer name">{{ $record->farmerName }}</span></td>
                         <td>{{ $record->admin_transmittal_number ?? 'N/A' }}</td>
@@ -822,6 +957,8 @@ body:not(.dark-mode) .record-detail .detail-value {
             </tbody>
         </table>
     </div>
+
+    @include('components.notice-image-print-dialog')
 
     <!-- Pagination -->
     @if($records->hasPages())
@@ -860,9 +997,9 @@ body:not(.dark-mode) .record-detail .detail-value {
     </div>
 </dialog>
 
-<script>
+<script data-public-view-script>
 // Ensure filter form works properly
-document.addEventListener('DOMContentLoaded', function() {
+window.initializeAllRecordsPage = function() {
     const filterForm = document.getElementById('filterForm');
     if (filterForm) {
         filterForm.addEventListener('submit', function(e) {
@@ -872,12 +1009,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Handle farmer name copy to clipboard
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('farmer-name-copy')) {
+    if (!window.allRecordsGlobalHandlersBound) {
+        document.addEventListener('click', function(e) {
+            const farmerNameButton = e.target.closest('.farmer-name-copy');
+            if (!farmerNameButton) {
+                return;
+            }
+
             e.stopPropagation();
-            const farmerName = e.target.getAttribute('data-farmer-name');
+            const farmerName = farmerNameButton.getAttribute('data-farmer-name');
             if (farmerName) {
-                // Try modern Clipboard API first
                 if (navigator.clipboard && navigator.clipboard.writeText) {
                     navigator.clipboard.writeText(farmerName).then(function() {
                         if (typeof showModalMessage === 'function') {
@@ -888,12 +1029,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         copyToClipboardFallback(farmerName);
                     });
                 } else {
-                    // Fallback for non-secure contexts (HTTP)
                     copyToClipboardFallback(farmerName);
                 }
             }
-        }
-    });
+        });
+        window.allRecordsGlobalHandlersBound = true;
+    }
 
     // Fallback method for copying text (works in HTTP contexts)
     function copyToClipboardFallback(text) {
@@ -926,7 +1067,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
-});
+};
+window.initializeAllRecordsPage();
 
 function viewRecord(recordId) {
     fetch(`/api/records/${recordId}`)
