@@ -7,7 +7,6 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title','transmittal')</title>
     <link rel="icon" type="image/svg+xml" href="/images/icon.svg">
-    @yield('page-styles')
     @php
         $manifestPath = public_path('build/manifest.json');
         $useBuiltAssets = file_exists($manifestPath);
@@ -30,6 +29,7 @@
     @else
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     @endif
+    @yield('page-styles')
     @stack('styles')
     <style>
         /* Fix pagination SVG icon sizing */
