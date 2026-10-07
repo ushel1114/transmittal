@@ -940,7 +940,12 @@ body.dark-mode.public-records-page .table-wrapper table tbody tr:hover {
                     @endphp
                     <tr>
                         <td>
-                            <button class="view-btn" onclick="viewRecord({{ $record->id }})">View</button>
+                            <button
+                                type="button"
+                                class="view-btn"
+                                data-record-url="{{ route('api.records.show', $record->id) }}"
+                                onclick="viewRecord(this)"
+                            >View</button>
                             @if ($record->attachments->where('type', 'image')->isNotEmpty() && $canViewNoticeImage)
                                 <button
                                     type="button"
@@ -1083,9 +1088,15 @@ window.initializeAllRecordsPage = function() {
 };
 window.initializeAllRecordsPage();
 
-function viewRecord(recordId) {
-    fetch(`/api/records/${recordId}`)
-        .then(response => response.json())
+function viewRecord(button) {
+    fetch(button.dataset.recordUrl)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Request failed with status ${response.status}`);
+            }
+
+            return response.json();
+        })
         .then(data => {
             const modalBody = document.getElementById('modalBody');
             modalBody.innerHTML = `
