@@ -38,6 +38,10 @@
     --surface-muted: #f8fafc;
 }
 
+html.dark {
+    color-scheme: dark;
+}
+
 html, body {
     background-color: var(--app-bg);
     color: var(--text);
@@ -2765,6 +2769,16 @@ body.dark-mode .contentContainer .table-wrapper {
     color: #e2e8f0 !important;
 }
 
+body.dark-mode .channel-date-help {
+    border-color: #334155 !important;
+    background: #1e293b !important;
+    color: #cbd5e1 !important;
+}
+
+body.dark-mode .channel-date-help strong {
+    color: #f8fafc !important;
+}
+
 body.dark-mode .notice-image-dialog-content,
 body.dark-mode #noticeImagePrintDialog {
     background: #111c2e !important;
@@ -3088,13 +3102,27 @@ body.dark-mode #noticeImagePrintDialog {
 
 .public-workspace-shell.sidebar-collapsed .public-workspace-links a,
 .public-workspace-shell.sidebar-collapsed .public-workspace-links button {
+    display: flex;
     width: 42px;
     min-width: 42px;
     height: 42px;
     min-height: 42px;
     justify-content: center;
+    align-items: center;
     justify-self: center;
+    gap: 0;
     padding: 0;
+}
+
+.public-workspace-shell.sidebar-collapsed .public-workspace-links {
+    width: 100%;
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.public-workspace-shell.sidebar-collapsed .public-workspace-links .icon {
+    display: block;
+    flex: 0 0 20px;
+    margin: 0;
 }
 
 .public-workspace-shell.sidebar-collapsed .public-workspace-section-label,

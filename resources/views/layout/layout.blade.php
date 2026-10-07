@@ -92,6 +92,7 @@
         (function () {
             const toggle = document.getElementById('themeToggle');
             const applyTheme = function (isDark) {
+                document.documentElement.classList.toggle('dark', isDark);
                 document.body.classList.toggle('dark-mode', isDark);
                 document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
                 if (toggle) {
@@ -304,6 +305,7 @@
                 const logoutData = new FormData();
                 logoutData.append('auto_logout', 'true');
                 logoutData.append('channel', getCurrentChannel());
+                logoutData.append('_token', document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '');
                 
                 try {
                     navigator.sendBeacon('/auto-logout', logoutData);
@@ -342,6 +344,7 @@
                     const awayData = new FormData();
                     awayData.append('away', 'true');
                     awayData.append('channel', getCurrentChannel());
+                    awayData.append('_token', document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '');
                     
                     try {
                         navigator.sendBeacon('/update-activity', awayData);

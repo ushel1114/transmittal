@@ -701,8 +701,12 @@ body.public-records-page .table-wrapper table tbody tr:last-child td {
     border-bottom: 0;
 }
 
+body.public-records-page .table-wrapper table tbody tr:nth-child(odd) {
+    background: #fff !important;
+}
+
 body.public-records-page .table-wrapper table tbody tr:nth-child(even) {
-    background: #f8fafc;
+    background: #f8fafc !important;
 }
 
 body.public-records-page .table-wrapper table tbody tr:hover {
@@ -762,8 +766,12 @@ body.dark-mode.public-records-page .table-wrapper table tbody td {
     border-color: rgba(148, 163, 184, .22);
 }
 
+body.dark-mode.public-records-page .table-wrapper table tbody tr:nth-child(odd) {
+    background: #0f172a !important;
+}
+
 body.dark-mode.public-records-page .table-wrapper table tbody tr:nth-child(even) {
-    background: #111827;
+    background: #111827 !important;
 }
 
 body.dark-mode.public-records-page .table-wrapper table tbody tr:hover {

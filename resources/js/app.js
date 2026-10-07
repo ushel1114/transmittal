@@ -326,22 +326,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Admin Login functionality
-    const adminButton = document.querySelector('.adminLoginButton');
-    const loginDialog = document.querySelector('.loginDialog');
-    const closeModal = document.querySelector('.closeModal');
-    if (adminButton && loginDialog) {
-        adminButton.addEventListener('click', function () {
-            loginDialog.showModal();
-        });
-    }
-
-    if (closeModal && loginDialog) {
-        closeModal.addEventListener('click', function () {
-            loginDialog.close();
-        });
-    }
-
     // Admin modals (Approvals / Admin users)
     const userApprovalsModal = document.getElementById('userApprovalsModal');
     const openUserApprovalsModal = document.getElementById('openUserApprovalsModal');

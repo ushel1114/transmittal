@@ -964,5 +964,102 @@ body {
 @endsection
 
 @push('scripts')
-@vite('resources/js/pages/landing.js')
+<script>
+(function () {
+    const loginDialog = document.querySelector('.loginDialog');
+    const adminLoginDialog = document.querySelector('.adminLoginDialog');
+    const loginChannel = document.getElementById('loginChannel');
+    const loginIcon = document.getElementById('loginIcon');
+    const loginTitle = document.getElementById('loginTitle');
+    const usernameLabel = document.getElementById('usernameLabel');
+    const loginUsername = document.getElementById('loginUsername');
+
+    const channelConfig = {
+        OD: {
+            icon: 'OD',
+            title: 'Officer of the Day Login',
+            usernameLabel: 'Username',
+            usernamePlaceholder: 'Enter your username',
+        },
+        Email: {
+            icon: 'EM',
+            title: 'Email Handler Login',
+            usernameLabel: 'Name',
+            usernamePlaceholder: 'Enter your username',
+        },
+        Facebook: {
+            icon: 'FB',
+            title: 'Facebook Handler Login',
+            usernameLabel: 'Username',
+            usernamePlaceholder: 'Enter your username',
+        },
+    };
+
+    function openDialog(dialog) {
+        if (!dialog) {
+            console.error('Unable to open login dialog: dialog was not found.');
+            return;
+        }
+
+        if (typeof dialog.showModal === 'function') {
+            dialog.showModal();
+        } else {
+            dialog.setAttribute('open', '');
+        }
+    }
+
+    function closeDialog(dialog) {
+        if (dialog?.open && typeof dialog.close === 'function') {
+            dialog.close();
+        } else {
+            dialog?.removeAttribute('open');
+        }
+    }
+
+    document.querySelectorAll('.channelLogin').forEach(function (button) {
+        button.addEventListener('click', function () {
+            const config = channelConfig[button.dataset.channel];
+            if (!config || !loginChannel || !loginIcon || !loginTitle || !usernameLabel || !loginUsername) {
+                console.error('Unable to open channel login: channel configuration or form fields are missing.');
+                return;
+            }
+
+            loginChannel.value = button.dataset.channel;
+            loginIcon.textContent = config.icon;
+            loginTitle.textContent = config.title;
+            usernameLabel.textContent = config.usernameLabel;
+            loginUsername.placeholder = config.usernamePlaceholder;
+            openDialog(loginDialog);
+        });
+    });
+
+    document.querySelectorAll('.adminLoginButton').forEach(function (button) {
+        button.addEventListener('click', function (event) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            openDialog(adminLoginDialog);
+        });
+    });
+
+    document.querySelectorAll('.closeModal').forEach(function (button) {
+        button.addEventListener('click', function () {
+            closeDialog(loginDialog);
+        });
+    });
+
+    document.querySelectorAll('.closeAdminModal').forEach(function (button) {
+        button.addEventListener('click', function () {
+            closeDialog(adminLoginDialog);
+        });
+    });
+
+    [loginDialog, adminLoginDialog].forEach(function (dialog) {
+        dialog?.addEventListener('click', function (event) {
+            if (event.target === dialog) {
+                closeDialog(dialog);
+            }
+        });
+    });
+})();
+</script>
 @endpush

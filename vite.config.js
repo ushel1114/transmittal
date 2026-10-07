@@ -11,7 +11,6 @@ export default defineConfig({
                 'resources/css/pages/admin.css',
                 'resources/js/pages/admin-dashboard.js',
                 'resources/js/pages/admin-unassigned-toggle.js',
-                'resources/js/pages/landing.js',
                 'resources/js/pages/officer-records.js',
                 'resources/js/pages/records-table.js',
             ],

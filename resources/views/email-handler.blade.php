@@ -309,7 +309,7 @@ html, body {
 					</div>
 
 
-					<div class="text-xs text-gray-500 bg-blue-50 border border-blue-200 rounded p-2 mt-2">
+					<div class="channel-date-help text-xs text-gray-500 bg-blue-50 border border-blue-200 rounded p-2 mt-2">
 						<strong>How to use:</strong><br>
 						• Check one or both date filters<br>
 						• <strong>Date Encoded:</strong> Shows records created on specific date<br>
