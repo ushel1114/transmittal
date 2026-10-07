@@ -174,6 +174,7 @@ html, body {
     }
 
     .channel-add-record-form__attachments,
+    .channel-add-record-form__wide,
     .channel-add-record-form__clear,
     .channel-add-record-form__actions {
         grid-column: 1 / -1;
@@ -199,6 +200,12 @@ html, body {
         .channel-workspace {
             grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
             grid-template-rows: minmax(0, 1fr);
+        }
+    }
+
+    @media (min-width: 1100px) {
+        .channel-workspace:has(#addRecordPanel:not(.hidden)) {
+            grid-template-columns: minmax(450px, 550px) minmax(0, 1fr);
         }
     }
 </style>
@@ -404,7 +411,7 @@ html, body {
                 <label class="block text-xs font-bold text-gray-600" for="accounts">Facebook account or page
                     <input type="text" id="accounts" name="accounts" required placeholder="Name of Facebook page or account" class="mt-1.5 h-10 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
                 </label>
-                <label class="block text-xs font-bold text-gray-600" for="facebook_page_url">Facebook page link
+                <label class="channel-add-record-form__wide block text-xs font-bold text-gray-600" for="facebook_page_url">Facebook page link
                     <input type="url" id="facebook_page_url" name="facebook_page_url" placeholder="https://www.facebook.com/..." class="mt-1.5 h-10 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
                 </label>
                 <label class="channel-add-record-form__attachments block text-xs font-bold text-gray-600" for="notice_images">Notice of loss / claim photos <span class="font-medium text-gray-400">(optional)</span>

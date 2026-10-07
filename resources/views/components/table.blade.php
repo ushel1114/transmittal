@@ -1149,27 +1149,6 @@ if (! function_exists('getSortIndicator')) {
 
         const encoderCell = row.querySelector('.col-encoder');
         const transmittalCell = row.querySelector('.col-control-number');
-        const details = [
-            ['Record ID', button.dataset.recordId],
-            ['Farmer name', editButton.dataset.farmerName],
-            ['Province', editButton.dataset.province],
-            ['Municipality', editButton.dataset.municipality],
-            ['Barangay', editButton.dataset.barangay],
-            ['Address', editButton.dataset.address],
-            ['Program', editButton.dataset.program],
-            ['Line', editButton.dataset.line],
-            ['Cause of damage', editButton.dataset.causeOfDamage],
-            ['Mode of payment', editButton.dataset.modeOfPayment],
-            ['Account', editButton.dataset.accounts],
-            ['Date of occurrence', editButton.dataset.dateOccurrence],
-            ['Date received', editButton.dataset.dateReceived],
-            ['Date encoded', editButton.dataset.createdAt],
-            ['Transmittal number', transmittalCell?.textContent.trim()],
-            ['Admin transmittal number', editButton.dataset.adminTransmittalNumber],
-            ['Encoder', encoderCell?.textContent.trim()],
-            ['Source', editButton.dataset.source],
-            ['Remarks', editButton.dataset.remarks]
-        ];
         const escapeHtml = value => String(value || 'N/A').replace(/[&<>"']/g, character => ({
             '&': '&amp;',
             '<': '&lt;',
@@ -1177,15 +1156,79 @@ if (! function_exists('getSortIndicator')) {
             '"': '&quot;',
             "'": '&#039;'
         })[character]);
+        const data = {
+            id: button.dataset.recordId,
+            farmerName: editButton.dataset.farmerName,
+            province: editButton.dataset.province,
+            municipality: editButton.dataset.municipality,
+            barangay: editButton.dataset.barangay,
+            program: editButton.dataset.program,
+            line: editButton.dataset.line,
+            causeOfDamage: editButton.dataset.causeOfDamage,
+            modeOfPayment: editButton.dataset.modeOfPayment,
+            accounts: editButton.dataset.accounts,
+            facebookPageUrl: editButton.dataset.fbPageUrl,
+            dateOccurrence: editButton.dataset.dateOccurrence,
+            dateReceived: editButton.dataset.dateReceived,
+            dateEncoded: editButton.dataset.createdAt,
+            remarks: editButton.dataset.remarks,
+            source: editButton.dataset.source,
+            adminTransmittalNumber: editButton.dataset.adminTransmittalNumber,
+            encoderName: editButton.dataset.encoderName || encoderCell?.textContent.trim() || 'N/A',
+            transmittalNumber: transmittalCell?.textContent.trim() || 'N/A',
+            adminTransmittalAssignedAt: editButton.dataset.adminTransmittalAssignedAt || 'N/A'
+        };
+        let safeFacebookPageUrl = '';
+        if (data.facebookPageUrl) {
+            try {
+                const facebookPageUrl = new URL(data.facebookPageUrl, window.location.origin);
+                if (facebookPageUrl.protocol === 'http:' || facebookPageUrl.protocol === 'https:') {
+                    safeFacebookPageUrl = facebookPageUrl.href;
+                }
+            } catch (error) {
+                console.warn('Record contains an invalid Facebook page URL.', error);
+            }
+        }
 
         recordDetails.innerHTML = `
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;">
-                ${details.map(([label, value]) => `
-                    <div style="padding:10px;border-bottom:1px solid #e2e8f0;">
-                        <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;">${escapeHtml(label)}</div>
-                        <div style="font-size:14px;color:#1e293b;white-space:pre-wrap;overflow-wrap:anywhere;">${escapeHtml(value)}</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border-radius: 12px; padding: 20px; border: 1px solid #e2e8f0;">
+                    <h3 style="color: #1e293b; font-size: 18px; font-weight: bold; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                        FARMER DETAILS
+                    </h3>
+                    <div style="display: grid; gap: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0;"><span style="font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase;">NAME</span><span style="font-size: 14px; color: #1e293b; font-weight: 500;">${escapeHtml(data.farmerName)}</span></div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0;"><span style="font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase;">PROVINCE</span><span style="font-size: 14px; color: #1e293b; font-weight: 500;">${escapeHtml(data.province)}</span></div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0;"><span style="font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase;">MUNICIPALITY</span><span style="font-size: 14px; color: #1e293b; font-weight: 500;">${escapeHtml(data.municipality)}</span></div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0;"><span style="font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase;">BARANGAY</span><span style="font-size: 14px; color: #1e293b; font-weight: 500;">${escapeHtml(data.barangay)}</span></div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0;"><span style="font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase;">LINE</span><span style="font-size: 14px; color: #1e293b; font-weight: 500;">${escapeHtml(data.line)}</span></div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0;"><span style="font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase;">PROGRAM</span><span style="font-size: 14px; color: #1e293b; font-weight: 500;">${escapeHtml(data.program)}</span></div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0;"><span style="font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase;">${data.source === 'Facebook' ? 'FACEBOOK ACCOUNT' : data.source === 'Email' ? 'EMAIL ADDRESS' : 'ACCOUNT'}</span><span style="font-size: 14px; color: #1e293b; font-weight: 500; overflow-wrap:anywhere;">${escapeHtml(data.accounts)}</span></div>
+                        ${data.source === 'Facebook' && data.facebookPageUrl ? `<div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0;"><span style="font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase;">FACEBOOK PAGE LINK</span><span style="font-size: 14px; font-weight: 500; overflow-wrap:anywhere;">${safeFacebookPageUrl ? `<a href="${escapeHtml(safeFacebookPageUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(data.facebookPageUrl)}</a>` : escapeHtml(data.facebookPageUrl)}</span></div>` : ''}
+                        <div style="display: flex; justify-content: space-between; align-items: center;"><span style="font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase;">MODE OF PAYMENT</span><span style="font-size: 14px; color: #1e293b; font-weight: 500;">${escapeHtml(data.modeOfPayment)}</span></div>
                     </div>
-                `).join('')}
+                </div>
+                <div style="background: linear-gradient(135deg, #fef7f0 0%, #fef3e2 100%); border-radius: 12px; padding: 20px; border: 1px solid #fbbf24;">
+                    <h3 style="color: #1e293b; font-size: 18px; font-weight: bold; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                        OTHER DETAILS
+                    </h3>
+                    <div style="display: grid; gap: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #fbbf24;"><span style="font-size: 12px; font-weight: 600; color: #92400e; text-transform: uppercase;">DATE RECEIVED</span><span style="font-size: 14px; color: #1e293b; font-weight: 500;">${escapeHtml(data.dateReceived)}</span></div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #fbbf24;"><span style="font-size: 12px; font-weight: 600; color: #92400e; text-transform: uppercase;">DATE ENCODED</span><span style="font-size: 14px; color: #1e293b; font-weight: 500;">${escapeHtml(data.dateEncoded)}</span></div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #fbbf24;"><span style="font-size: 12px; font-weight: 600; color: #92400e; text-transform: uppercase;">DATE OF OCCURRENCE</span><span style="font-size: 14px; color: #1e293b; font-weight: 500;">${escapeHtml(data.dateOccurrence)}</span></div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #fbbf24;"><span style="font-size: 12px; font-weight: 600; color: #92400e; text-transform: uppercase;">ENCODER</span><span style="font-size: 14px; color: #1e293b; font-weight: 500;">${escapeHtml(data.encoderName)}</span></div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #fbbf24;"><span style="font-size: 12px; font-weight: 600; color: #92400e; text-transform: uppercase;">SOURCE</span><span style="font-size: 14px; color: #1e293b; font-weight: 500;">${escapeHtml(data.source)}</span></div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #fbbf24;"><span style="font-size: 12px; font-weight: 600; color: #92400e; text-transform: uppercase;">CONTROL NUMBER</span><span style="font-size: 14px; color: #1e293b; font-weight: 500;">${escapeHtml(data.transmittalNumber)}</span></div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #fbbf24;"><span style="font-size: 12px; font-weight: 600; color: #92400e; text-transform: uppercase;">ADMIN TRANSMITTAL #</span><span style="font-size: 14px; color: #1e293b; font-weight: 500;">${escapeHtml(data.adminTransmittalNumber)}</span></div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #fbbf24;"><span style="font-size: 12px; font-weight: 600; color: #92400e; text-transform: uppercase;">ADMIN TRANSMITTAL ASSIGNED</span><span style="font-size: 14px; color: #1e293b; font-weight: 500;">${escapeHtml(data.adminTransmittalAssignedAt)}</span></div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #fbbf24;"><span style="font-size: 12px; font-weight: 600; color: #92400e; text-transform: uppercase;">CAUSE OF DAMAGE</span><span style="font-size: 14px; color: #1e293b; font-weight: 500;">${escapeHtml(data.causeOfDamage)}</span></div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #fbbf24;"><span style="font-size: 12px; font-weight: 600; color: #92400e; text-transform: uppercase;">RECORD ID</span><span style="font-size: 14px; color: #1e293b; font-weight: 500;">${escapeHtml(data.id)}</span></div>
+                        <div style="margin-top: 20px;">
+                            <div style="font-size: 12px; font-weight: 600; color: #92400e; text-transform: uppercase; margin-bottom: 8px;">REMARKS</div>
+                            <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #fbbf24; min-height: 80px; max-height: 150px; overflow-y: auto; white-space: pre-wrap; font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace; font-size: 13px; line-height: 1.5; color: #374151;">${escapeHtml(data.remarks || 'No remarks available')}</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         `;
 
