@@ -3320,6 +3320,12 @@ Villa Rosario,Victoria,Tarlac`;
             btnNlRecords.toggleAttribute('aria-current', showNlRecords);
             localStorage.setItem(adminActiveTabKey, showNlRecords ? 'nl-records' : 'dashboard');
 
+            if (showNlRecords) {
+                requestAnimationFrame(function () {
+                    window.syncTableScrollbars?.();
+                });
+            }
+
             const selectedTab = showNlRecords ? 'nl-records' : 'dashboard';
             if (updateUrl && new URLSearchParams(window.location.search).get('tab') !== selectedTab) {
                 setTabInUrl(selectedTab);

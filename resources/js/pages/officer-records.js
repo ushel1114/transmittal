@@ -172,53 +172,37 @@ if (editRecordForm) {
 }
 
 (function() {
-    var addRecordDialog = document.getElementById('addRecordDialog');
-    var addRecordBackdrop = document.getElementById('addRecordBackdrop');
-    var closeAddRecordModal = document.querySelector('.closeAddRecordModal');
+    var addRecordPanel = document.getElementById('addRecordPanel');
+    var controlActions = document.getElementById('controlActions');
+    var addRecordButton = document.getElementById('addRecordButton');
+    var returnToControlsButton = document.getElementById('returnToControlsButton');
+    var cancelAddRecordButton = document.getElementById('cancelAddRecordButton');
 
-    function showAddRecordModal() {
-        if (addRecordDialog && addRecordBackdrop) {
-            var viewportWidth = window.innerWidth;
-            var viewportHeight = window.innerHeight;
-            var dialogWidth = Math.min(640, viewportWidth - 32);
-            var dialogHeight = Math.min(500, viewportHeight - 32);
-
-            var left = Math.max(16, (viewportWidth - dialogWidth) / 2);
-            var top = Math.max(16, (viewportHeight - dialogHeight) / 2);
-
-            addRecordDialog.style.left = left + 'px';
-            addRecordDialog.style.top = top + 'px';
-            addRecordDialog.style.width = dialogWidth + 'px';
-            addRecordDialog.style.display = 'block';
-            addRecordBackdrop.style.display = 'block';
-            document.body.style.overflow = 'hidden';
-            document.documentElement.style.overflow = 'hidden';
-
-            restoreLocationValues();
+    function showAddRecordForm() {
+        if (!addRecordPanel || !controlActions) {
+            return;
         }
+
+        controlActions.hidden = true;
+        controlActions.classList.add('hidden');
+        addRecordPanel.hidden = false;
+        addRecordPanel.classList.remove('hidden');
+        addRecordButton?.setAttribute('aria-expanded', 'true');
+        restoreLocationValues();
+        addRecordPanel.querySelector('#farmerName')?.focus();
     }
 
-    function hideAddRecordModal() {
-        if (addRecordDialog && addRecordBackdrop) {
-            addRecordDialog.style.display = 'none';
-            addRecordBackdrop.style.display = 'none';
-            document.body.style.overflow = '';
-            document.documentElement.style.overflow = '';
-
-            clearLocationValues();
+    function showControls() {
+        if (!addRecordPanel || !controlActions) {
+            return;
         }
-    }
 
-    function saveLocationValues() {
-        var province = document.getElementById('province');
-        var municipality = document.getElementById('municipality');
-        var barangay = document.getElementById('barangay');
-
-        if (province && municipality && barangay) {
-            localStorage.setItem('od_province', province.value);
-            localStorage.setItem('od_municipality', municipality.value);
-            localStorage.setItem('od_barangay', barangay.value);
-        }
+        addRecordPanel.hidden = true;
+        addRecordPanel.classList.add('hidden');
+        controlActions.hidden = false;
+        controlActions.classList.remove('hidden');
+        addRecordButton?.setAttribute('aria-expanded', 'false');
+        addRecordButton?.focus();
     }
 
     function restoreLocationValues() {
@@ -261,66 +245,7 @@ if (editRecordForm) {
         }
     }
 
-    function clearLocationValues() {
-        localStorage.removeItem('od_province');
-        localStorage.removeItem('od_municipality');
-        localStorage.removeItem('od_barangay');
-    }
-
-    if (closeAddRecordModal) {
-        closeAddRecordModal.addEventListener('click', hideAddRecordModal);
-    }
-
-    if (addRecordBackdrop) {
-        addRecordBackdrop.addEventListener('click', hideAddRecordModal);
-    }
-
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && addRecordDialog && addRecordDialog.style.display === 'block') {
-            hideAddRecordModal();
-        }
-    });
-
-    window.showAddRecordModal = showAddRecordModal;
-
-    var addRecordButton = document.querySelector('.addRecordButton');
-    if (addRecordButton) {
-        addRecordButton.addEventListener('click', showAddRecordModal);
-    }
+    addRecordButton?.addEventListener('click', showAddRecordForm);
+    returnToControlsButton?.addEventListener('click', showControls);
+    cancelAddRecordButton?.addEventListener('click', showControls);
 })();
-
-dragElement(document.getElementById("addRecordDialog"));
-
-function dragElement(elmnt) {
-  var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-  if (document.getElementById(elmnt.id + "header")) {
-    document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
-  } else {
-    elmnt.onmousedown = dragMouseDown;
-  }
-
-  function dragMouseDown(e) {
-    e = e || window.event;
-    e.preventDefault();
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-    document.onmouseup = closeDragElement;
-    document.onmousemove = elementDrag;
-  }
-
-  function elementDrag(e) {
-    e = e || window.event;
-    e.preventDefault();
-    pos1 = pos3 - e.clientX;
-    pos2 = pos4 - e.clientY;
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
-  }
-
-  function closeDragElement() {
-    document.onmouseup = null;
-    document.onmousemove = null;
-  }
-}

@@ -2,11 +2,131 @@
 
 @section('title', 'Officer of the day')
 
-@section('content')
-    <div class="min-h-screen bg-gradient-to-br from-pcic-100 via-white to-pcic-100">
+@section('page-styles')
+<style>
+html,
+body {
+    overflow-x: hidden;
+}
 
-        <div class="odHeader sticky top-0 z-20 w-full bg-white/90 backdrop-blur-md border-b border-gray-200/60">
-            <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+.channel-page-shell {
+    padding-top: 57px;
+}
+
+.channel-fixed-header {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 57px;
+    border-bottom: 2px solid #94a3b8;
+    box-shadow: 0 2px 6px rgb(15 23 42 / 10%);
+}
+
+.channel-workspace {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    flex: 1;
+    width: 100%;
+    min-height: 0;
+    align-items: stretch;
+}
+
+.channel-controls,
+.channel-records {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    border: 1px solid #94a3b8;
+    border-radius: 1rem;
+    box-shadow: 0 2px 8px rgb(15 23 42 / 8%);
+}
+
+.contentContainer.channel-page-content {
+    flex: 1;
+    width: 100%;
+    min-height: 0;
+    max-width: none;
+    margin: 0;
+    box-sizing: border-box;
+    align-items: stretch;
+    justify-content: stretch;
+    padding: 16px 18px;
+}
+
+.channel-controls > #controlActions,
+.channel-controls > #addRecordPanel {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+.channel-records > .p-4 {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    gap: 0.75rem;
+    overflow: hidden;
+}
+
+.channel-records .table-scroll-sync-top,
+.channel-records .table-scroll-sync-bottom {
+    display: none;
+}
+
+.channel-records .table-wrapper {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    max-width: 100%;
+    overflow: auto;
+    border: 1px solid #94a3b8;
+    border-radius: 0.75rem;
+    background: #fff;
+}
+
+.channel-records:has(.empty-state) .table-wrapper {
+    display: none;
+}
+
+.channel-records .empty-state {
+    flex: 1;
+    min-height: 0;
+    padding: 1rem !important;
+}
+
+.channel-pagination {
+    flex: 0 0 auto;
+    margin: auto 0 0 !important;
+    padding-top: 0.5rem;
+}
+
+.channel-pagination #pagination-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+@media (min-width: 768px) {
+    .channel-workspace {
+        grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+        grid-template-rows: minmax(0, 1fr);
+    }
+}
+</style>
+@endsection
+
+@section('content')
+    <div class="min-h-screen flex flex-col bg-gradient-to-br from-pcic-100 via-white to-pcic-100 {{ $officerName ? 'channel-page-shell' : '' }}">
+
+        <div class="odHeader sticky top-0 z-20 w-full bg-white/90 backdrop-blur-md border-b border-gray-200/60 {{ $officerName ? 'channel-fixed-header' : '' }}">
+            <div class="max-w-6xl mx-auto h-full px-4 py-3 flex items-center justify-between gap-3">
                 <div class="flex items-center gap-3 min-w-0">
                     <div class="flex flex-col">
                         <h3 class="text-base font-black text-gray-900">Officer of the Day</h3>
@@ -27,7 +147,7 @@
                 @endif
             </div>
         </div>
-        <div class="contentContainer">
+        <div class="contentContainer {{ $officerName ? 'channel-page-content' : '' }}">
     @if(!$officerName)
         <div class="w-full max-w-md bg-white rounded-2xl shadow-lg border border-gray-100/80 overflow-hidden">
             <div class="px-6 pt-6 pb-4 border-b border-gray-100 bg-gradient-to-b from-pcic-50/60 to-white text-center">
@@ -54,13 +174,14 @@
             </div>
         </div>
     @else
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 w-full">
-            <div class="no-print bg-white rounded-2xl shadow-lg border border-gray-100/80 overflow-hidden">
-                <div class="px-5 py-4 border-b border-gray-100 bg-gradient-to-b from-pcic-50/60 to-white">
-                    <h3 class="text-sm font-black text-gray-900">Session</h3>
-                    <p class="text-xs text-gray-500 font-semibold mt-0.5">Status and actions</p>
-                </div>
-                <div class="px-5 py-4 flex flex-col gap-3">
+        <div class="channel-workspace gap-5 w-full">
+            <div class="channel-controls no-print bg-white rounded-2xl shadow-lg border border-gray-100/80 overflow-hidden">
+                <div id="controlActions" class="flex flex-col min-h-0 overflow-y-auto">
+                    <div class="px-5 py-4 border-b border-gray-100 bg-gradient-to-b from-pcic-50/60 to-white">
+                        <h3 class="text-sm font-black text-gray-900">Filters &amp; tools</h3>
+                        <p class="text-xs text-gray-500 font-semibold mt-0.5">Filter and manage encoded records</p>
+                    </div>
+                    <div class="od-session-body px-5 py-4 flex flex-col gap-3">
 	<div class="filter-container">
 		<form action="{{ route('officer-of-the-day') }}" method="GET">
 						<div class="date-received-container border border-gray-200 bg-gray-50 rounded-lg p-3">
@@ -81,7 +202,7 @@
 	</div>
                     @if($officerApproved)
                         <div class="px-3 py-2.5 rounded-lg bg-green-50 border border-green-200 text-green-800 text-xs font-semibold">Your login is approved. You may add records.</div>
-                        <button type="button" class="addRecordButton h-10 rounded-xl bg-green-600 text-white text-sm font-bold hover:bg-green-700 transition-colors cursor-pointer">add record</button>
+                        <button type="button" id="addRecordButton" aria-controls="addRecordPanel" aria-expanded="false" class="addRecordButton h-10 rounded-xl bg-green-600 text-white text-sm font-bold hover:bg-green-700 transition-colors cursor-pointer">Add record</button>
                         @if($records->count() > 0)
                         <a href="{{ route('officer.export-csv') }}" class="h-10 rounded-xl bg-white border border-gray-200 text-gray-700 text-sm font-bold hover:bg-gray-50 transition-colors cursor-pointer flex items-center justify-center gap-2">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -104,10 +225,92 @@
                                 <button type="button" id="submitTransmittalBtn" class="h-10 rounded-xl bg-harvest-500 text-white text-sm font-bold hover:bg-harvest-600 transition-colors cursor-pointer w-full">Submit Transmittal</button>
                             </form>
                     @endif
+                    </div>
                 </div>
+                @if($officerApproved)
+                    <div id="addRecordPanel" class="hidden bg-white overflow-y-auto" hidden>
+                        <div class="px-5 py-4 border-b border-gray-100 bg-gradient-to-b from-pcic-50/60 to-white flex items-start justify-between gap-3">
+                            <div>
+                                <h3 class="text-sm font-black text-gray-900">Add a record</h3>
+                                <p class="text-xs text-gray-500 font-semibold mt-0.5">Enter the notice details.</p>
+                            </div>
+                            <button type="button" id="returnToControlsButton" class="shrink-0 h-9 px-3 rounded-lg border border-gray-200 bg-white text-xs font-bold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer">Back to controls</button>
+                        </div>
+                        <form action="{{ route('records') }}" method="POST" enctype="multipart/form-data" class="grid grid-cols-[minmax(100px,auto)_minmax(0,1fr)] gap-x-3 gap-y-3 px-5 py-4 items-center" id="addRecordForm">
+                            @csrf
+                            <input type="hidden" name="source" value="OD">
+                            <label for="farmerName" class="text-xs font-bold text-gray-600 text-right">Farmer Name:</label>
+                            <input type="text" id="farmerName" name="farmerName" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
+                            <label for="province" class="text-xs font-bold text-gray-600 text-right">Province:</label>
+                            <select name="province" id="province" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
+                                <option value="">Select Province</option>
+                                <option value="Aurora">Aurora</option>
+                                <option value="Nueva Ecija">Nueva Ecija</option>
+                                <option value="Tarlac">Tarlac</option>
+                            </select>
+                            <label for="municipality" class="text-xs font-bold text-gray-600 text-right">Municipality:</label>
+                            <select name="municipality" id="municipality" required disabled class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-gray-50 uppercase">
+                                <option value="">Select Municipality</option>
+                            </select>
+                            <label for="barangay" class="text-xs font-bold text-gray-600 text-right">Barangay:</label>
+                            <select name="barangay" id="barangay" required disabled class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-gray-50 uppercase">
+                                <option value="">Select Barangay</option>
+                            </select>
+                            <input type="hidden" name="address" id="addRecordAddress">
+                            <label for="line" class="text-xs font-bold text-gray-600 text-right">Line:</label>
+                            <select name="line" id="line" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
+                                <option value="">Select Line</option>
+                                <option value="rice">rice</option>
+                                <option value="corn">corn</option>
+                                <option value="high-value">High-Value Crops</option>
+                                <option value="clti">CLTI</option>
+                                <option value="livestock">Livestock</option>
+                                <option value="non-crop">Non-Crop</option>
+                                <option value="fisheries">Fisheries</option>
+                            </select>
+                            <label for="program" class="text-xs font-bold text-gray-600 text-right">Program:</label>
+                            <select name="program" id="program" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
+                                <option value="">Select Program</option>
+                                <option value="RSBSA">RSBSA</option>
+                                <option value="AGRI-SENSO">AGRI-SENSO</option>
+                                <option value="ACEF">ACEF</option>
+                                <option value="ANYO">ANYO</option>
+                                <option value="OTHER-LI LC">OTHER-LI LC</option>
+                                <option value="OTHER-LBP ACP">OTHER-LBP ACP</option>
+                                <option value="REGULAR">REGULAR</option>
+                                <option value="SELF-FINANCED">SELF-FINANCED</option>
+                                <option value="CFITF">CFITF</option>
+                                <option value="CFITF-CIP">CFITF-CIP</option>
+                            </select>
+                            <label for="date_occurrence" class="text-xs font-bold text-gray-600 text-right">Date occurrence:</label>
+                            <input type="text" id="date_occurrence" name="date_occurrence" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
+                            <label for="date_received" class="text-xs font-bold text-gray-600 text-right">Date received:</label>
+                            <input type="date" id="date_received" name="date_received" value="{{ now()->format('Y-m-d') }}" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
+                            <label for="causeOfDamage" class="text-xs font-bold text-gray-600 text-right">Cause of Damage:</label>
+                            <input type="text" id="causeOfDamage" name="causeOfDamage" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
+                            <label for="modeOfPayment" class="text-xs font-bold text-gray-600 text-right">Mode of payment:</label>
+                            <select name="modeOfPayment" id="modeOfPayment" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
+                                <option value="">Select Mode of payment</option>
+                                <option value="check">Check</option>
+                                <option value="palawan">Palawan Pay</option>
+                                <option value="gcash">GCash</option>
+                                <option value="not_indicated">Not indicated</option>
+                            </select>
+                            <label for="remarks" class="text-xs font-bold text-gray-600 text-right">Remarks - Care of:</label>
+                            <input type="text" id="remarks" name="remarks" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
+                            <label for="controlNumber" class="text-xs font-bold text-gray-600 text-right">Control Number:</label>
+                            <input type="text" id="controlNumber" name="control_number" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
+                            <div></div>
+                            <div class="flex gap-2 pt-1">
+                                <button type="submit" class="h-9 px-4 rounded-lg bg-pcic-700 text-white text-xs font-bold hover:bg-pcic-800 transition-colors cursor-pointer">Add record</button>
+                                <button type="button" id="cancelAddRecordButton" class="h-9 px-4 rounded-lg border border-gray-200 text-xs font-bold text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                @endif
             </div>
 
-            <div class="lg:col-span-2 bg-white rounded-2xl shadow-lg border border-gray-100/80 overflow-hidden">
+            <div class="channel-records bg-white rounded-2xl shadow-lg border border-gray-100/80 overflow-hidden">
                 <div class="px-5 py-4 border-b border-gray-100 bg-gradient-to-b from-pcic-50/60 to-white">
                     <h3 class="text-sm font-black text-gray-900">Records</h3>
                     <p class="text-xs text-gray-500 font-semibold mt-0.5">Latest encoded NLs</p>
@@ -115,7 +318,7 @@
                 <div class="p-4 overflow-x-auto">
                     <x-table :records="$records" :showDelete="false" :showCheckbox="false" :showSortableHeaders="false" :hideAccountsColumn="true" :hideSourceColumn="true" :hideProvinceColumn="true" :useDateEncodedAsDateReceived="false" :showFilters="false" />
                     @if(method_exists($records, 'links'))
-                        <div class="no-print" style="margin: 10px 0; text-align: center;">
+                        <div class="channel-pagination no-print" style="margin: 10px 0; text-align: center;">
                             <div id="pagination-container" style="display: flex; justify-content: center; align-items: center; gap: 12px;">
                                 @if ($records->onFirstPage())
                                     <span style="padding: 8px 16px; border-radius: 8px; background: #f1f5f9; color: #94a3b8; font-size: 14px; font-weight: 500; border: 1px solid #e2e8f0;">Previous</span>
@@ -138,98 +341,6 @@
                 </div>
             </div>
         </div>
-
-
-        <div id="addRecordBackdrop" class="fixed inset-0 bg-gray-900/50 z-[9998] hidden" style="display: none;"></div>
-
-
-        <div id="addRecordDialog" class="addRecordDialog rounded-2xl shadow-2xl bg-white p-0 w-[min(640px,calc(100vw-2rem))] fixed z-[9999] hidden" style="display: none; position: absolute; z-index: 9999;">
-            <div id="addRecordDialogheader" class="px-5 pt-5 pb-3 border-b border-gray-100 cursor-move">
-                <h3 class="text-base font-black text-gray-900">Add record</h3>
-            </div>
-            <form action="{{ route('records') }}" method="POST" enctype="multipart/form-data" class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-3 px-5 py-4 items-center" id="addRecordForm">
-                @csrf
-                <input type="hidden" name="source" value="OD">
-            <label for="farmerName" class="text-xs font-bold text-gray-600 text-right">Farmer Name:</label>
-            <input type="text" id="farmerName" name="farmerName" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
-            <label for="province" class="text-xs font-bold text-gray-600 text-right">Province:</label>
-            <select name="province" id="province" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
-                <option value="">Select Province</option>
-                <option value="Aurora">Aurora</option>
-                <option value="Nueva Ecija">Nueva Ecija</option>
-                <option value="Tarlac">Tarlac</option>
-            </select>
-            <label for="municipality" class="text-xs font-bold text-gray-600 text-right">Municipality:</label>
-            <select name="municipality" id="municipality" required disabled class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-gray-50 uppercase">
-                <option value="">Select Municipality</option>
-            </select>
-            <label for="barangay" class="text-xs font-bold text-gray-600 text-right">Barangay:</label>
-            <select name="barangay" id="barangay" required disabled class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-gray-50 uppercase">
-                <option value="">Select Barangay</option>
-            </select>
-            <input type="hidden" name="address" id="addRecordAddress">
-            <label for="line" class="text-xs font-bold text-gray-600 text-right">Line:</label>
-            <select name="line" id="line" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
-                <option value="">Select Line</option>
-                <option value="rice">rice</option>
-                <option value="corn">corn</option>
-                <option value="high-value">High-Value Crops</option>
-                <option value="clti">CLTI</option>
-                <option value="livestock">Livestock</option>
-                <option value="non-crop">Non-Crop</option>
-                <option value="fisheries">Fisheries</option>
-            </select>
-            <label for="program" class="text-xs font-bold text-gray-600 text-right">Program:</label>
-            <select name="program" id="program" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
-                <option value="">Select Program</option>
-                <option value="RSBSA">RSBSA</option>
-                <option value="AGRI-SENSO">AGRI-SENSO</option>
-                <option value="ACEF">ACEF</option>
-                <option value="ANYO">ANYO</option>
-                <option value="OTHER-LI LC">OTHER-LI LC</option>
-                <option value="OTHER-LBP ACP">OTHER-LBP ACP</option>
-                <option value="REGULAR">REGULAR</option>
-                <option value="SELF-FINANCED">SELF-FINANCED</option>
-                <option value="CFITF">CFITF</option>
-                <option value="CFITF-CIP">CFITF-CIP</option>
-            </select>
-            <label for="date_occurrence" class="text-xs font-bold text-gray-600 text-right">Date occurrence:</label>
-            <input type="text" id="date_occurrence" name="date_occurrence" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
-            <label for="date_received" class="text-xs font-bold text-gray-600 text-right">Date received:</label>
-            <input type="date" id="date_received" name="date_received" value="{{ now()->format('Y-m-d') }}" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
-            <label for="causeOfDamage" class="text-xs font-bold text-gray-600 text-right">Cause of Damage:</label>
-            <input type="text" id="causeOfDamage" name="causeOfDamage" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
-            <label for="modeOfPayment" class="text-xs font-bold text-gray-600 text-right">Mode of payment:</label>
-            <select name="modeOfPayment" id="modeOfPayment" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
-                <option value="">Select Mode of payment</option>
-                <option value="check">Check</option>
-                <option value="palawan">Palawan Pay</option>
-                <option value="gcash">GCash</option>
-                <option value="not_indicated">Not indicated</option>
-            </select>
-            <label for="remarks" class="text-xs font-bold text-gray-600 text-right">Remarks - Care of:</label>
-            <input type="text" id="remarks" name="remarks" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
-            <label for="controlNumber" class="text-xs font-bold text-gray-600 text-right">Control Number:</label>
-            <input type="text" id="controlNumber" name="control_number" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
-            <label for="noticeImages" class="text-xs font-bold text-gray-600 text-right">Notice / claim photos:</label>
-            <div class="flex flex-col gap-2">
-                <input type="file" id="noticeImages" name="notice_images[]" accept="image/jpeg,image/png,image/webp" multiple class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700">
-                <button type="button" class="clear-add-notice-image-selection w-fit rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50" hidden>Clear selected photos</button>
-                <span class="text-xs text-gray-500">JPG, PNG, or WebP. Maximum 30 MB per photo.</span>
-            </div>
-            <label for="noticePdfs" class="text-xs font-bold text-gray-600 text-right">Supporting PDFs:</label>
-            <div class="flex flex-col gap-2">
-                <input type="file" id="noticePdfs" name="notice_pdfs[]" accept="application/pdf,.pdf" multiple class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700">
-                <button type="button" class="clear-add-notice-pdf-selection w-fit rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50" hidden>Clear selected PDFs</button>
-                <span class="text-xs text-gray-500">PDF only. Maximum 30 MB per file.</span>
-            </div>
-            <div></div>
-            <div class="flex gap-2 pt-1">
-                <button type="submit" class="h-9 px-4 rounded-lg bg-pcic-700 text-white text-xs font-bold hover:bg-pcic-800 transition-colors cursor-pointer">Add record</button>
-                <button type="button" class="closeAddRecordModal h-9 px-4 rounded-lg border border-gray-200 text-xs font-bold text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer">Close</button>
-            </div>
-        </form>
-    </div>
 
     <dialog id="transmittalDialog" class="rounded-2xl shadow-2xl bg-white backdrop:bg-black/40 p-0 w-[min(400px,calc(100vw-2rem))]">
         <div class="px-5 pt-5 pb-3 border-b border-gray-100">
@@ -255,7 +366,7 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success && data.record) {
-                        const form = document.querySelector('#addRecordDialog form');
+                        const form = document.querySelector('#addRecordPanel form');
                         if (form) {
                             if (form.querySelector('#farmerName')) form.querySelector('#farmerName').value = '';
                             if (form.querySelector('#line')) form.querySelector('#line').value = '';
@@ -310,13 +421,27 @@
                 addRecordForm.addEventListener('submit', function(e) {
                     e.preventDefault();
 
+                    const provinceField = addRecordForm.querySelector('#province');
+                    const municipalityField = addRecordForm.querySelector('#municipality');
+                    const barangayField = addRecordForm.querySelector('#barangay');
+                    const addressField = addRecordForm.querySelector('#addRecordAddress');
+                    if (addressField) {
+                        addressField.value = [barangayField?.value, municipalityField?.value, provinceField?.value]
+                            .filter(Boolean)
+                            .join(', ');
+                    }
+
+                    if (provinceField && municipalityField && barangayField) {
+                        localStorage.setItem('od_province', provinceField.value);
+                        localStorage.setItem('od_municipality', municipalityField.value);
+                        localStorage.setItem('od_barangay', barangayField.value);
+                    }
+
                     const dateReceivedValue = addRecordForm.querySelector('#date_received') ? addRecordForm.querySelector('#date_received').value : '';
                     const modeOfPaymentValue = addRecordForm.querySelector('#modeOfPayment') ? addRecordForm.querySelector('#modeOfPayment').value : '';
                     const provinceValue = addRecordForm.querySelector('#province') ? addRecordForm.querySelector('#province').value : '';
                     const municipalityValue = addRecordForm.querySelector('#municipality') ? addRecordForm.querySelector('#municipality').value : '';
                     const barangayValue = addRecordForm.querySelector('#barangay') ? addRecordForm.querySelector('#barangay').value : '';
-                    const accountsValue = addRecordForm.querySelector('#accounts') ? addRecordForm.querySelector('#accounts').value : '';
-                    const facebookPageUrlValue = addRecordForm.querySelector('#facebook_page_url') ? addRecordForm.querySelector('#facebook_page_url').value : '';
                     const controlNumberValue = addRecordForm.querySelector('#controlNumber') ? addRecordForm.querySelector('#controlNumber').value : '';
 
                     const formData = new FormData(addRecordForm);
@@ -343,8 +468,6 @@
                             if (addRecordForm.querySelector('#province')) addRecordForm.querySelector('#province').value = provinceValue;
                             if (addRecordForm.querySelector('#municipality')) addRecordForm.querySelector('#municipality').value = municipalityValue;
                             if (addRecordForm.querySelector('#barangay')) addRecordForm.querySelector('#barangay').value = barangayValue;
-                            if (addRecordForm.querySelector('#accounts')) addRecordForm.querySelector('#accounts').value = accountsValue;
-                            if (addRecordForm.querySelector('#facebook_page_url')) addRecordForm.querySelector('#facebook_page_url').value = facebookPageUrlValue;
                             if (addRecordForm.querySelector('#controlNumber')) addRecordForm.querySelector('#controlNumber').value = controlNumberValue;
 
                             if (addRecordForm.querySelector('#farmerName')) addRecordForm.querySelector('#farmerName').value = '';
@@ -353,11 +476,6 @@
                             if (addRecordForm.querySelector('#causeOfDamage')) addRecordForm.querySelector('#causeOfDamage').value = '';
                             if (addRecordForm.querySelector('#date_occurrence')) addRecordForm.querySelector('#date_occurrence').value = '';
                             if (addRecordForm.querySelector('#remarks')) addRecordForm.querySelector('#remarks').value = '';
-                            if (addRecordForm.querySelector('#noticeImages')) addRecordForm.querySelector('#noticeImages').value = '';
-                            if (addRecordForm.querySelector('#noticePdfs')) addRecordForm.querySelector('#noticePdfs').value = '';
-                            addRecordForm.querySelector('.clear-add-notice-image-selection')?.setAttribute('hidden', '');
-                            addRecordForm.querySelector('.clear-add-notice-pdf-selection')?.setAttribute('hidden', '');
-
                             setTimeout(function() {
                                 fetch(window.location.href, {
                                     headers: {
@@ -437,7 +555,6 @@
         <form class="editRecordform grid grid-cols-[auto_1fr] gap-x-4 gap-y-3 px-5 py-4 items-center" id="recordEditForm" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
-            <input type="hidden" name="remove_notice_pdf" value="0">
             <input type="hidden" name="source" value="OD" id="editRecordSourceOd">
             <label for="farmerName" class="text-xs font-bold text-gray-600 text-right">Farmer Name:</label>
             <input type="text" id="farmerName" name="farmerName" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
@@ -500,23 +617,6 @@
             <input type="text" id="remarks" name="remarks" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
             <label for="controlNumber" class="text-xs font-bold text-gray-600 text-right">Control Number:</label>
             <input type="text" id="controlNumber" name="control_number" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
-            <label for="editNoticeImages" class="text-xs font-bold text-gray-600 text-right">Notice / claim photos:</label>
-            <div class="flex flex-col gap-2">
-                <input type="file" id="editNoticeImages" name="notice_images[]" accept="image/jpeg,image/png,image/webp" multiple class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700">
-                <button type="button" class="clear-notice-image-selection w-fit rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50" hidden>Clear selected photos</button>
-                <div id="editNoticeImageAttachments" class="flex flex-col gap-2"></div>
-                <button type="button" id="viewEditNoticeImages" class="notice-image-view-btn w-fit" data-image-urls="[]" data-farmer-name="" hidden>View / Print all photos</button>
-                <span id="editNoticeImageStatus" class="text-xs text-gray-500"></span>
-                <span class="text-xs text-gray-500">JPG, PNG, or WebP. Maximum 30 MB per photo. Existing photos are kept unless removed.</span>
-            </div>
-            <label for="editNoticePdfs" class="text-xs font-bold text-gray-600 text-right">Supporting PDFs:</label>
-            <div class="flex flex-col gap-2">
-                <input type="file" id="editNoticePdfs" name="notice_pdfs[]" accept="application/pdf,.pdf" multiple class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700">
-                <button type="button" class="clear-notice-pdf-selection w-fit rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50" hidden>Clear selected PDFs</button>
-                <div id="editNoticePdfAttachments" class="flex flex-col gap-2"></div>
-                <span id="editNoticePdfStatus" class="text-xs text-gray-500"></span>
-                <span class="text-xs text-gray-500">PDF only. Maximum 30 MB per file. Existing PDFs are kept unless removed.</span>
-            </div>
             <div></div>
             <div class="flex gap-2 pt-1">
                 <button type="submit" class="h-9 px-4 rounded-lg bg-pcic-700 text-white text-xs font-bold hover:bg-pcic-800 transition-colors cursor-pointer">Update Record</button>
