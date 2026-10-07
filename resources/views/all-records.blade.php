@@ -923,18 +923,23 @@ body.dark-mode.public-records-page .table-wrapper table tbody tr:hover {
                                 $record->source === 'Facebook'
                                 && (bool) session('facebook_logged_in', false)
                                 && (string) session('facebook_user_id') === (string) $record->encoder_id
+                            )
+                            || (
+                                $record->source === 'OD'
+                                && filled(session('officer_name'))
+                                && (string) session('officer_id') === (string) $record->encoder_id
                             );
                     @endphp
                     <tr>
                         <td>
                             <button class="view-btn" onclick="viewRecord({{ $record->id }})">View</button>
-                            @if ($record->notice_image_path && $canViewNoticeImage)
+                            @if ($record->attachments->where('type', 'image')->isNotEmpty() && $canViewNoticeImage)
                                 <button
                                     type="button"
                                     class="notice-image-view-btn"
-                                    data-image-url="{{ route('admin.records.notice-image', $record) }}"
+                                    data-image-urls="{{ $record->attachments->where('type', 'image')->map(fn ($attachment) => route('records.attachments.show', [$record, $attachment]))->values()->toJson() }}"
                                     data-farmer-name="{{ $record->farmerName }}"
-                                >View / Print image</button>
+                                >View / Print photos</button>
                             @endif
                         </td>
                         <td><span class="farmer-name-copy cursor-pointer" style="user-select: none; transition: color 0.2s;" data-farmer-name="{{ e($record->farmerName) }}" title="Click to copy farmer name">{{ $record->farmerName }}</span></td>

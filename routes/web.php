@@ -66,6 +66,7 @@ Route::delete('/admin/officers/{id}', [RoutesController::class, 'deleteOfficer']
 
 Route::post('/records', [RecordsController::class, 'storeRecord'])->name('records');
 Route::get('/admin/records/{record}/notice-image', [RecordsController::class, 'showNoticeImage'])->name('admin.records.notice-image');
+Route::get('/records/{record}/attachments/{attachment}', [RecordsController::class, 'showAttachment'])->name('records.attachments.show');
 Route::post('/records/submit-transmittal', [RoutesController::class, 'submitTransmittal'])->name('records.submit-transmittal');
 Route::get('/records/latest', [RecordsController::class, 'getLatestRecord'])->name('records.latest');
 Route::get('/officer/export-csv', [RoutesController::class, 'exportOfficerCsv'])->name('officer.export-csv');

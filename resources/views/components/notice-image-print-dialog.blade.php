@@ -4,87 +4,104 @@
         <button type="button" class="notice-image-dialog-close" aria-label="Close image preview">&times;</button>
     </div>
     <div class="notice-image-dialog-content">
-        <img id="noticeImagePreview" alt="Uploaded notice of loss or claim">
-        <p id="noticeImagePreviewError" hidden role="alert" class="text-sm font-semibold text-red-700">Unable to load this image. It may have been moved or deleted; refresh the page and try again.</p>
+        <div id="noticeImagePreviewGallery" class="notice-image-gallery"></div>
+        <p id="noticeImagePreviewError" hidden role="alert" class="text-sm font-semibold text-red-700">Unable to load every photo. Refresh the page and try again before printing.</p>
     </div>
     <div class="notice-image-dialog-actions">
         <button type="button" class="notice-image-dialog-close secondary">Close</button>
-        <button type="button" id="printNoticeImageButton" class="primary">Print image</button>
+        <button type="button" id="printNoticeImageButton" class="primary" disabled>Print photos</button>
     </div>
 </dialog>
 
 <script data-public-content-script>
 window.initializeNoticeImagePrintDialog = function () {
     const dialog = document.getElementById('noticeImagePrintDialog');
-    const preview = document.getElementById('noticeImagePreview');
+    const gallery = document.getElementById('noticeImagePreviewGallery');
     const previewError = document.getElementById('noticeImagePreviewError');
     const title = document.getElementById('noticeImageDialogTitle');
     const printButton = document.getElementById('printNoticeImageButton');
 
-    if (!dialog || !preview || !previewError || !title || !printButton) {
+    if (!dialog || !gallery || !previewError || !title || !printButton || dialog.dataset.initialized) {
         return;
     }
+    dialog.dataset.initialized = 'true';
 
-    preview.addEventListener('load', function () {
-        previewError.hidden = true;
-    });
+    let previewImages = [];
 
-    preview.addEventListener('error', function () {
-        preview.hidden = true;
-        previewError.hidden = false;
-    });
+    function updatePrintButton() {
+        const allImagesReady = previewImages.length > 0 && previewImages.every(image => image.complete && image.naturalWidth > 0);
+        printButton.disabled = !allImagesReady;
+        previewError.hidden = !previewImages.some(image => image.dataset.failed === 'true');
+    }
 
-    dialog.addEventListener('close', function () {
-        preview.removeAttribute('src');
-        preview.hidden = false;
-        previewError.hidden = true;
-    });
-
-    printButton.addEventListener('click', function () {
-        if (!preview.complete || preview.naturalWidth === 0) {
-            console.error('The notice image is not ready to print.');
+    function openGallery(button) {
+        let imageUrls = [];
+        try {
+            imageUrls = JSON.parse(button.dataset.imageUrls || '[]');
+        } catch (error) {
+            console.error('Unable to read notice image URLs.', error);
+        }
+        if (!Array.isArray(imageUrls) || imageUrls.length === 0) {
+            imageUrls = button.dataset.imageUrl ? [button.dataset.imageUrl] : [];
+        }
+        imageUrls = imageUrls.filter(url => typeof url === 'string' && url !== '');
+        if (imageUrls.length === 0) {
+            console.error('No notice photos are available to preview.');
             if (typeof window.showModalMessage === 'function') {
-                window.showModalMessage('The notice image could not be loaded for printing.', 'error');
+                window.showModalMessage('No photos are available to preview.', 'error');
             }
-
             return;
         }
 
+        gallery.replaceChildren();
+        previewImages = imageUrls.map((url, index) => {
+            const image = document.createElement('img');
+            image.alt = `Uploaded notice of loss or claim, photo ${index + 1} of ${imageUrls.length}`;
+            image.addEventListener('load', updatePrintButton);
+            image.addEventListener('error', function () {
+                image.dataset.failed = 'true';
+                updatePrintButton();
+            });
+            gallery.append(image);
+            image.src = url;
+            return image;
+        });
+
+        previewError.hidden = true;
+        title.textContent = `Notice of loss / claim — ${button.dataset.farmerName || ''}`;
+        printButton.disabled = true;
+        dialog.showModal();
+        updatePrintButton();
+    }
+
+    printButton.addEventListener('click', function () {
+        if (printButton.disabled) {
+            return;
+        }
         window.print();
     });
 
-    if (!window.noticeImagePrintDelegationBound) {
-        document.addEventListener('click', function (event) {
-            const viewButton = event.target.closest('.notice-image-view-btn');
-            if (viewButton) {
-                const activeDialog = document.getElementById('noticeImagePrintDialog');
-                const activePreview = document.getElementById('noticeImagePreview');
-                const activeTitle = document.getElementById('noticeImageDialogTitle');
-                if (!activeDialog || !activePreview || !activeTitle) {
-                    return;
-                }
+    dialog.addEventListener('close', function () {
+        gallery.replaceChildren();
+        previewImages = [];
+        previewError.hidden = true;
+        printButton.disabled = true;
+    });
 
-                event.preventDefault();
-                event.stopPropagation();
-                activePreview.hidden = false;
-                activePreview.src = viewButton.dataset.imageUrl;
-                activeTitle.textContent = `Notice of loss / claim — ${viewButton.dataset.farmerName}`;
-                activeDialog.showModal();
-                return;
-            }
+    document.addEventListener('click', function (event) {
+        const viewButton = event.target.closest('.notice-image-view-btn');
+        if (viewButton) {
+            event.preventDefault();
+            event.stopPropagation();
+            openGallery(viewButton);
+            return;
+        }
 
-            const closeButton = event.target.closest('.notice-image-dialog-close');
-            const activeDialog = document.getElementById('noticeImagePrintDialog');
-            if (closeButton && activeDialog?.open) {
-                activeDialog.close();
-            }
-
-            if (event.target === activeDialog && activeDialog?.open) {
-                activeDialog.close();
-            }
-        });
-        window.noticeImagePrintDelegationBound = true;
-    }
+        const closeButton = event.target.closest('.notice-image-dialog-close');
+        if ((closeButton || event.target === dialog) && dialog.open) {
+            dialog.close();
+        }
+    });
 };
 window.initializeNoticeImagePrintDialog();
 </script>
@@ -133,10 +150,17 @@ window.initializeNoticeImagePrintDialog();
     background: #f8fafc;
 }
 
-.notice-image-dialog-content img {
+.notice-image-gallery {
+    display: grid;
+    width: 100%;
+    gap: 16px;
+}
+
+.notice-image-gallery img {
     display: block;
     max-width: 100%;
     max-height: 66vh;
+    margin: 0 auto;
     object-fit: contain;
 }
 
@@ -158,6 +182,11 @@ window.initializeNoticeImagePrintDialog();
 .notice-image-dialog-actions .primary {
     background: #006c35;
     color: white;
+}
+
+.notice-image-dialog-actions .primary:disabled {
+    cursor: not-allowed;
+    opacity: .55;
 }
 
 .notice-image-dialog-actions .secondary,
@@ -232,13 +261,25 @@ window.initializeNoticeImagePrintDialog();
         background: white;
     }
 
-    #noticeImagePrintDialog .notice-image-dialog-content img {
+    #noticeImagePrintDialog .notice-image-gallery {
+        display: block;
+    }
+
+    #noticeImagePrintDialog .notice-image-gallery img {
         display: block;
         width: 100%;
-        height: 100%;
+        height: calc(100vh - 0.5in);
         max-width: none;
         max-height: none;
+        margin: 0;
         object-fit: contain;
+        break-after: page;
+        page-break-after: always;
+    }
+
+    #noticeImagePrintDialog .notice-image-gallery img:last-child {
+        break-after: auto;
+        page-break-after: auto;
     }
 }
 </style>

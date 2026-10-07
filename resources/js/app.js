@@ -1,22 +1,109 @@
 document.addEventListener('DOMContentLoaded', function () {
+    const fileControls = {
+        image: {
+            editInput: '#recordEditForm input[type="file"][name="notice_images[]"]',
+            addClear: '.clear-add-notice-image-selection',
+            editClear: '.clear-notice-image-selection',
+            attachmentList: '#editNoticeImageAttachments',
+            status: '#editNoticeImageStatus',
+        },
+        pdf: {
+            editInput: '#recordEditForm input[type="file"][name="notice_pdfs[]"]',
+            addClear: '.clear-add-notice-pdf-selection',
+            editClear: '.clear-notice-pdf-selection',
+            attachmentList: '#editNoticePdfAttachments',
+            status: '#editNoticePdfStatus',
+        },
+    };
+
+    function parseAttachmentData(value) {
+        try {
+            const attachments = JSON.parse(value || '[]');
+            return Array.isArray(attachments) ? attachments : [];
+        } catch (error) {
+            console.error('Unable to read record attachments.', error);
+            return null;
+        }
+    }
+
+    function renderExistingAttachments(form, type, attachments, farmerName) {
+        const controls = fileControls[type];
+        const list = form.querySelector(controls.attachmentList);
+        const status = form.querySelector(controls.status);
+        const viewAllButton = type === 'image' ? form.querySelector('#viewEditNoticeImages') : null;
+        if (!list || !status) {
+            return;
+        }
+
+        list.replaceChildren();
+        const currentAttachments = Array.isArray(attachments)
+            ? attachments.filter(attachment => attachment && attachment.id && attachment.url)
+            : [];
+
+        currentAttachments.forEach(attachment => {
+            const row = document.createElement('div');
+            row.className = 'flex items-center gap-2 text-xs';
+
+            const name = document.createElement('span');
+            name.className = 'min-w-0 flex-1 truncate text-gray-700';
+            name.textContent = attachment.name || (type === 'image' ? 'Photo' : 'PDF');
+            row.append(name);
+
+            if (type === 'pdf') {
+                const link = document.createElement('a');
+                link.href = attachment.url;
+                link.target = '_blank';
+                link.rel = 'noopener';
+                link.className = 'font-bold text-green-800 underline';
+                link.textContent = 'View / Print';
+                row.append(link);
+            }
+
+            const removeButton = document.createElement('button');
+            removeButton.type = 'button';
+            removeButton.className = 'remove-record-attachment rounded border border-red-200 px-2 py-1 font-bold text-red-700 hover:bg-red-50';
+            removeButton.dataset.attachmentId = attachment.id;
+            removeButton.textContent = 'Remove';
+            row.append(removeButton);
+            list.append(row);
+        });
+
+        status.textContent = !Array.isArray(attachments)
+            ? 'Unable to load current attachments. Refresh and try again.'
+            : currentAttachments.length
+            ? `${currentAttachments.length} existing ${type === 'image' ? 'photo(s)' : 'PDF(s)'}.`
+            : `No existing ${type === 'image' ? 'photos' : 'PDFs'}.`;
+
+        if (viewAllButton) {
+            viewAllButton.dataset.imageUrls = JSON.stringify(currentAttachments.map(attachment => attachment.url));
+            viewAllButton.dataset.farmerName = farmerName;
+            viewAllButton.hidden = !Array.isArray(attachments) || currentAttachments.length === 0;
+        }
+    }
+
     document.addEventListener('change', function (event) {
-        const uploadInput = event.target.closest('#addRecordForm input[type="file"][name="notice_image"], #addRecordForm input[type="file"][name="notice_pdf"]');
+        const uploadInput = event.target.closest('#addRecordForm input[type="file"][name="notice_images[]"], #addRecordForm input[type="file"][name="notice_pdfs[]"], #recordEditForm input[type="file"][name="notice_images[]"], #recordEditForm input[type="file"][name="notice_pdfs[]"]');
         if (!uploadInput) {
             return;
         }
 
-        const clearClass = uploadInput.name === 'notice_pdf'
-            ? '.clear-add-notice-pdf-selection'
-            : '.clear-add-notice-image-selection';
-        const clearButton = uploadInput.form?.querySelector(clearClass);
+        const type = uploadInput.name === 'notice_pdfs[]' ? 'pdf' : 'image';
+        const controls = fileControls[type];
+        const isEditForm = uploadInput.form?.id === 'recordEditForm';
+        const clearButton = uploadInput.form?.querySelector(isEditForm ? controls.editClear : controls.addClear);
         if (clearButton) {
             clearButton.hidden = !uploadInput.files?.length;
         }
 
-        if (uploadInput.name === 'notice_pdf') {
-            const removeInput = uploadInput.form?.querySelector('[name="remove_notice_pdf"]');
-            if (removeInput && uploadInput.files?.length) {
-                removeInput.value = '0';
+        if (isEditForm) {
+            const status = uploadInput.form.querySelector(controls.status);
+            if (status) {
+                const files = Array.from(uploadInput.files || []);
+                status.textContent = files.length
+                    ? `${files.length} new ${type === 'image' ? 'photo(s)' : 'PDF(s)'} selected.`
+                    : uploadInput.form.querySelector(controls.attachmentList)?.children.length
+                        ? `${uploadInput.form.querySelector(controls.attachmentList).children.length} existing ${type === 'image' ? 'photo(s)' : 'PDF(s)'}.`
+                        : `No existing ${type === 'image' ? 'photos' : 'PDFs'}.`;
             }
         }
     });
@@ -25,8 +112,10 @@ document.addEventListener('DOMContentLoaded', function () {
         const addClearButton = event.target.closest('.clear-add-notice-image-selection, .clear-add-notice-pdf-selection');
         if (addClearButton) {
             const form = addClearButton.closest('#addRecordForm');
-            const fieldName = addClearButton.classList.contains('clear-add-notice-pdf-selection') ? 'notice_pdf' : 'notice_image';
-            const uploadInput = form?.querySelector(`input[type="file"][name="${fieldName}"]`);
+            const selector = addClearButton.classList.contains('clear-add-notice-pdf-selection')
+                ? 'input[type="file"][name="notice_pdfs[]"]'
+                : 'input[type="file"][name="notice_images[]"]';
+            const uploadInput = form?.querySelector(selector);
             if (uploadInput) {
                 uploadInput.value = '';
                 addClearButton.hidden = true;
@@ -37,83 +126,63 @@ document.addEventListener('DOMContentLoaded', function () {
         const editButton = event.target.closest('.editButton');
         if (editButton) {
             const editForm = document.getElementById('recordEditForm');
-            const pdfInput = editForm?.querySelector('#editNoticePdf');
-            const pdfStatus = editForm?.querySelector('#editNoticePdfStatus');
-            const removePdfInput = editForm?.querySelector('[name="remove_notice_pdf"]');
-            const removePdfButton = editForm?.querySelector('#removeNoticePdfButton');
-            const clearPdfButton = editForm?.querySelector('.clear-notice-pdf-selection');
-            const pdfName = editButton.dataset.noticePdfName || '';
-
-            if (editForm && pdfInput && pdfStatus && removePdfInput && removePdfButton && clearPdfButton) {
-                editForm.dataset.noticePdfName = pdfName;
-                pdfInput.value = '';
-                pdfStatus.textContent = pdfName ? `Current PDF: ${pdfName}` : 'No PDF currently attached.';
-                removePdfInput.value = '0';
-                removePdfButton.hidden = !pdfName;
-                clearPdfButton.hidden = true;
+            if (editForm) {
+                editForm.querySelectorAll('[name="remove_attachment_ids[]"]').forEach(input => input.remove());
+                Object.entries(fileControls).forEach(([type, controls]) => {
+                    const input = editForm.querySelector(controls.editInput);
+                    const clearButton = editForm.querySelector(controls.editClear);
+                    if (input) {
+                        input.value = '';
+                    }
+                    if (clearButton) {
+                        clearButton.hidden = true;
+                    }
+                    renderExistingAttachments(
+                        editForm,
+                        type,
+                        parseAttachmentData(editButton.dataset[type === 'image' ? 'noticeImages' : 'noticePdfs']),
+                        editButton.dataset.farmerName || ''
+                    );
+                });
             }
             return;
         }
 
-        const clearPdfButton = event.target.closest('.clear-notice-pdf-selection');
-        if (clearPdfButton) {
-            const editForm = clearPdfButton.closest('#recordEditForm');
-            const pdfInput = editForm?.querySelector('#editNoticePdf');
-            const pdfStatus = editForm?.querySelector('#editNoticePdfStatus');
-            const removePdfInput = editForm?.querySelector('[name="remove_notice_pdf"]');
-            const removeCurrentButton = editForm?.querySelector('#removeNoticePdfButton');
-            if (pdfInput && pdfStatus && removePdfInput && removeCurrentButton) {
-                pdfInput.value = '';
-                clearPdfButton.hidden = true;
-                removePdfInput.value = '0';
-                pdfStatus.textContent = editForm.dataset.noticePdfName
-                    ? `Current PDF: ${editForm.dataset.noticePdfName}`
-                    : 'No PDF currently attached.';
-                removeCurrentButton.hidden = !editForm.dataset.noticePdfName;
+        const editClearButton = event.target.closest('.clear-notice-image-selection, .clear-notice-pdf-selection');
+        if (editClearButton) {
+            const editForm = editClearButton.closest('#recordEditForm');
+            const type = editClearButton.classList.contains('clear-notice-pdf-selection') ? 'pdf' : 'image';
+            const controls = fileControls[type];
+            const input = editForm?.querySelector(controls.editInput);
+            const status = editForm?.querySelector(controls.status);
+            if (input) {
+                input.value = '';
             }
-            return;
-        }
-
-        const removePdfButton = event.target.closest('#removeNoticePdfButton');
-        if (removePdfButton) {
-            const editForm = removePdfButton.closest('#recordEditForm');
-            const removePdfInput = editForm?.querySelector('[name="remove_notice_pdf"]');
-            const pdfStatus = editForm?.querySelector('#editNoticePdfStatus');
-            const pdfInput = editForm?.querySelector('#editNoticePdf');
-            const clearPdfButton = editForm?.querySelector('.clear-notice-pdf-selection');
-            if (removePdfInput && pdfStatus && pdfInput && clearPdfButton) {
-                removePdfInput.value = '1';
-                pdfInput.value = '';
-                clearPdfButton.hidden = true;
-                pdfStatus.textContent = 'The current PDF will be removed when you save.';
-                removePdfButton.hidden = true;
-            }
-        }
-    });
-
-    document.addEventListener('change', function (event) {
-        const pdfInput = event.target.closest('#recordEditForm input[type="file"][name="notice_pdf"]');
-        if (!pdfInput) {
-            return;
-        }
-
-        const form = pdfInput.form;
-        const clearButton = form?.querySelector('.clear-notice-pdf-selection');
-        const status = form?.querySelector('#editNoticePdfStatus');
-        const removePdfInput = form?.querySelector('[name="remove_notice_pdf"]');
-        const removeCurrentButton = form?.querySelector('#removeNoticePdfButton');
-        if (pdfInput.files?.length) {
-            if (clearButton) {
-                clearButton.hidden = false;
-            }
+            editClearButton.hidden = true;
             if (status) {
-                status.textContent = `Selected PDF: ${pdfInput.files[0].name}`;
+                status.textContent = `${editForm.querySelector(controls.attachmentList)?.children.length || 0} existing ${type === 'image' ? 'photo(s)' : 'PDF(s)'}.`;
             }
-            if (removePdfInput) {
-                removePdfInput.value = '0';
-            }
-            if (removeCurrentButton) {
-                removeCurrentButton.hidden = true;
+            return;
+        }
+
+        const removeAttachmentButton = event.target.closest('.remove-record-attachment');
+        if (removeAttachmentButton) {
+            const editForm = removeAttachmentButton.closest('#recordEditForm');
+            if (editForm) {
+                const removeInput = document.createElement('input');
+                removeInput.type = 'hidden';
+                removeInput.name = 'remove_attachment_ids[]';
+                removeInput.value = removeAttachmentButton.dataset.attachmentId;
+                editForm.append(removeInput);
+                const attachmentList = removeAttachmentButton.closest('#editNoticeImageAttachments, #editNoticePdfAttachments');
+                removeAttachmentButton.closest('div')?.remove();
+                if (attachmentList) {
+                    const type = attachmentList.id === 'editNoticeImageAttachments' ? 'image' : 'pdf';
+                    const status = editForm.querySelector(fileControls[type].status);
+                    if (status) {
+                        status.textContent = `${attachmentList.children.length} existing ${type === 'image' ? 'photo(s)' : 'PDF(s)'}.`;
+                    }
+                }
             }
         }
     });

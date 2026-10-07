@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Record;
+use App\Models\RecordAttachment;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
@@ -38,6 +39,10 @@ class RecordsController extends Controller
                 'max:5000',
                 Rule::when($request->filled('facebook_page_url'), ['regex:/^https?:\/\/.+/i']),
             ],
+            'notice_images' => 'nullable|array',
+            'notice_images.*' => 'image|mimes:jpg,jpeg,png,webp|max:30720',
+            'notice_pdfs' => 'nullable|array',
+            'notice_pdfs.*' => 'file|mimes:pdf|max:30720',
             'notice_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:30720',
             'notice_pdf' => 'nullable|file|mimes:pdf|max:30720',
             'date_occurrence' => 'nullable|string|max:500',
@@ -55,9 +60,9 @@ class RecordsController extends Controller
             $validatedData['facebook_page_url'] = null;
         }
 
-        $noticeImage = $request->file('notice_image');
-        $noticePdf = $request->file('notice_pdf');
-        unset($validatedData['notice_image'], $validatedData['notice_pdf']);
+        $noticeImages = $this->uploadedFiles($request, 'notice_images', 'notice_image');
+        $noticePdfs = $this->uploadedFiles($request, 'notice_pdfs', 'notice_pdf');
+        unset($validatedData['notice_images'], $validatedData['notice_pdfs'], $validatedData['notice_image'], $validatedData['notice_pdf']);
 
         // Check authentication based on source
         if ($source === 'OD') {
@@ -122,8 +127,9 @@ class RecordsController extends Controller
             $validatedData['province'],
         ])));
 
-        $noticeImagePath = null;
-        $noticePdfPath = null;
+        $noticeImagePaths = [];
+        $noticePdfPaths = [];
+        $storedAttachmentPaths = [];
         $recordCreated = false;
 
         try {
@@ -135,20 +141,24 @@ class RecordsController extends Controller
             // Use database transaction to ensure data consistency
             DB::beginTransaction();
 
-            if ($noticeImage && in_array($source, ['Email', 'Facebook'], true)) {
+            foreach ($noticeImages as $noticeImage) {
                 $noticeImagePath = $noticeImage->store('claim-notices', 'local');
-
                 if (! $noticeImagePath) {
                     throw new \RuntimeException('Unable to store the notice image.');
                 }
+
+                $noticeImagePaths[] = $noticeImagePath;
+                $storedAttachmentPaths[] = $noticeImagePath;
             }
 
-            if ($noticePdf) {
+            foreach ($noticePdfs as $noticePdf) {
                 $noticePdfPath = $noticePdf->store('claim-pdfs', 'local');
-
                 if (! $noticePdfPath) {
                     throw new \RuntimeException('Unable to store the notice PDF.');
                 }
+
+                $noticePdfPaths[] = $noticePdfPath;
+                $storedAttachmentPaths[] = $noticePdfPath;
             }
 
             // Prepare record data
@@ -158,8 +168,8 @@ class RecordsController extends Controller
                 'source' => $request->source ?? 'OD',
                 'approved' => true,
                 'approved_at' => now(),
-                'notice_image_path' => $noticeImagePath,
-                'notice_pdf_path' => $noticePdfPath,
+                'notice_image_path' => $noticeImagePaths[0] ?? null,
+                'notice_pdf_path' => $noticePdfPaths[0] ?? null,
             ]);
 
             // Add encoder_id if available
@@ -173,6 +183,22 @@ class RecordsController extends Controller
             }
 
             $record = Record::create($recordData);
+
+            foreach ($noticeImages as $index => $noticeImage) {
+                $record->attachments()->create([
+                    'type' => 'image',
+                    'path' => $noticeImagePaths[$index],
+                    'original_name' => $noticeImage->getClientOriginalName(),
+                ]);
+            }
+
+            foreach ($noticePdfs as $index => $noticePdf) {
+                $record->attachments()->create([
+                    'type' => 'pdf',
+                    'path' => $noticePdfPaths[$index],
+                    'original_name' => $noticePdf->getClientOriginalName(),
+                ]);
+            }
 
             // Store last used location in session for auto-population
             $sessionKey = 'last_location_'.$recordData['source'];
@@ -274,16 +300,14 @@ class RecordsController extends Controller
                 ->with('error', $errorMessage)
                 ->withInput();
         } finally {
-            if ($noticeImagePath && ! $recordCreated && ! Storage::disk('local')->delete($noticeImagePath)) {
-                Log::warning('Unable to remove notice image after failed record creation', [
-                    'path' => $noticeImagePath,
-                ]);
-            }
-
-            if ($noticePdfPath && ! $recordCreated && ! Storage::disk('local')->delete($noticePdfPath)) {
-                Log::warning('Unable to remove notice PDF after failed record creation', [
-                    'path' => $noticePdfPath,
-                ]);
+            if (! $recordCreated) {
+                foreach ($storedAttachmentPaths as $storedAttachmentPath) {
+                    if (! Storage::disk('local')->delete($storedAttachmentPath)) {
+                        Log::warning('Unable to remove attachment after failed record creation', [
+                            'path' => $storedAttachmentPath,
+                        ]);
+                    }
+                }
             }
         }
     }
@@ -344,16 +368,36 @@ class RecordsController extends Controller
             'control_number' => 'nullable|string|max:255',
             'transmittal_number' => 'nullable|string|max:255',
             'admin_transmittal_number' => 'nullable|string|max:255',
+            'notice_images' => 'nullable|array',
+            'notice_images.*' => 'image|mimes:jpg,jpeg,png,webp|max:30720',
             'notice_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:30720',
             'remove_notice_image' => 'nullable|boolean',
+            'notice_pdfs' => 'nullable|array',
+            'notice_pdfs.*' => 'file|mimes:pdf|max:30720',
             'notice_pdf' => 'nullable|file|mimes:pdf|max:30720',
             'remove_notice_pdf' => 'nullable|boolean',
+            'remove_attachment_ids' => 'nullable|array',
+            'remove_attachment_ids.*' => 'integer',
         ]);
-        unset($validatedData['notice_image'], $validatedData['remove_notice_image'], $validatedData['notice_pdf'], $validatedData['remove_notice_pdf']);
-        $removeNoticeImage = $request->boolean('remove_notice_image') && ! $request->hasFile('notice_image');
-        $removeNoticePdf = $request->boolean('remove_notice_pdf') && ! $request->hasFile('notice_pdf');
+        unset(
+            $validatedData['notice_images'],
+            $validatedData['notice_image'],
+            $validatedData['remove_notice_image'],
+            $validatedData['notice_pdfs'],
+            $validatedData['notice_pdf'],
+            $validatedData['remove_notice_pdf'],
+            $validatedData['remove_attachment_ids']
+        );
 
-        if ($removeNoticeImage || $removeNoticePdf) {
+        $noticeImages = $this->uploadedFiles($request, 'notice_images', 'notice_image');
+        $noticePdfs = $this->uploadedFiles($request, 'notice_pdfs', 'notice_pdf');
+        $removeNoticeImage = $request->boolean('remove_notice_image') && $noticeImages === [];
+        $removeNoticePdf = $request->boolean('remove_notice_pdf') && $noticePdfs === [];
+        $replaceLegacyNoticeImage = $request->hasFile('notice_image') && ! $request->hasFile('notice_images');
+        $replaceLegacyNoticePdf = $request->hasFile('notice_pdf') && ! $request->hasFile('notice_pdfs');
+        $removeAttachmentIds = array_unique(array_map('intval', $request->input('remove_attachment_ids', [])));
+
+        if ($removeNoticeImage || $removeNoticePdf || $replaceLegacyNoticeImage || $replaceLegacyNoticePdf || $removeAttachmentIds !== []) {
             $isAdmin = (bool) $request->session()->get('admin_logged_in', false);
             $emailEncoderId = $request->session()->get('email_user_id');
             $isEmailEncoder = $record->source === 'Email'
@@ -372,6 +416,11 @@ class RecordsController extends Controller
                 && (string) $officerId === (string) $record->encoder_id;
 
             abort_unless($isAdmin || $isEmailEncoder || $isFacebookEncoder || $isOfficerEncoder, 403);
+        }
+
+        if ($removeAttachmentIds !== []) {
+            $matchingAttachmentCount = $record->attachments()->whereIn('id', $removeAttachmentIds)->count();
+            abort_unless($matchingAttachmentCount === count($removeAttachmentIds), 404);
         }
 
         if (($validatedData['source'] ?? '') !== 'Facebook') {
@@ -407,38 +456,54 @@ class RecordsController extends Controller
             unset($updateData['admin_transmittal_assigned_at']);
         }
 
-        $newNoticeImagePath = null;
-        $oldNoticeImagePath = $record->notice_image_path;
-        $newNoticePdfPath = null;
-        $oldNoticePdfPath = $record->notice_pdf_path;
+        $newAttachmentPaths = [];
+        $removedAttachments = collect();
 
         try {
             // Use database transaction to ensure data consistency
             DB::beginTransaction();
 
-            if ($request->hasFile('notice_image')) {
-                $newNoticeImagePath = $request->file('notice_image')->store('claim-notices', 'local');
+            $this->syncLegacyAttachments($record);
+            $existingAttachments = $record->attachments()->get();
+            $removeAttachmentIds = array_unique(array_merge(
+                $removeAttachmentIds,
+                $removeNoticeImage || $replaceLegacyNoticeImage ? $existingAttachments->where('type', 'image')->pluck('id')->all() : [],
+                $removeNoticePdf || $replaceLegacyNoticePdf ? $existingAttachments->where('type', 'pdf')->pluck('id')->all() : []
+            ));
+            $removedAttachments = $existingAttachments->whereIn('id', $removeAttachmentIds);
+            $record->attachments()->whereIn('id', $removedAttachments->pluck('id'))->delete();
 
+            foreach ($noticeImages as $noticeImage) {
+                $newNoticeImagePath = $noticeImage->store('claim-notices', 'local');
                 if (! $newNoticeImagePath) {
                     throw new \RuntimeException('Unable to store the notice image.');
                 }
 
-                $updateData['notice_image_path'] = $newNoticeImagePath;
-            } elseif ($removeNoticeImage) {
-                $updateData['notice_image_path'] = null;
+                $newAttachmentPaths[] = $newNoticeImagePath;
+                $record->attachments()->create([
+                    'type' => 'image',
+                    'path' => $newNoticeImagePath,
+                    'original_name' => $noticeImage->getClientOriginalName(),
+                ]);
             }
 
-            if ($request->hasFile('notice_pdf')) {
-                $newNoticePdfPath = $request->file('notice_pdf')->store('claim-pdfs', 'local');
-
+            foreach ($noticePdfs as $noticePdf) {
+                $newNoticePdfPath = $noticePdf->store('claim-pdfs', 'local');
                 if (! $newNoticePdfPath) {
                     throw new \RuntimeException('Unable to store the notice PDF.');
                 }
 
-                $updateData['notice_pdf_path'] = $newNoticePdfPath;
-            } elseif ($removeNoticePdf) {
-                $updateData['notice_pdf_path'] = null;
+                $newAttachmentPaths[] = $newNoticePdfPath;
+                $record->attachments()->create([
+                    'type' => 'pdf',
+                    'path' => $newNoticePdfPath,
+                    'original_name' => $noticePdf->getClientOriginalName(),
+                ]);
             }
+
+            $attachmentsToKeep = $record->attachments()->get();
+            $updateData['notice_image_path'] = $attachmentsToKeep->firstWhere('type', 'image')?->path;
+            $updateData['notice_pdf_path'] = $attachmentsToKeep->firstWhere('type', 'pdf')?->path;
 
             Log::info('About to update record', ['id' => $id, 'updateData' => $updateData]);
 
@@ -448,20 +513,13 @@ class RecordsController extends Controller
 
             DB::commit();
 
-            if (($newNoticeImagePath || $removeNoticeImage) && $oldNoticeImagePath) {
-                if (! Storage::disk('local')->delete($oldNoticeImagePath)) {
-                    Log::warning('Unable to remove replaced or deleted notice image', [
+            foreach ($removedAttachments as $removedAttachment) {
+                if (! Storage::disk('local')->delete($removedAttachment->path)) {
+                    Log::warning('Unable to remove deleted record attachment', [
                         'record_id' => $record->id,
-                        'path' => $oldNoticeImagePath,
+                        'path' => $removedAttachment->path,
                     ]);
                 }
-            }
-
-            if (($newNoticePdfPath || $removeNoticePdf) && $oldNoticePdfPath && ! Storage::disk('local')->delete($oldNoticePdfPath)) {
-                Log::warning('Unable to remove replaced or deleted notice PDF', [
-                    'record_id' => $record->id,
-                    'path' => $oldNoticePdfPath,
-                ]);
             }
 
             Log::info('Transaction committed, returning success');
@@ -481,18 +539,13 @@ class RecordsController extends Controller
                 DB::rollBack();
             }
 
-            if ($newNoticeImagePath && ! Storage::disk('local')->delete($newNoticeImagePath)) {
-                Log::warning('Unable to remove notice image after failed record update', [
-                    'record_id' => $record->id,
-                    'path' => $newNoticeImagePath,
-                ]);
-            }
-
-            if ($newNoticePdfPath && ! Storage::disk('local')->delete($newNoticePdfPath)) {
-                Log::warning('Unable to remove notice PDF after failed record update', [
-                    'record_id' => $record->id,
-                    'path' => $newNoticePdfPath,
-                ]);
+            foreach ($newAttachmentPaths as $newAttachmentPath) {
+                if (! Storage::disk('local')->delete($newAttachmentPath)) {
+                    Log::warning('Unable to remove attachment after failed record update', [
+                        'record_id' => $record->id,
+                        'path' => $newAttachmentPath,
+                    ]);
+                }
             }
 
             // Log the error for debugging
@@ -521,25 +574,71 @@ class RecordsController extends Controller
     public function destroyRecord($id)
     {
         $record = Record::findOrFail($id);
-        $noticeImagePath = $record->notice_image_path;
-        $noticePdfPath = $record->notice_pdf_path;
+        $attachmentPaths = $record->attachments()->pluck('path')
+            ->push($record->notice_image_path, $record->notice_pdf_path)
+            ->filter()
+            ->unique();
         $record->delete();
 
-        if ($noticeImagePath && ! Storage::disk('local')->delete($noticeImagePath)) {
-            Log::warning('Unable to remove notice image after record deletion', [
-                'record_id' => $record->id,
-                'path' => $noticeImagePath,
-            ]);
-        }
-
-        if ($noticePdfPath && ! Storage::disk('local')->delete($noticePdfPath)) {
-            Log::warning('Unable to remove notice PDF after record deletion', [
-                'record_id' => $record->id,
-                'path' => $noticePdfPath,
-            ]);
+        foreach ($attachmentPaths as $attachmentPath) {
+            if (! Storage::disk('local')->delete($attachmentPath)) {
+                Log::warning('Unable to remove attachment after record deletion', [
+                    'record_id' => $record->id,
+                    'path' => $attachmentPath,
+                ]);
+            }
         }
 
         return redirect()->back()->with('success', 'Record deleted successfully!');
+    }
+
+    public function showAttachment(Request $request, Record $record, RecordAttachment $attachment)
+    {
+        abort_unless((int) $attachment->record_id === (int) $record->id, 404);
+
+        $isAdmin = (bool) $request->session()->get('admin_logged_in', false);
+        $emailEncoderId = $request->session()->get('email_user_id');
+        $isEmailEncoder = $record->source === 'Email'
+            && (bool) $request->session()->get('email_logged_in', false)
+            && filled($emailEncoderId)
+            && (string) $emailEncoderId === (string) $record->encoder_id;
+        $facebookEncoderId = $request->session()->get('facebook_user_id');
+        $isFacebookEncoder = $record->source === 'Facebook'
+            && (bool) $request->session()->get('facebook_logged_in', false)
+            && filled($facebookEncoderId)
+            && (string) $facebookEncoderId === (string) $record->encoder_id;
+        $officerId = $request->session()->get('officer_id');
+        $isOfficerEncoder = $record->source === 'OD'
+            && filled($request->session()->get('officer_name'))
+            && filled($officerId)
+            && (string) $officerId === (string) $record->encoder_id;
+
+        abort_unless($isAdmin || $isEmailEncoder || $isFacebookEncoder || $isOfficerEncoder, 403);
+
+        $directory = $attachment->type === 'image' ? 'claim-notices' : 'claim-pdfs';
+        abort_unless(
+            in_array($attachment->type, ['image', 'pdf'], true)
+                && preg_match('#\A'.preg_quote($directory, '#').'/[A-Za-z0-9._-]+\z#', $attachment->path)
+                && Storage::disk('local')->exists($attachment->path),
+            404
+        );
+
+        $mimeType = Storage::disk('local')->mimeType($attachment->path);
+        $allowedMimeTypes = $attachment->type === 'image'
+            ? ['image/jpeg', 'image/png', 'image/webp']
+            : ['application/pdf'];
+
+        abort_unless($mimeType && in_array($mimeType, $allowedMimeTypes, true), 404);
+
+        return Storage::disk('local')->response(
+            $attachment->path,
+            $attachment->original_name,
+            [
+                'Content-Type' => $mimeType,
+                'X-Content-Type-Options' => 'nosniff',
+            ],
+            'inline'
+        );
     }
 
     public function showNoticeImage(Request $request, Record $record)
@@ -573,6 +672,36 @@ class RecordsController extends Controller
             ],
             'inline'
         );
+    }
+
+    private function uploadedFiles(Request $request, string $multipleField, string $singleField): array
+    {
+        $files = $request->file($multipleField, []);
+        $files = is_array($files) ? $files : [$files];
+
+        if ($singleFile = $request->file($singleField)) {
+            $files[] = $singleFile;
+        }
+
+        return array_values(array_filter($files));
+    }
+
+    private function syncLegacyAttachments(Record $record): void
+    {
+        foreach ([
+            'image' => $record->notice_image_path,
+            'pdf' => $record->notice_pdf_path,
+        ] as $type => $path) {
+            if (! $path || $record->attachments()->where('path', $path)->exists()) {
+                continue;
+            }
+
+            $record->attachments()->create([
+                'type' => $type,
+                'path' => $path,
+                'original_name' => basename($path),
+            ]);
+        }
     }
 
     public function checkDuplicates(Request $request)

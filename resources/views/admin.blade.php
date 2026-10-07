@@ -2,1087 +2,8 @@
 
 @section('title', 'Admin')
 
-@section('page-styles')
-{{-- Admin styles live in app.css --}}
-@endsection
-
 @push('styles')
-<style>
-.auto-caps {
-    text-transform: capitalize;
-}
-
-.pagination-link:hover {
-    background: linear-gradient(135deg, #005a2d 0%, #006c35 100%) !important;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 108, 53, 0.2) !important;
-}
-
-.dash3-view-more-btn {
-    padding: 6px 12px;
-    font-size: 12px;
-    font-weight: 600;
-    color: #006c35;
-    background: #f0fdf4;
-    border: 1px solid #bbf7d0;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.dash3-view-more-btn:hover {
-    background: #006c35;
-    color: white;
-    border-color: #006c35;
-}
-
-.admin-main {
-    background: linear-gradient(145deg, #f1f5f9 0%, #f8fafc 55%, #ecfdf5 100%);
-}
-
-.admin-shell {
-    grid-template-columns: 232px minmax(0, 1fr);
-}
-
-.admin-shell.sidebar-expanded {
-    grid-template-columns: 232px minmax(0, 1fr);
-}
-
-.admin-sidebar {
-    z-index: 35;
-    border: 0;
-    box-shadow: none;
-}
-
-.admin-sidebar,
-.admin-sidebar button {
-    -webkit-tap-highlight-color: transparent;
-}
-
-.admin-workspace-panel {
-    margin-top: 18px;
-    padding: 20px;
-    border: 1px solid #cbd5e1;
-    border-radius: 18px;
-    background: rgb(255 255 255 / 92%);
-    box-shadow: 0 12px 30px rgb(15 23 42 / 7%);
-}
-
-.admin-brand {
-    justify-content: center;
-    padding: 0;
-    border-bottom-color: #a7cbb5;
-}
-
-.admin-brand .subtitle,
-.admin-sidebar-section-label {
-    color: #475569;
-}
-
-.admin-sidebar-divider {
-    background: rgb(15 23 42 / 14%);
-}
-
-.admin-nav button {
-    border: 1px solid #86a997;
-    background: #f8fffb;
-    color: #173b2a;
-    box-shadow: 0 1px 2px rgb(15 23 42 / 5%);
-    transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, color 160ms ease;
-}
-
-.admin-nav {
-    width: 100%;
-    padding: 0;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-}
-
-.admin-nav button:hover {
-    background: #e7f5ed;
-    border-color: #398457;
-    box-shadow: 0 3px 9px rgb(20 83 45 / 12%);
-    transform: none;
-}
-
-.admin-nav #btn-dashboard.active {
-    background: #166534;
-    border-color: #14532d;
-    color: #fff;
-    box-shadow: 0 3px 9px rgb(20 83 45 / 18%);
-}
-
-.admin-nav #btn-nl-records {
-    background: #eff6ff;
-    border-color: #93b4df;
-    color: #1e3a5f;
-}
-
-.admin-nav #btn-nl-records:hover {
-    background: #dbeafe;
-    border-color: #3b82f6;
-}
-
-.admin-nav #btn-nl-records.active {
-    background: #1d4ed8;
-    border-color: #1e40af;
-    color: #fff;
-    box-shadow: 0 3px 9px rgb(30 64 175 / 18%);
-}
-
-.admin-nav button.active::before {
-    display: none;
-}
-
-.admin-sidebar-tool {
-    border: 1px solid #88a99a;
-    background: #f8fffb;
-    color: #173b2a;
-    box-shadow: 0 1px 2px rgb(15 23 42 / 5%);
-    transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
-}
-
-.admin-sidebar-actions {
-    padding: 10px;
-    border: 1px solid #c1d4c8;
-    border-radius: 14px;
-    background: rgb(255 255 255 / 38%);
-}
-
-.admin-sidebar-tool:hover {
-    background: #fff;
-    border-color: #398457;
-    box-shadow: 0 3px 9px rgb(20 83 45 / 12%);
-    transform: translateY(-1px);
-}
-
-.admin-sidebar-actions .admin-sidebar-tool:nth-child(1) {
-    background: #eff6ff;
-    border-color: #93b4df;
-    color: #1e3a5f;
-}
-
-.admin-sidebar-actions .admin-sidebar-tool:nth-child(2) {
-    background: #fff7ed;
-    border-color: #fdba74;
-    color: #7c2d12;
-}
-
-.admin-sidebar-actions .admin-sidebar-tool:nth-child(3) {
-    background: #f5f3ff;
-    border-color: #c4b5fd;
-    color: #4c1d95;
-}
-
-.admin-sidebar-actions .admin-sidebar-tool:nth-child(4) {
-    background: #ecfeff;
-    border-color: #67e8f9;
-    color: #164e63;
-}
-
-.admin-sidebar-actions .admin-sidebar-tool:nth-child(n):hover {
-    filter: brightness(0.97);
-    box-shadow: 0 3px 9px rgb(15 23 42 / 12%);
-}
-
-.admin-sidebar-toggle {
-    display: grid;
-    width: 38px;
-    height: 38px;
-    flex: 0 0 38px;
-    place-items: center;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-    color: #14532d;
-    box-shadow: none;
-    cursor: pointer;
-    transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
-}
-
-.admin-sidebar-toggle,
-.admin-sidebar-toggle:hover,
-.admin-sidebar-toggle * {
-    cursor: pointer !important;
-}
-
-.admin-sidebar-toggle:hover {
-    background: transparent;
-    border-color: transparent;
-    box-shadow: none;
-}
-
-.admin-sidebar-toggle:active {
-    transform: scale(0.95);
-}
-
-.admin-sidebar-toggle:focus-visible,
-.admin-nav button:focus-visible,
-.admin-sidebar-tool:focus-visible {
-    outline: 3px solid #0ea5e9;
-    outline-offset: 2px;
-    box-shadow: none;
-}
-
-.admin-sidebar-toggle .hamburger-line {
-    transform-origin: center;
-    transition: transform 220ms ease, opacity 150ms ease;
-}
-
-.admin-shell.sidebar-expanded .admin-sidebar-toggle .hamburger-line-top {
-    transform: translateY(5px) rotate(45deg);
-}
-
-.admin-shell.sidebar-expanded .admin-sidebar-toggle .hamburger-line-middle {
-    opacity: 0;
-}
-
-.admin-shell.sidebar-expanded .admin-sidebar-toggle .hamburger-line-bottom {
-    transform: translateY(-5px) rotate(-45deg);
-}
-
-.admin-sidebar-content {
-    display: flex;
-    flex: 1;
-    min-height: 0;
-    min-width: 0;
-    flex-direction: column;
-    overflow: hidden;
-}
-
-.user-maintenance-dialog {
-    width: min(960px, calc(100vw - 2rem));
-    max-width: 960px;
-    border: 1px solid #cbd5e1;
-}
-
-.user-maintenance-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 20px 24px;
-    border-bottom: 1px solid #cbd5e1;
-    background: linear-gradient(135deg, #f0fdf4, #eff6ff);
-}
-
-.user-maintenance-heading {
-    margin: 0;
-    color: #0f172a;
-    font-size: 18px;
-    font-weight: 900;
-}
-
-.user-maintenance-subheading {
-    margin: 4px 0 0;
-    color: #64748b;
-    font-size: 13px;
-}
-
-.user-maintenance-add {
-    flex: 0 0 auto;
-    border: 1px solid #14532d;
-    background: #166534;
-}
-
-.user-maintenance-body {
-    padding: 20px 24px;
-}
-
-.user-maintenance-search-wrap {
-    position: relative;
-    margin-bottom: 14px;
-}
-
-.user-maintenance-search-wrap svg {
-    position: absolute;
-    top: 50%;
-    left: 13px;
-    width: 17px;
-    height: 17px;
-    color: #64748b;
-    pointer-events: none;
-    transform: translateY(-50%);
-}
-
-.user-maintenance-search {
-    width: 100%;
-    min-height: 44px;
-    padding: 10px 14px 10px 40px;
-    border: 1px solid #94a3b8;
-    border-radius: 11px;
-    background: #fff;
-    color: #0f172a;
-    font-size: 14px;
-    outline: none;
-    transition: border-color 150ms ease, box-shadow 150ms ease;
-}
-
-.user-maintenance-search:focus {
-    border-color: #15803d;
-    box-shadow: 0 0 0 3px rgb(21 128 61 / 14%);
-}
-
-#userMaintenanceModal.is-editing .user-maintenance-search-wrap {
-    display: none;
-}
-
-.user-maintenance-table-wrap {
-    max-height: min(52vh, 480px);
-    overflow: auto;
-    border: 1px solid #cbd5e1;
-    border-radius: 12px;
-}
-
-.user-maintenance-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    font-size: 13px;
-}
-
-.user-maintenance-table th {
-    position: sticky;
-    top: 0;
-    z-index: 1;
-    padding: 12px 14px;
-    border-bottom: 1px solid #cbd5e1;
-    background: #f1f5f9;
-    color: #334155;
-    font-size: 11px;
-    font-weight: 900;
-    letter-spacing: 0.06em;
-    text-align: left;
-    text-transform: uppercase;
-}
-
-.user-maintenance-table td {
-    padding: 12px 14px;
-    border-bottom: 1px solid #e2e8f0;
-    color: #334155;
-    vertical-align: middle;
-}
-
-.user-maintenance-table tbody tr:last-child td {
-    border-bottom: 0;
-}
-
-.user-maintenance-table tbody tr:hover {
-    background: #f8fafc;
-}
-
-.user-maintenance-table .user-name {
-    color: #0f172a;
-    font-weight: 800;
-}
-
-.user-maintenance-table .user-username {
-    color: #475569;
-}
-
-.user-maintenance-actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    white-space: nowrap;
-}
-
-.user-maintenance-action {
-    min-width: 66px;
-    height: 30px;
-    padding: 0 10px;
-    border: 1px solid;
-    border-radius: 8px;
-    font-size: 11px;
-    font-weight: 800;
-    cursor: pointer;
-    transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease;
-}
-
-.user-maintenance-edit {
-    border-color: #93b4df;
-    background: #eff6ff;
-    color: #1e3a5f;
-}
-
-.user-maintenance-edit:hover {
-    border-color: #3b82f6;
-    background: #dbeafe;
-}
-
-.user-maintenance-delete {
-    border-color: #fca5a5;
-    background: #fef2f2;
-    color: #991b1b;
-}
-
-.user-maintenance-delete:hover {
-    border-color: #ef4444;
-    background: #fee2e2;
-}
-
-.user-maintenance-empty {
-    padding: 30px 16px;
-    color: #64748b;
-    text-align: center;
-}
-
-.user-maintenance-footer {
-    display: flex;
-    justify-content: flex-end;
-    padding: 14px 24px;
-    border-top: 1px solid #e2e8f0;
-    background: #f8fafc;
-}
-
-#nl-records-section {
-    min-width: 0;
-    padding: 20px;
-    border-color: #aebfc0;
-}
-
-#nl-records-section > .nl-unassigned-card,
-#nl-records-section > .table-filters,
-#nl-records-section > .nl-record-toolbar,
-#nl-records-section > #bulk-form {
-    width: 100%;
-    min-width: 0;
-}
-
-#nl-records-section .nl-unassigned-card,
-#nl-records-section .table-filters,
-#nl-records-section .nl-record-toolbar,
-#nl-records-section #table-wrapper {
-    border: 1px solid #b8c8c7 !important;
-    border-radius: 15px !important;
-    background: #fff !important;
-    box-shadow: 0 5px 16px rgb(15 23 42 / 5%) !important;
-}
-
-#nl-records-section .nl-unassigned-card {
-    display: flex;
-    align-items: center;
-    min-height: 70px;
-    padding: 14px 18px !important;
-}
-
-#nl-records-section .nl-unassigned-card label {
-    display: flex !important;
-    align-items: center !important;
-    gap: 14px !important;
-}
-
-#nl-records-section .nl-unassigned-copy strong {
-    display: block;
-    color: #0f172a;
-    font-size: 14px;
-    font-weight: 850;
-}
-
-#nl-records-section .nl-unassigned-copy span {
-    display: block;
-    margin-top: 3px;
-    color: #64748b;
-    font-size: 12px;
-}
-
-#nl-records-section .table-filters {
-    padding: 20px !important;
-}
-
-#nl-records-section .nl-filter-heading {
-    margin-bottom: 14px !important;
-    padding-bottom: 13px;
-    border-bottom: 1px solid #e2e8f0;
-}
-
-#nl-records-section .table-filters #active-filters-display {
-    border-color: #cbd5e1 !important;
-    border-radius: 10px !important;
-}
-
-#nl-records-section #filter-form > div:first-of-type {
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr)) !important;
-    gap: 14px !important;
-}
-
-#nl-records-section #filter-form input:not([type="hidden"]),
-#nl-records-section #filter-form select {
-    width: 100%;
-    min-width: 0;
-    min-height: 42px;
-    padding: 9px 12px !important;
-    border: 1px solid #b8c8d4 !important;
-    border-radius: 9px !important;
-    background-color: #fff !important;
-    color: #0f172a !important;
-    font-size: 13px !important;
-    box-shadow: none !important;
-}
-
-#nl-records-section #filter-form input:focus,
-#nl-records-section #filter-form select:focus {
-    border-color: #15803d !important;
-    outline: none;
-    box-shadow: 0 0 0 3px rgb(21 128 61 / 13%) !important;
-}
-
-#nl-records-section #filter-form label {
-    color: #475569 !important;
-    font-size: 11px !important;
-    font-weight: 800 !important;
-}
-
-#nl-records-section #filter-form > div:last-child {
-    flex-wrap: wrap;
-    gap: 10px !important;
-    margin-top: 16px !important;
-    padding-top: 14px !important;
-}
-
-#nl-records-section #apply-filters-btn,
-#nl-records-section #clear-filters-shortcut-btn {
-    min-height: 40px;
-    padding: 9px 16px !important;
-    border: 1px solid transparent !important;
-    border-radius: 9px !important;
-    font-size: 13px !important;
-    font-weight: 800 !important;
-    box-shadow: none !important;
-}
-
-#nl-records-section #apply-filters-btn {
-    border-color: #14532d !important;
-    background: #166534 !important;
-}
-
-#nl-records-section #clear-filters-shortcut-btn {
-    border-color: #fca5a5 !important;
-    background: #fff1f2 !important;
-    color: #991b1b !important;
-}
-
-#nl-records-section .nl-record-toolbar {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 14px;
-    flex-wrap: nowrap !important;
-    margin-bottom: 12px !important;
-    padding: 10px 12px !important;
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    scrollbar-width: thin;
-    scrollbar-color: #94a3b8 transparent;
-}
-
-#nl-records-section .nl-record-toolbar::-webkit-scrollbar {
-    height: 6px;
-}
-
-#nl-records-section .nl-record-toolbar::-webkit-scrollbar-thumb {
-    border-radius: 999px;
-    background: #94a3b8;
-}
-
-#nl-records-section .nl-record-toolbar-title {
-    display: flex;
-    flex: 0 0 auto;
-    align-items: center;
-    gap: 9px;
-    white-space: nowrap;
-}
-
-#nl-records-section .nl-record-toolbar-title h3 {
-    margin: 0 !important;
-    color: #0f172a !important;
-    font-size: 16px !important;
-    font-weight: 900 !important;
-}
-
-#nl-records-section .nl-record-toolbar-title p {
-    margin: 3px 0 0;
-    color: #64748b;
-    font-size: 12px;
-}
-
-#nl-records-section .nl-record-toolbar-actions {
-    display: flex;
-    flex: 0 0 auto;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 6px;
-    flex-wrap: nowrap !important;
-    white-space: nowrap;
-}
-
-#nl-records-section .nl-record-toolbar-actions .btn {
-    min-height: 38px;
-    flex: 0 0 auto;
-    padding: 7px 10px !important;
-    border: 1px solid rgb(15 23 42 / 10%) !important;
-    border-radius: 9px !important;
-    font-size: 12px !important;
-    font-weight: 800 !important;
-    box-shadow: none !important;
-}
-
-#nl-records-section #bulk-selected-count {
-    min-width: 104px !important;
-    padding: 8px 11px !important;
-    border: 1px solid #b8c8d4 !important;
-    border-radius: 999px !important;
-    background: #f1f5f9 !important;
-    color: #334155 !important;
-    font-weight: 800 !important;
-}
-
-#nl-records-section #table-container {
-    overflow: hidden;
-    border: 1px solid #b8c8d4;
-    border-radius: 15px;
-    background: #fff;
-}
-
-#nl-records-section #table-wrapper > .table-wrapper {
-    width: 100%;
-    min-width: 0;
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-}
-
-#nl-records-section #table-wrapper > .table-wrapper::-webkit-scrollbar {
-    display: none;
-}
-
-#nl-records-section .records-table {
-    width: max-content !important;
-    min-width: 100%;
-    max-width: none !important;
-    margin: 0 !important;
-    border: 0 !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    table-layout: auto !important;
-    background: #fff !important;
-}
-
-#nl-records-section .records-table thead th {
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    height: 44px;
-    padding: 11px 13px !important;
-    border-right: 1px solid rgb(255 255 255 / 16%) !important;
-    border-bottom: 2px solid #14532d !important;
-    background: #166534 !important;
-    color: #fff !important;
-    font-size: 11px !important;
-    font-weight: 850 !important;
-    letter-spacing: 0.045em;
-    line-height: 1.25;
-    text-align: left;
-    vertical-align: middle;
-}
-
-#nl-records-section .records-table thead th:last-child {
-    border-right: 0 !important;
-}
-
-#nl-records-section .records-table thead th a {
-    color: inherit !important;
-}
-
-#nl-records-section .records-table tbody td {
-    height: 44px;
-    padding: 9px 13px !important;
-    border-right: 1px solid #e2e8f0 !important;
-    border-bottom: 1px solid #e2e8f0 !important;
-    color: #334155;
-    font-size: 12px;
-    line-height: 1.4;
-    vertical-align: middle;
-}
-
-#nl-records-section .records-table tbody td:last-child {
-    border-right: 0 !important;
-}
-
-#nl-records-section .records-table tbody tr:last-child td {
-    border-bottom: 0 !important;
-}
-
-#nl-records-section .records-table tbody tr:nth-child(even) {
-    background: #f8fafc;
-}
-
-#nl-records-section .records-table tbody tr:hover {
-    background: #ecfdf5;
-}
-
-#nl-records-section .records-table .col-checkbox,
-#nl-records-section .records-table .col-checkbox-transmit,
-#nl-records-section .records-table .col-edit,
-#nl-records-section .records-table .col-delete,
-#nl-records-section .records-table .col-view {
-    min-width: 76px;
-    text-align: center;
-}
-
-#nl-records-section .records-table .col-notice-image {
-    min-width: 112px;
-    text-align: center;
-}
-
-#nl-records-section .records-table .col-date-received,
-#nl-records-section .records-table .col-date-occurrence,
-#nl-records-section .records-table .col-date-encoded,
-#nl-records-section .records-table .col-admin-transmittal-number {
-    white-space: nowrap;
-}
-
-#nl-records-section .records-table .col-farmer-name {
-    min-width: 220px;
-}
-
-#nl-records-section .records-table .col-remarks,
-#nl-records-section .records-table .col-causeOfDamage {
-    min-width: 180px;
-    max-width: 280px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-#nl-records-section #table-wrapper {
-    max-height: min(62vh, 680px) !important;
-    overflow-x: hidden !important;
-    overflow-y: auto !important;
-    border: 0 !important;
-    border-radius: 14px !important;
-    box-shadow: none !important;
-}
-
-#nl-records-section .table-scroll-sync-top,
-#nl-records-section .table-scroll-sync-bottom {
-    width: 100%;
-    overflow-x: auto;
-    overflow-y: hidden;
-}
-
-#nl-records-section #pagination-container {
-    justify-content: space-between !important;
-    gap: 10px !important;
-    padding: 14px 4px 2px;
-}
-
-#nl-records-section #pagination-container > * {
-    margin: 0 !important;
-}
-
-#nl-records-section #pagination-container a,
-#nl-records-section #pagination-container span {
-    border-radius: 9px !important;
-    font-size: 12px !important;
-    font-weight: 800 !important;
-}
-
-body.dark-mode #nl-records-section .nl-unassigned-copy strong,
-body.dark-mode #nl-records-section .nl-record-toolbar-title h3 {
-    color: #f8fafc !important;
-}
-
-body.dark-mode #nl-records-section .nl-unassigned-copy span,
-body.dark-mode #nl-records-section .nl-record-toolbar-title p {
-    color: #cbd5e1;
-}
-
-body.dark-mode #nl-records-section .nl-unassigned-card,
-body.dark-mode #nl-records-section .table-filters,
-body.dark-mode #nl-records-section .nl-record-toolbar,
-body.dark-mode #nl-records-section #table-container,
-body.dark-mode #nl-records-section #table-wrapper {
-    border-color: rgba(148, 163, 184, 0.36) !important;
-    background: #0f172a !important;
-}
-
-body.dark-mode #nl-records-section .records-table tbody td {
-    border-color: rgba(148, 163, 184, 0.22) !important;
-    color: #e2e8f0;
-}
-
-body.dark-mode #nl-records-section .records-table {
-    background: #0f172a !important;
-}
-
-body.dark-mode #nl-records-section .records-table tbody tr:nth-child(even) {
-    background: #111827 !important;
-}
-
-body.dark-mode #nl-records-section .records-table tbody tr:hover {
-    background: #123524 !important;
-}
-
-body.dark-mode #nl-records-section #filter-form input:not([type="hidden"]),
-body.dark-mode #nl-records-section #filter-form select {
-    border-color: rgba(148, 163, 184, 0.4) !important;
-    background-color: #111827 !important;
-    color: #f8fafc !important;
-}
-
-body.dark-mode #nl-records-section #filter-form label {
-    color: #cbd5e1 !important;
-}
-
-body.dark-mode #nl-records-section #clear-filters-shortcut-btn {
-    border-color: #7f1d1d !important;
-    background: #450a0a !important;
-    color: #fecaca !important;
-}
-
-body.dark-mode #nl-records-section #bulk-selected-count {
-    border-color: rgba(148, 163, 184, 0.4) !important;
-    background: #1e293b !important;
-    color: #e2e8f0 !important;
-}
-
-@media (max-width: 760px) {
-    #nl-records-section {
-        padding: 12px;
-    }
-
-    #nl-records-section .table-filters {
-        padding: 14px !important;
-    }
-
-    #nl-records-section .nl-record-toolbar {
-        align-items: center;
-        padding: 9px !important;
-    }
-
-    #nl-records-section .nl-record-toolbar-actions {
-        justify-content: flex-start;
-    }
-
-    #nl-records-section #pagination-container {
-        justify-content: center !important;
-        flex-wrap: wrap;
-    }
-}
-
-body.dark-mode .user-maintenance-header,
-body.dark-mode .user-maintenance-footer {
-    border-color: rgba(148, 163, 184, 0.28);
-    background: #111827;
-}
-
-body.dark-mode .user-maintenance-heading,
-body.dark-mode .user-maintenance-table .user-name {
-    color: #f8fafc;
-}
-
-body.dark-mode .user-maintenance-subheading,
-body.dark-mode .user-maintenance-table td,
-body.dark-mode .user-maintenance-empty {
-    color: #cbd5e1;
-}
-
-body.dark-mode .user-maintenance-search,
-body.dark-mode .user-maintenance-table-wrap {
-    border-color: rgba(148, 163, 184, 0.4);
-    background: #0f172a;
-    color: #f8fafc;
-}
-
-body.dark-mode .user-maintenance-table th {
-    border-color: rgba(148, 163, 184, 0.28);
-    background: #1e293b;
-    color: #e2e8f0;
-}
-
-body.dark-mode .user-maintenance-table td {
-    border-color: rgba(148, 163, 184, 0.2);
-}
-
-body.dark-mode .user-maintenance-form {
-    border-color: rgba(148, 163, 184, 0.3);
-    background: #111827;
-}
-
-@media (max-width: 640px) {
-    .user-maintenance-header,
-    .user-maintenance-body {
-        padding: 16px;
-    }
-
-    .user-maintenance-header {
-        align-items: flex-start;
-    }
-
-    .user-maintenance-heading {
-        font-size: 16px;
-    }
-
-    .user-maintenance-table th,
-    .user-maintenance-table td {
-        padding: 10px;
-    }
-
-    .user-maintenance-table th:first-child,
-    .user-maintenance-table td:first-child,
-    .user-maintenance-table th:nth-child(4),
-    .user-maintenance-table td:nth-child(4) {
-        display: none;
-    }
-
-    .user-maintenance-footer {
-        padding: 12px 16px;
-    }
-}
-
-body.dark-mode .admin-workspace-panel {
-    border-color: rgba(148, 163, 184, 0.28);
-    background: rgba(15, 23, 42, 0.95);
-}
-
-body.dark-mode .admin-sidebar .admin-brand,
-body.dark-mode .admin-sidebar .admin-nav button,
-body.dark-mode .admin-sidebar .admin-sidebar-section-label,
-body.dark-mode .admin-sidebar .admin-sidebar-tool {
-    color: #f8fafc;
-}
-
-body.dark-mode .admin-sidebar .admin-nav button.active {
-    background: rgba(22, 163, 74, 0.24);
-    border-color: rgba(74, 222, 128, 0.4);
-}
-
-body.dark-mode .admin-sidebar .admin-nav #btn-dashboard.active {
-    background: #166534 !important;
-    border-color: #4ade80 !important;
-    color: #fff !important;
-}
-
-body.dark-mode .admin-sidebar .admin-nav #btn-nl-records {
-    background: #172554 !important;
-    border-color: #3b82f6 !important;
-    color: #dbeafe !important;
-}
-
-body.dark-mode .admin-sidebar .admin-nav #btn-nl-records.active {
-    background: #1d4ed8 !important;
-    border-color: #93c5fd !important;
-    color: #fff !important;
-}
-
-body.dark-mode .admin-sidebar .admin-nav #btn-dashboard.active::before,
-body.dark-mode .admin-sidebar .admin-nav #btn-nl-records.active::before {
-    background: #fff !important;
-}
-
-body.dark-mode .admin-sidebar-actions .admin-sidebar-tool {
-    border-color: rgba(148, 163, 184, 0.4);
-    color: #f8fafc !important;
-}
-
-body.dark-mode .admin-sidebar-actions .admin-sidebar-tool:nth-child(1) {
-    background: #172554 !important;
-}
-
-body.dark-mode .admin-sidebar-actions .admin-sidebar-tool:nth-child(2) {
-    background: #431407 !important;
-}
-
-body.dark-mode .admin-sidebar-actions .admin-sidebar-tool:nth-child(3) {
-    background: #2e1065 !important;
-}
-
-body.dark-mode .admin-sidebar-actions .admin-sidebar-tool:nth-child(4) {
-    background: #083344 !important;
-}
-
-body.dark-mode .admin-sidebar-toggle {
-    border-color: rgba(148, 163, 184, 0.4);
-    background: transparent;
-    color: #bbf7d0;
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .admin-shell,
-    .admin-sidebar,
-    .admin-sidebar button,
-    .admin-sidebar-toggle .hamburger-line {
-        transition-duration: 0.01ms !important;
-    }
-}
-
-@media (max-width: 640px) {
-    .admin-shell {
-        grid-template-columns: minmax(0, 1fr);
-        grid-template-rows: auto minmax(0, 1fr);
-        height: 100dvh;
-    }
-
-    .admin-sidebar {
-        position: relative;
-        width: 100%;
-        height: auto;
-        max-height: none;
-        overflow: visible;
-        padding: 12px;
-    }
-
-    .admin-shell.sidebar-expanded {
-        grid-template-columns: minmax(0, 1fr);
-        grid-template-rows: auto minmax(0, 1fr);
-    }
-
-    .admin-shell.sidebar-expanded .admin-sidebar {
-        max-height: min(55vh, 440px);
-        overflow-y: auto;
-    }
-
-    .admin-sidebar .admin-brand {
-        justify-content: center;
-        padding: 0;
-    }
-
-    .admin-shell:not(.sidebar-expanded) .admin-sidebar .admin-brand .title,
-    .admin-shell:not(.sidebar-expanded) .admin-sidebar .admin-brand .subtitle {
-        display: block;
-    }
-
-    .admin-shell:not(.sidebar-expanded) .admin-sidebar-content {
-        visibility: hidden;
-        opacity: 0;
-    }
-
-    .admin-shell.sidebar-expanded .admin-sidebar-content {
-        visibility: visible;
-        opacity: 1;
-        transition: opacity 140ms ease 80ms;
-    }
-
-    .admin-sidebar .admin-sidebar-actions {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        margin-top: 8px;
-        padding: 8px 4px;
-    }
-
-    .admin-main {
-        height: auto;
-        min-height: 0;
-        padding: 10px;
-    }
-
-    .admin-workspace-panel {
-        padding: 12px;
-    }
-}
-</style>
+@vite('resources/css/pages/admin.css')
 @endpush
 
 @section('content')
@@ -1126,7 +47,7 @@ body.dark-mode .admin-sidebar-toggle {
             </div>
 
 
-    <!-- Admin Users Modal -->
+
     <dialog class="largeModal rounded-2xl shadow-2xl bg-white backdrop:bg-black/40 p-0 w-[min(640px,calc(100vw-2rem))]" id="adminUsersModal">
         <div class="px-5 pt-5 pb-3 border-b border-gray-100 flex items-center justify-between">
             <h3 class="text-base font-black text-gray-900">Admin Users</h3>
@@ -1163,7 +84,7 @@ body.dark-mode .admin-sidebar-toggle {
         </div>
     </dialog>
 
-    <!-- Active Users Modal -->
+
     <dialog class="largeModal rounded-2xl shadow-2xl bg-white backdrop:bg-black/40 p-0 w-[min(800px,calc(100vw-2rem))]" id="activeUsersModal">
         <div class="px-5 pt-5 pb-3 border-b border-gray-100">
             <h3 class="text-base font-black text-gray-900">Active Users</h3>
@@ -1181,7 +102,7 @@ body.dark-mode .admin-sidebar-toggle {
         </div>
     </dialog>
 
-    <!-- Reports Modal -->
+
     <dialog class="largeModal rounded-2xl shadow-2xl bg-white backdrop:bg-black/40 p-0 w-[min(500px,calc(100vw-2rem))]" id="reportsModal">
         <div class="px-5 pt-5 pb-3 border-b border-gray-100">
             <h3 class="text-base font-black text-gray-900">Reports</h3>
@@ -1207,7 +128,7 @@ body.dark-mode .admin-sidebar-toggle {
         </div>
     </dialog>
 
-    <!-- Encoder Report Modal -->
+
     <dialog class="largeModal rounded-2xl shadow-2xl bg-white backdrop:bg-black/40 p-0 w-[min(500px,calc(100vw-2rem))]" id="encoderReportModal">
         <div class="px-5 pt-5 pb-3 border-b border-gray-100">
             <h3 class="text-base font-black text-gray-900">Encoder Report</h3>
@@ -1239,7 +160,7 @@ body.dark-mode .admin-sidebar-toggle {
         </div>
     </dialog>
 
-    <!-- Transmittal Report Modal -->
+
     <dialog class="largeModal rounded-2xl shadow-2xl bg-white backdrop:bg-black/40 p-0 w-[min(500px,calc(100vw-2rem))]" id="transmittalReportModal">
         <div class="px-5 pt-5 pb-3 border-b border-gray-100">
             <h3 class="text-base font-black text-gray-900">Transmittal Report</h3>
@@ -1262,9 +183,9 @@ body.dark-mode .admin-sidebar-toggle {
         </div>
     </dialog>
 
-    <!-- Dashboard Section -->
+
     <div id="dashboard-section" class="admin-workspace-panel" role="region" aria-label="Dashboard" aria-hidden="false">
-    <!-- DashboardDD -->
+
         @php
             $summaryDate = '';
             if(request('dash_date_type') == 'single' && request('dash_date_single')) {
@@ -1357,20 +278,7 @@ body.dark-mode .admin-sidebar-toggle {
                         </div>
                     </form>
 
-                    <script>
-                        function toggleDashDateFilters() {
-                            var dateType = document.getElementById('dashDateType').value;
-                            document.querySelectorAll('.dash-date-filter').forEach(function(el) {
-                                el.style.display = 'none';
-                            });
-                            if (dateType === 'single') {
-                                document.getElementById('dashSingleDate').style.display = 'flex';
-                            } else if (dateType === 'range') {
-                                document.getElementById('dashDateRange').style.display = 'flex';
-                                document.getElementById('dashDateRangeTo').style.display = 'flex';
-                            }
-                        }
-                    </script>
+                    @vite('resources/js/pages/admin-dashboard.js')
 
                     <div class="dash3-summary">
                         <div class="dash3-summary-title">Filters</div>
@@ -1381,7 +289,7 @@ body.dark-mode .admin-sidebar-toggle {
                 </div>
             </div>
 
-            {{-- Charts Section --}}
+
             <div class="dash3-charts-row">
                 @php
                     $chartMax = max($recordsByProgram->max() ?? 1, $recordsByLine->max() ?? 1, $recordsByMunicipality->max() ?? 1, 1);
@@ -1454,7 +362,7 @@ body.dark-mode .admin-sidebar-toggle {
                     </div>
                 </div>
 
-                
+
                 <div class="admin-card dash3-chart-card">
                     <div class="card-header">
                         <div>
@@ -1762,12 +670,12 @@ body.dark-mode .admin-sidebar-toggle {
             </script>
         </div>
 
-    </div> <!-- END Dashboard Section -->
+    </div>
 
-    <!-- NL Records Section -->
+
     <div id="nl-records-section" class="admin-workspace-panel" role="region" aria-label="NL records" aria-hidden="true" style="display: none;">
 
-    <!-- Transmittal Management -->
+
     <div class="no-print nl-unassigned-card" style="margin-bottom: 12px; padding: 16px 20px; border-radius: 12px; background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);">
         <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; margin: 0;">
             <div style="position: relative; width: 48px; height: 24px;">
@@ -1782,37 +690,9 @@ body.dark-mode .admin-sidebar-toggle {
         </label>
     </div>
 
-    <script>
-        (function () {
-            var toggle = document.getElementById('unassigned-toggle');
-            var bg = document.getElementById('unassigned-toggle-bg');
-            var dot = document.getElementById('unassigned-toggle-dot');
-            
-            if (toggle && bg && dot) {
-                function updateToggle() {
-                    if (toggle.checked) {
-                        bg.style.backgroundColor = '#006c35';
-                        dot.style.transform = 'translateX(24px)';
-                    } else {
-                        bg.style.backgroundColor = '#cbd5e1';
-                        dot.style.transform = 'translateX(0)';
-                    }
-                }
-                
-                updateToggle();
-                toggle.addEventListener('change', function() {
-                    updateToggle();
-                    // Submit filter form to preserve selected IDs
-                    var filterForm = document.getElementById('filter-form');
-                    if (filterForm && typeof submitFilterForm === 'function') {
-                        submitFilterForm();
-                    }
-                });
-            }
-        })();
-    </script>
+    @vite('resources/js/pages/admin-unassigned-toggle.js')
 
-    <!-- TABLE FILTERS -->
+
     <div class="no-print table-filters" style="margin-bottom: 16px; padding: 20px; border-radius: 12px; background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);">
         <div class="nl-filter-heading" style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
             <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #006c35 0%, #008a43 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
@@ -1825,8 +705,8 @@ body.dark-mode .admin-sidebar-toggle {
                 <p style="margin: 3px 0 0; font-size: 12px; color: #64748b;">Narrow the list before selecting records for transmittal.</p>
             </div>
         </div>
-        
-        <!-- Active Filters Display -->
+
+
         <div id="active-filters-display" style="margin-bottom: 16px; padding: 12px 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; min-height: 40px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
             <span style="font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Active Filters:</span>
             <div id="active-filters-list" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
@@ -2057,7 +937,6 @@ body.dark-mode .admin-sidebar-toggle {
                 toggle();
             })();
 
-            // Location data for cascading dropdowns
             var locationCsv = `BARANGAY,MUNICIPALITY,PROVINCE
 Betes,Aliaga,Nueva Ecija
 Bibiclat,Aliaga,Nueva Ecija
@@ -4059,7 +2938,6 @@ Villa Rosario,Victoria,Tarlac`;
 
             var locationData = parseLocationData(locationCsv);
 
-            // Cascading dropdown functionality for table filters
             (function () {
                 var tableProvince = document.getElementById('tableProvince');
                 var tableMunicipality = document.getElementById('tableMunicipality');
@@ -4112,7 +2990,6 @@ Villa Rosario,Victoria,Tarlac`;
                     updateBarangays();
                 });
 
-                // Initialize on page load based on selected province
                 if (tableProvince.value) {
                     updateMunicipalities();
                     if (tableMunicipality.value) {
@@ -4153,8 +3030,8 @@ Villa Rosario,Victoria,Tarlac`;
         @csrf
         @method('DELETE')
         <input type="hidden" name="record_ids" id="selected-record-ids">
-        
-        <!-- Main table container with proper sticky header support -->
+
+
         <div id="table-container">
             <div id="table-wrapper" class="table-wrapper-outer" style="width: 100%; border-radius: 16px; border: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); overflow-y: auto; max-height: 500px;">
                 <x-table :records="$records" :showEncoder="true" :showFilters="false" :showAdminTransmittal="true" :showNoticeImage="true" :allPrograms="$allPrograms" :allLines="$allLines" :allSources="$allSources" :allModes="$allModes" :showCheckbox="true" />
@@ -4189,12 +3066,13 @@ Villa Rosario,Victoria,Tarlac`;
         <div class="px-5 pt-5 pb-3 border-b border-gray-100">
             <h3 class="text-base font-black text-gray-900">Edit Record</h3>
         </div>
-        <form class="editRecordform grid grid-cols-[auto_1fr] gap-x-4 gap-y-3 px-5 py-4 items-center" id="recordEditForm" method="POST">
+        <form class="editRecordform grid grid-cols-[auto_1fr] gap-x-4 gap-y-3 px-5 py-4 items-center" id="recordEditForm" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
+            <input type="hidden" name="remove_notice_pdf" value="0">
             <label for="farmerName" class="text-xs font-bold text-gray-600 text-right">Farmer Name:</label>
             <input type="text" id="farmerName" name="farmerName" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full auto-caps">
-            
+
             <label for="editProvince" class="text-xs font-bold text-gray-600 text-right">Province:</label>
             <select name="province" id="editProvince" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
                 <option value="">Select Province</option>
@@ -4202,19 +3080,19 @@ Villa Rosario,Victoria,Tarlac`;
                 <option value="Nueva Ecija">Nueva Ecija</option>
                 <option value="Tarlac">Tarlac</option>
             </select>
-            
+
             <label for="editMunicipality" class="text-xs font-bold text-gray-600 text-right">Municipality:</label>
             <select name="municipality" id="editMunicipality" required disabled class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-gray-50 uppercase">
                 <option value="">Select Municipality</option>
             </select>
-            
+
             <label for="editBarangay" class="text-xs font-bold text-gray-600 text-right">Barangay:</label>
             <select name="barangay" id="editBarangay" required disabled class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-gray-50 uppercase">
                 <option value="">Select Barangay</option>
             </select>
-            
+
             <input type="hidden" name="address" id="editRecordAddress">
-            
+
             <label for="line" class="text-xs font-bold text-gray-600 text-right">Line:</label>
             <select name="line" id="line" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
                 <option value="">Select Line</option>
@@ -4226,7 +3104,7 @@ Villa Rosario,Victoria,Tarlac`;
                 <option value="non-crop">Non-Crop</option>
                 <option value="fisheries">Fisheries</option>
             </select>
-            
+
             <label for="program" class="text-xs font-bold text-gray-600 text-right">Program:</label>
             <select name="program" id="program" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
                 <option value="">Select Program</option>
@@ -4240,7 +3118,7 @@ Villa Rosario,Victoria,Tarlac`;
                 <option value="SELF-FINANCED">SELF-FINANCED</option>
                 <option value="CFITF">CFITF</option>
             </select>
-            
+
             <label for="source" class="text-xs font-bold text-gray-600 text-right">Source:</label>
             <select name="source" id="source" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
                 <option value="">Select Source</option>
@@ -4248,10 +3126,10 @@ Villa Rosario,Victoria,Tarlac`;
                 <option value="Email">Email</option>
                 <option value="Facebook">Facebook</option>
             </select>
-            
+
             <label for="causeOfDamage" class="text-xs font-bold text-gray-600 text-right">Cause of Damage:</label>
             <input type="text" id="causeOfDamage" name="causeOfDamage" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full auto-caps">
-            
+
             <label for="modeOfPayment" class="text-xs font-bold text-gray-600 text-right">Mode of payment:</label>
             <select name="modeOfPayment" id="modeOfPayment" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
                 <option value="">Select Mode of payment</option>
@@ -4262,38 +3140,45 @@ Villa Rosario,Victoria,Tarlac`;
             </select>
             <label for="date_occurrence" class="text-xs font-bold text-gray-600 text-right">Date occurrence:</label>
             <input type="text" id="date_occurrence" name="date_occurrence" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
-            
+
             <label for="date_received" class="text-xs font-bold text-gray-600 text-right">Date received:</label>
             <input type="date" id="date_received" name="date_received" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
-            
+
             <label for="remarks" class="text-xs font-bold text-gray-600 text-right">Remarks - Care of:</label>
             <input type="text" id="remarks" name="remarks" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full auto-caps">
-            
+
             <label for="transmittal_number" class="text-xs font-bold text-gray-600 text-right">Control Number:</label>
             <input type="text" id="transmittal_number" name="transmittal_number" placeholder="e.g., 2026-0420-001..." class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
-            
+
             <label for="admin_transmittal_number" class="text-xs font-bold text-gray-600 text-right">Admin Transmittal #:</label>
             <input type="text" id="admin_transmittal_number" name="admin_transmittal_number" placeholder="e.g., 001, 002, 003..." class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
             <label for="accounts" class="text-xs font-bold text-gray-600 text-right">Account (sender):</label>
             <input type="text" id="accounts" name="accounts" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full auto-caps">
             <label for="facebook_page_url" class="text-xs font-bold text-gray-600 text-right">FB page link:</label>
             <input type="url" id="facebook_page_url" name="facebook_page_url" placeholder="https://www.facebook.com/..." class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
-            <label for="editNoticeImage" class="text-xs font-bold text-gray-600 text-right">Notice / claim image:</label>
+            <label for="editNoticeImages" class="text-xs font-bold text-gray-600 text-right">Notice / claim photos:</label>
             <div class="flex flex-col gap-2">
-                <input type="file" id="editNoticeImage" name="notice_image" accept="image/jpeg,image/png,image/webp" class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700">
-                <div id="editNoticeImagePreviewContainer" hidden>
-                    <img id="editNoticeImagePreview" alt="Notice of loss or claim preview" hidden class="max-h-40 rounded-lg border border-gray-200 object-contain">
-                    <button type="button" id="editNoticeImagePrintButton" class="notice-image-view-btn mt-2" data-image-url="" hidden>View / Print image</button>
-                    <span class="mt-1 block text-xs text-gray-500">Current image or selected replacement</span>
-                </div>
-                <span class="text-xs text-gray-500">Optional. JPG, PNG, or WebP; maximum 30 MB. Leave empty to keep the current image.</span>
+                <input type="file" id="editNoticeImages" name="notice_images[]" accept="image/jpeg,image/png,image/webp" multiple class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700">
+                <button type="button" class="clear-notice-image-selection w-fit rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50" hidden>Clear selected photos</button>
+                <div id="editNoticeImageAttachments" class="flex flex-col gap-2"></div>
+                <button type="button" id="viewEditNoticeImages" class="notice-image-view-btn w-fit" data-image-urls="[]" data-farmer-name="" hidden>View / Print all photos</button>
+                <span id="editNoticeImageStatus" class="text-xs text-gray-500"></span>
+                <span class="text-xs text-gray-500">JPG, PNG, or WebP. Maximum 30 MB per photo. Existing photos are kept unless removed.</span>
+            </div>
+            <label for="editNoticePdfs" class="text-xs font-bold text-gray-600 text-right">Supporting PDFs:</label>
+            <div class="flex flex-col gap-2">
+                <input type="file" id="editNoticePdfs" name="notice_pdfs[]" accept="application/pdf,.pdf" multiple class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700">
+                <button type="button" class="clear-notice-pdf-selection w-fit rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50" hidden>Clear selected PDFs</button>
+                <div id="editNoticePdfAttachments" class="flex flex-col gap-2"></div>
+                <span id="editNoticePdfStatus" class="text-xs text-gray-500"></span>
+                <span class="text-xs text-gray-500">PDF only. Maximum 30 MB per file. Existing PDFs are kept unless removed.</span>
             </div>
             <div></div>
             <label for="clear_admin_transmittal_number" class="flex items-center gap-2 text-xs font-bold text-gray-600">
                 <input type="checkbox" id="clear_admin_transmittal_number" name="clear_admin_transmittal_number" value="1" class="w-4 h-4 accent-pcic-700">
                 Clear Admin Transmittal Number
             </label>
-            
+
             <div></div>
             <div class="flex gap-2 pt-1">
                 <button type="submit" class="h-9 px-4 rounded-lg bg-pcic-700 text-white text-xs font-bold hover:bg-pcic-800 transition-colors cursor-pointer">Update Record</button>
@@ -4317,7 +3202,7 @@ Villa Rosario,Victoria,Tarlac`;
         </form>
     </dialog>
 
-    <!-- Bulk Delete Confirmation Dialog -->
+
     <dialog class="bulkDeleteDialog rounded-2xl shadow-2xl bg-white backdrop:bg-black/40 p-0 w-[min(440px,calc(100vw-2rem))]">
         <div class="px-5 pt-5 pb-3 border-b border-gray-100">
             <h3 class="text-base font-black text-gray-900">Confirm Bulk Delete</h3>
@@ -4348,7 +3233,7 @@ Villa Rosario,Victoria,Tarlac`;
         </form>
     </dialog>
 
-    <!-- Edit Admin Dialog -->
+
     <dialog class="editAdminDialog rounded-2xl shadow-2xl bg-white backdrop:bg-black/40 p-0 w-[min(420px,calc(100vw-2rem))]">
         <form class="editAdminForm" method="POST">
             @csrf
@@ -4369,7 +3254,7 @@ Villa Rosario,Victoria,Tarlac`;
         </form>
     </dialog>
 
-    <!-- Approve Officer Dialog -->
+
     <dialog class="approveOfficerDialog rounded-2xl shadow-2xl bg-white backdrop:bg-black/40 p-0 w-[min(400px,calc(100vw-2rem))]">
         <div class="px-5 pt-5 pb-3 border-b border-gray-100">
             <h3 class="text-base font-black text-gray-900">Confirm Officer Approval</h3>
@@ -4386,7 +3271,7 @@ Villa Rosario,Victoria,Tarlac`;
         </div>
     </dialog>
 
-    <!-- Add Admin Dialog -->
+
     <dialog class="addAdminDialog rounded-2xl shadow-2xl bg-white backdrop:bg-black/40 p-0 w-[min(420px,calc(100vw-2rem))]">
         <form action="{{ route('admin.users.create') }}" method="POST">
             @csrf
@@ -4407,7 +3292,6 @@ Villa Rosario,Victoria,Tarlac`;
     </dialog>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Sidebar Navigation Toggle
         const btnDashboard = document.getElementById('btn-dashboard');
         const btnNlRecords = document.getElementById('btn-nl-records');
         const dashboardSection = document.getElementById('dashboard-section');
@@ -4475,8 +3359,7 @@ Villa Rosario,Victoria,Tarlac`;
             });
         }
 
-        
-        // Admin Users Modal
+
         const openAdminUsersModal = document.getElementById('openAdminUsersModal');
         const adminUsersModal = document.getElementById('adminUsersModal');
         const closeAdminUsersModal = document.querySelector('.closeAdminUsersModal');
@@ -4493,14 +3376,12 @@ Villa Rosario,Victoria,Tarlac`;
             });
         }
 
-        // Active Users Modal
         const openActiveUsersModal = document.getElementById('openActiveUsersModal');
         const activeUsersModal = document.getElementById('activeUsersModal');
         const closeActiveUsersModal = document.querySelector('.closeActiveUsersModal');
 
         if (openActiveUsersModal && activeUsersModal) {
             openActiveUsersModal.addEventListener('click', function() {
-                // Load active users data
                 fetch('{{ route('admin.active-users') }}')
                     .then(response => response.json())
                     .then(data => {
@@ -4541,7 +3422,6 @@ Villa Rosario,Victoria,Tarlac`;
             });
         }
 
-        // User Maintenance Modal
         const openUserMaintenanceModal = document.getElementById('openUserMaintenanceModal');
         const userMaintenanceModal = document.getElementById('userMaintenanceModal');
         const closeUserMaintenanceModal = document.querySelector('.closeUserMaintenanceModal');
@@ -4564,7 +3444,6 @@ Villa Rosario,Victoria,Tarlac`;
             });
         }
 
-        // Reports Modal
         const openReportsModal = document.getElementById('openReportsModal');
         const reportsModal = document.getElementById('reportsModal');
         const closeReportsModal = document.querySelector('.closeReportsModal');
@@ -4581,7 +3460,6 @@ Villa Rosario,Victoria,Tarlac`;
             });
         }
 
-        // Encoder Report Modal
         const openEncoderReportModal = document.querySelector('.openEncoderReportModal');
         const encoderReportModal = document.getElementById('encoderReportModal');
         const closeEncoderReportModal = document.querySelector('.closeEncoderReportModal');
@@ -4590,7 +3468,6 @@ Villa Rosario,Victoria,Tarlac`;
         if (openEncoderReportModal && encoderReportModal) {
             openEncoderReportModal.addEventListener('click', function() {
                 reportsModal.close();
-                // Reset form when opening modal
                 if (encoderReportForm) {
                     encoderReportForm.reset();
                 }
@@ -4604,14 +3481,12 @@ Villa Rosario,Victoria,Tarlac`;
             });
         }
 
-        // Close modal after form submission
         if (encoderReportForm && encoderReportModal) {
             encoderReportForm.addEventListener('submit', function() {
                 encoderReportModal.close();
             });
         }
 
-        // Transmittal Report Modal
         const openTransmittalReportModal = document.querySelector('.openTransmittalReportModal');
         const transmittalReportModal = document.getElementById('transmittalReportModal');
         const closeTransmittalReportModal = document.querySelector('.closeTransmittalReportModal');
@@ -4620,7 +3495,6 @@ Villa Rosario,Victoria,Tarlac`;
         if (openTransmittalReportModal && transmittalReportModal) {
             openTransmittalReportModal.addEventListener('click', function() {
                 reportsModal.close();
-                // Reset form when opening modal
                 if (transmittalReportForm) {
                     transmittalReportForm.reset();
                 }
@@ -4634,14 +3508,12 @@ Villa Rosario,Victoria,Tarlac`;
             });
         }
 
-        // Close modal after form submission
         if (transmittalReportForm && transmittalReportModal) {
             transmittalReportForm.addEventListener('submit', function() {
                 transmittalReportModal.close();
             });
         }
 
-        // Add Officer functionality
         const addOfficerButton = document.querySelector('.addOfficerButton');
         if (addOfficerButton) {
             addOfficerButton.addEventListener('click', function() {
@@ -4653,18 +3525,18 @@ Villa Rosario,Victoria,Tarlac`;
             const content = document.getElementById('userMaintenanceContent');
             const isEdit = user !== null;
             userMaintenanceModal.classList.add('is-editing');
-            
+
             let html = `
                 <form id="officerForm" class="user-maintenance-form space-y-4 rounded-xl border border-slate-200 bg-slate-50 p-5">
                     <input type="hidden" id="officerId" value="${user ? user.id : ''}">
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-1">Name</label>
-                        <input type="text" id="officerName" name="name" value="${user ? user.name : ''}" 
+                        <input type="text" id="officerName" name="name" value="${user ? user.name : ''}"
                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pcic-500 focus:border-pcic-500 text-sm" required>
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-1">Username</label>
-                        <input type="text" id="officerUsername" name="username" value="${user ? user.username : ''}" 
+                        <input type="text" id="officerUsername" name="username" value="${user ? user.username : ''}"
                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pcic-500 focus:border-pcic-500 text-sm" required>
                     </div>
                     <div>
@@ -4678,10 +3550,9 @@ Villa Rosario,Victoria,Tarlac`;
                     </div>
                 </form>
             `;
-            
+
             content.innerHTML = html;
-            
-            // Add form submit handler
+
             document.getElementById('officerForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 saveUser();
@@ -4693,28 +3564,28 @@ Villa Rosario,Victoria,Tarlac`;
             const name = document.getElementById('officerName').value;
             const username = document.getElementById('officerUsername').value;
             const password = document.getElementById('officerPassword').value;
-            
+
             console.log('Saving user:', {
                 officerId,
                 name,
                 username,
                 password: password || '(empty)'
             });
-            
+
             const url = officerId ? `/api/officers/${officerId}` : '/api/officers';
             const method = officerId ? 'PUT' : 'POST';
-            
+
             const requestData = {
                 name: name,
                 username: username,
             };
-            
+
             if (password || !officerId) {
                 requestData.password = password || 'default123';
             }
-            
+
             console.log('Request data:', requestData);
-            
+
             fetch(url, {
                 method: method,
                 headers: {
@@ -4745,8 +3616,7 @@ Villa Rosario,Victoria,Tarlac`;
 
         function editUser(id) {
             console.log('Editing user with ID:', id);
-            
-            // Fetch user data and show form
+
             fetch(`/api/officers/${id}`)
                 .then(response => {
                     console.log('Response status:', response.status);
@@ -4767,7 +3637,7 @@ Villa Rosario,Victoria,Tarlac`;
 
         function deleteUser(id) {
             console.log('Deleting user with ID:', id);
-            
+
             showConfirmDialog('Are you sure you want to delete this user?', function() {
                 fetch(`/api/officers/${id}`, {
                     method: 'DELETE',
@@ -4796,24 +3666,22 @@ Villa Rosario,Victoria,Tarlac`;
                     console.error('Error deleting user:', error);
                     showModalMessage('Error deleting user: ' + error.message, 'error');
                 });
-            }); // Close showConfirmDialog callback
+            });
         }
 
         function attachUserButtonListeners() {
             console.log('Attaching user button listeners...');
-            
-            // Remove existing listeners to prevent duplicates
+
             document.removeEventListener('click', handleUserButtonClick);
-            
-            // Add event delegation listener
+
             document.addEventListener('click', handleUserButtonClick);
         }
-        
+
         function handleUserButtonClick(event) {
             const editButton = event.target.closest('.edit-user-btn');
             const deleteButton = event.target.closest('.delete-user-btn');
             const cancelButton = event.target.closest('.cancel-user-form');
-            
+
             if (editButton) {
                 event.preventDefault();
                 const userId = editButton.getAttribute('data-user-id');
@@ -4956,20 +3824,16 @@ Villa Rosario,Victoria,Tarlac`;
                 });
         }
 
-        // Cascading Dropdowns for Dashboard Filters
         const dashProvince = document.querySelector('select[name="dash_province"]');
         const dashMunicipality = document.querySelector('select[name="dash_municipality"]');
         const dashBarangay = document.querySelector('select[name="dash_barangay"]');
 
-        // Cascading Dropdowns for Table Filters
         const tableProvince = document.querySelector('select[name="province"]');
         const tableMunicipality = document.querySelector('select[name="municipality"]');
         const tableBarangay = document.querySelector('select[name="barangay"]');
 
-        // Location data - removed due to syntax errors
         const locationCsv = '';
 
-        // Transmit-related DOM elements
         const transmitActionBtn = document.getElementById('transmit-selected-records');
         const transmitAllBox = document.getElementById('select-all-transmit');
         const transmitCheckboxes = document.querySelectorAll('.record-checkbox-transmit');
@@ -4977,18 +3841,15 @@ Villa Rosario,Victoria,Tarlac`;
         const recordCheckboxes = document.querySelectorAll('.record-checkbox');
         const selectAllBox = document.getElementById('select-all');
 
-        // Track selection order of record IDs and sources
         const selectedIdsOrder = [];
         const selectedSourcesOrder = [];
 
-        // Get selected IDs from URL parameter
         function getSelectedIdsFromUrl() {
             const params = new URLSearchParams(window.location.search);
             const selectedIds = params.get('selected_transmit_ids');
             return selectedIds ? selectedIds.split(',').filter(id => id) : [];
         }
 
-        // Update URL with selected IDs
         function updateUrlWithSelectedIds(selectedIds) {
             const url = new URL(window.location);
             if (selectedIds.length > 0) {
@@ -4997,34 +3858,30 @@ Villa Rosario,Victoria,Tarlac`;
                 url.searchParams.delete('selected_transmit_ids');
             }
             window.history.replaceState({}, '', url);
-            // Update filter form hidden inputs
             updateFilterFormHiddenInputs();
         }
 
-        // Update filter form hidden inputs with current selections
         function updateFilterFormHiddenInputs() {
             const filterTransmitIdsInput = document.getElementById('filter-selected-transmit-ids');
             const filterDeleteIdsInput = document.getElementById('filter-selected-delete-ids');
-            
+
             if (filterTransmitIdsInput) {
                 const transmitIds = getSelectedIdsFromUrl();
                 filterTransmitIdsInput.value = transmitIds.join(',');
             }
-            
+
             if (filterDeleteIdsInput) {
                 const deleteIds = getSelectedDeleteIdsFromUrl();
                 filterDeleteIdsInput.value = deleteIds.join(',');
             }
         }
 
-        // Get selected delete IDs from URL parameter
         function getSelectedDeleteIdsFromUrl() {
             const params = new URLSearchParams(window.location.search);
             const selectedIds = params.get('selected_delete_ids');
             return selectedIds ? selectedIds.split(',').filter(id => id) : [];
         }
 
-        // Update URL with selected delete IDs
         function updateUrlWithSelectedDeleteIds(selectedIds) {
             const url = new URL(window.location);
             if (selectedIds.length > 0) {
@@ -5033,7 +3890,6 @@ Villa Rosario,Victoria,Tarlac`;
                 url.searchParams.delete('selected_delete_ids');
             }
             window.history.replaceState({}, '', url);
-            // Update filter form hidden inputs
             updateFilterFormHiddenInputs();
         }
 
@@ -5044,7 +3900,6 @@ Villa Rosario,Victoria,Tarlac`;
             const currentBulkCount = document.getElementById('bulk-selected-count');
             if (currentTransmitBtn) {
                 currentTransmitBtn.disabled = totalSelected === 0;
-                // Update opacity based on disabled state
                 currentTransmitBtn.style.opacity = totalSelected === 0 ? '0.6' : '1';
                 currentTransmitBtn.style.cursor = totalSelected === 0 ? 'not-allowed' : 'pointer';
             }
@@ -5059,7 +3914,6 @@ Villa Rosario,Victoria,Tarlac`;
             const currentDeleteBtn = document.getElementById('delete-selected');
             if (currentDeleteBtn) {
                 currentDeleteBtn.disabled = totalSelected === 0;
-                // Update opacity based on disabled state
                 currentDeleteBtn.style.opacity = totalSelected === 0 ? '0.6' : '1';
                 currentDeleteBtn.style.cursor = totalSelected === 0 ? 'not-allowed' : 'pointer';
             }
@@ -5069,13 +3923,11 @@ Villa Rosario,Victoria,Tarlac`;
                 const selectedIds = getSelectedIdsFromUrl();
                 const checkboxValue = cb.value;
                 const source = cb.dataset.source;
-                
+
                 if (this.checked) {
                     if (!selectedIds.includes(checkboxValue)) {
                         selectedIds.push(checkboxValue);
-                        // Track selection order
                         selectedIdsOrder.push(checkboxValue);
-                        // Track source order if this source hasn't been selected yet
                         if (source && !selectedSourcesOrder.includes(source)) {
                             selectedSourcesOrder.push(source);
                         }
@@ -5084,12 +3936,10 @@ Villa Rosario,Victoria,Tarlac`;
                     const index = selectedIds.indexOf(checkboxValue);
                     if (index > -1) {
                         selectedIds.splice(index, 1);
-                        // Remove from selection order
                         const orderIndex = selectedIdsOrder.indexOf(checkboxValue);
                         if (orderIndex > -1) {
                             selectedIdsOrder.splice(orderIndex, 1);
                         }
-                        // Check if any records from this source are still selected
                         if (source) {
                             const sourceStillSelected = selectedIdsOrder.some(id => {
                                 const checkbox = document.querySelector(`.record-checkbox-transmit[value="${id}"]`);
@@ -5109,7 +3959,6 @@ Villa Rosario,Victoria,Tarlac`;
             });
         });
 
-        // Add event listeners for delete checkboxes
         recordCheckboxes.forEach(cb => {
             cb.addEventListener('change', function() {
                 const selectedIds = getSelectedDeleteIdsFromUrl();
@@ -5166,7 +4015,6 @@ Villa Rosario,Victoria,Tarlac`;
             populateSelect(barangaySelect, barangays, 'All Barangays');
         }
 
-        // Dashboard filter cascading
         if (dashProvince && dashMunicipality && dashBarangay) {
             dashProvince.addEventListener('change', function() {
                 updateMunicipalities(dashProvince, dashMunicipality, dashBarangay);
@@ -5174,8 +4022,7 @@ Villa Rosario,Victoria,Tarlac`;
             dashMunicipality.addEventListener('change', function() {
                 updateBarangays(dashProvince, dashMunicipality, dashBarangay);
             });
-            
-            // Initialize on page load based on selected province
+
             if (dashProvince.value) {
                 updateMunicipalities(dashProvince, dashMunicipality, dashBarangay);
                 if (dashMunicipality.value) {
@@ -5188,7 +4035,6 @@ Villa Rosario,Victoria,Tarlac`;
             }
         }
 
-        // Table filter cascading
         if (tableProvince && tableMunicipality && tableBarangay) {
             tableProvince.addEventListener('change', function() {
                 updateMunicipalities(tableProvince, tableMunicipality, tableBarangay);
@@ -5196,8 +4042,7 @@ Villa Rosario,Victoria,Tarlac`;
             tableMunicipality.addEventListener('change', function() {
                 updateBarangays(tableProvince, tableMunicipality, tableBarangay);
             });
-            
-            // Initialize on page load based on selected province
+
             if (tableProvince.value) {
                 updateMunicipalities(tableProvince, tableMunicipality, tableBarangay);
                 if (tableMunicipality.value) {
@@ -5210,7 +4055,6 @@ Villa Rosario,Victoria,Tarlac`;
             }
         }
 
-        //Multiple selections
         const deleteMultipleBtn = document.getElementById('delete-multiple');
         const deleteSelectedBtn = document.getElementById('delete-selected');
         const transmitToggleBtn = document.getElementById('select-records-transmit');
@@ -5227,7 +4071,6 @@ Villa Rosario,Victoria,Tarlac`;
         const selectedRecordIdsInput = document.getElementById('selected-record-ids');
 
         function showLoadingIndicator() {
-            // Loading indicator removed - function kept for compatibility
         }
 
         reprintTransmittalBtn?.addEventListener('click', function() {
@@ -5252,7 +4095,6 @@ Villa Rosario,Victoria,Tarlac`;
             reprintTransmittalDialog?.close();
         });
 
-        // Auto-apply unassigned filter toggle and preserve current query filters
         unassignedToggle?.addEventListener('change', function () {
             const params = new URLSearchParams(window.location.search);
             if (this.checked) {
@@ -5261,8 +4103,7 @@ Villa Rosario,Victoria,Tarlac`;
                 params.delete('unassigned_only');
             }
             params.set('tab', 'nl-records');
-            
-            // Preserve selected IDs
+
             const selectedTransmitIds = getSelectedIdsFromUrl();
             const selectedDeleteIds = getSelectedDeleteIdsFromUrl();
             if (selectedTransmitIds.length > 0) {
@@ -5271,10 +4112,10 @@ Villa Rosario,Victoria,Tarlac`;
             if (selectedDeleteIds.length > 0) {
                 params.set('selected_delete_ids', selectedDeleteIds.join(','));
             }
-            
+
             const url = `${window.location.pathname}?${params.toString()}`;
             showLoadingIndicator();
-            
+
             fetch(url, {
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'
@@ -5282,57 +4123,48 @@ Villa Rosario,Victoria,Tarlac`;
             })
             .then(response => response.text())
             .then(html => {
-                // Parse the HTML to extract the new table content
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, 'text/html');
-                
-                // Replace table content
+
                 const newTableWrapper = doc.querySelector('#table-wrapper');
                 const currentTableWrapper = document.getElementById('table-wrapper');
                 if (newTableWrapper && currentTableWrapper) {
                     currentTableWrapper.innerHTML = newTableWrapper.innerHTML;
-                    
-                    // Re-initialize row click highlighting for new table content
+
                     setTimeout(function() {
                         initializeRowClickHighlighting();
                     }, 100);
                 }
-                
-                // Replace pagination
+
                 const newPagination = doc.querySelector('#pagination-container');
                 const currentPagination = document.getElementById('pagination-container');
                 if (newPagination && currentPagination) {
                     currentPagination.innerHTML = newPagination.innerHTML;
                 }
-                
-                // Update URL without reload
+
                 window.history.pushState({}, '', url);
-                
-                // Re-attach event listeners and restore checkbox state
+
                 reinitializeTableElements();
                 loadSelectedTransmitIds();
                 loadSelectedDeleteIds();
-                
-                // Update transmit button state to fix styling
+
                 updateTransmitButtonState();
                 updateDeleteButtonState();
-                
-                // Sync scrollbars after table replacement
+
                 setTimeout(function() {
                     if (window.syncTableScrollbars) {
                         window.syncTableScrollbars();
                     }
                 }, 100);
-                
-                // Restore checkbox visibility based on toggle button state
+
                 const toggleBtn = document.getElementById('select-records-transmit');
                 const isCancelSelection = toggleBtn && toggleBtn.textContent.includes('Cancel');
-                
+
                 if (isCancelSelection) {
                     const colCheckboxes = document.querySelectorAll('.col-checkbox-transmit');
                     const recordCheckboxes = document.querySelectorAll('.record-checkbox-transmit');
                     const selectAllBoxes = document.querySelectorAll('#select-all-transmit');
-                    
+
                     colCheckboxes.forEach(el => {
                         el.style.display = 'table-cell';
                     });
@@ -5343,16 +4175,15 @@ Villa Rosario,Victoria,Tarlac`;
                         box.style.display = 'block';
                     });
                 }
-                
-                // Restore delete checkbox visibility based on toggle button state
+
                 const deleteToggleBtn = document.getElementById('delete-multiple');
                 const isCancelDelete = deleteToggleBtn && deleteToggleBtn.textContent.includes('Cancel');
-                
+
                 if (isCancelDelete) {
                     const colDeleteCheckboxes = document.querySelectorAll('.col-checkbox');
                     const deleteRecordCheckboxes = document.querySelectorAll('.record-checkbox');
                     const selectAllDeleteBoxes = document.querySelectorAll('#select-all');
-                    
+
                     colDeleteCheckboxes.forEach(el => {
                         el.style.display = 'table-cell';
                     });
@@ -5363,37 +4194,31 @@ Villa Rosario,Victoria,Tarlac`;
                         box.style.display = 'block';
                     });
                 }
-                
-                // Re-attach pagination listeners
+
                 document.querySelectorAll('.pagination-link').forEach(link => {
                     link.addEventListener('click', arguments.callee);
                 });
             })
             .catch(error => {
-                window.location.href = url; // Fallback to regular navigation
+                window.location.href = url;
             });
         });
 
-        // Toggle checkbox visibility for bulk delete
         deleteMultipleBtn?.addEventListener('click', function() {
-            // Query the current table because filtering replaces its contents.
             const currentCheckboxElements = document.querySelectorAll('.col-checkbox');
             const currentCheckboxes = document.querySelectorAll('.record-checkbox');
             let firstElement = currentCheckboxElements[0];
             let firstCheckbox = currentCheckboxes[0];
-            let isHidden = (firstElement && firstElement.style.display === 'none') || 
+            let isHidden = (firstElement && firstElement.style.display === 'none') ||
                            (firstCheckbox && firstCheckbox.style.display === 'none');
-            
-            // Show/hide the table cells
+
             currentCheckboxElements.forEach(cl => {
                 cl.style.display = isHidden ? 'table-cell' : 'none';
             });
-            // Also show/hide the checkbox inputs
             currentCheckboxes.forEach(cb => {
                 cb.style.display = isHidden ? 'block' : 'none';
             });
-            
-            // Also show/hide the select all checkboxes in headers
+
             const selectAllBoxes = document.querySelectorAll('#select-all');
             selectAllBoxes.forEach(box => {
                 box.style.display = isHidden ? 'block' : 'none';
@@ -5409,36 +4234,29 @@ Villa Rosario,Victoria,Tarlac`;
             }
         });
 
-        // toggle checkbox for transmitting records
         transmitToggleBtn?.addEventListener('click', function() {
-            // Check if any checkbox element is visible or if the first checkbox input is visible
             let firstElement = transmitCheckboxElements[0];
             let firstCheckbox = transmitCheckboxes[0];
-            let isHidden = (firstElement && firstElement.style.display === 'none') || 
+            let isHidden = (firstElement && firstElement.style.display === 'none') ||
                            (firstCheckbox && firstCheckbox.style.display === 'none');
-            
-            // Show/hide the table cells
+
             transmitCheckboxElements.forEach(el => {
                 el.style.display = isHidden ? 'table-cell' : 'none';
             });
-            // Also show/hide the checkbox inputs
             const currentCheckboxes = document.querySelectorAll('.record-checkbox-transmit');
             currentCheckboxes.forEach(cb => {
                 cb.style.display = isHidden ? 'block' : 'none';
             });
-            
-            // Also show/hide the select all checkboxes in headers
+
             const selectAllTransmitBoxes = document.querySelectorAll('#select-all-transmit');
             selectAllTransmitBoxes.forEach(box => {
                 box.style.display = isHidden ? 'block' : 'none';
             });
-            
-            // Update button text and style
+
             if (isHidden) {
                 this.textContent = 'Cancel Selection';
-                this.style.backgroundColor = '#6c757d'; // Gray out
+                this.style.backgroundColor = '#6c757d';
 
-                // Selecting records for transmit always limits the table to eligible records.
                 if (unassignedToggle && !unassignedToggle.checked) {
                     unassignedToggle.checked = true;
                     const toggleBackground = document.getElementById('unassigned-toggle-bg');
@@ -5451,9 +4269,8 @@ Villa Rosario,Victoria,Tarlac`;
                 }
             } else {
                 this.textContent = 'Select Records for Transmit';
-                this.style.backgroundColor = ''; // Reset color
-                
-                // Reset state when canceling
+                this.style.backgroundColor = '';
+
                 const currentCheckboxes = document.querySelectorAll('.record-checkbox-transmit');
                 currentCheckboxes.forEach(cb => cb.checked = false);
                 if(transmitAllBox) transmitAllBox.checked = false;
@@ -5465,37 +4282,31 @@ Villa Rosario,Victoria,Tarlac`;
         transmitAllBox?.addEventListener('change', function() {
             const currentCheckboxes = document.querySelectorAll('.record-checkbox-transmit');
             let selectedIds = getSelectedIdsFromUrl();
-            
+
             if (this.checked) {
-                // Add all current checkboxes to selection
                 currentCheckboxes.forEach(cb => {
                     cb.checked = true;
                     const source = cb.dataset.source;
                     if (!selectedIds.includes(cb.value)) {
                         selectedIds.push(cb.value);
-                        // Track selection order
                         selectedIdsOrder.push(cb.value);
-                        // Track source order if this source hasn't been selected yet
                         if (source && !selectedSourcesOrder.includes(source)) {
                             selectedSourcesOrder.push(source);
                         }
                     }
                 });
             } else {
-                // Remove all current checkboxes from selection
                 currentCheckboxes.forEach(cb => {
                     cb.checked = false;
                     const index = selectedIds.indexOf(cb.value);
                     if (index > -1) {
                         selectedIds.splice(index, 1);
-                        // Remove from selection order
                         const orderIndex = selectedIdsOrder.indexOf(cb.value);
                         if (orderIndex > -1) {
                             selectedIdsOrder.splice(orderIndex, 1);
                         }
                     }
                 });
-                // Clear source order when all are deselected
                 selectedSourcesOrder.length = 0;
             }
             updateUrlWithSelectedIds(selectedIds);
@@ -5504,10 +4315,8 @@ Villa Rosario,Victoria,Tarlac`;
 
         function loadSelectedTransmitIds() {
             const selectedIds = getSelectedIdsFromUrl();
-            // Use current checkboxes from the DOM (after AJAX replacement)
             const currentCheckboxes = document.querySelectorAll('.record-checkbox-transmit');
             currentCheckboxes.forEach(cb => {
-                // Handle both string and number comparison
                 cb.checked = selectedIds.includes(cb.value) || selectedIds.includes(String(cb.value)) || selectedIds.includes(parseInt(cb.value));
             });
             updateTransmitButtonState();
@@ -5515,22 +4324,20 @@ Villa Rosario,Victoria,Tarlac`;
 
         function loadSelectedDeleteIds() {
             const selectedIds = getSelectedDeleteIdsFromUrl();
-            // Use current checkboxes from the DOM (after AJAX replacement)
             const currentCheckboxes = document.querySelectorAll('.record-checkbox');
             currentCheckboxes.forEach(cb => {
-                // Handle both string and number comparison
                 cb.checked = selectedIds.includes(cb.value) || selectedIds.includes(String(cb.value)) || selectedIds.includes(parseInt(cb.value));
             });
             updateDeleteButtonState();
         }
-        
+
         function updateSelectedRecordIdsInput() {
             const selectedIds = getSelectedIdsFromUrl();
             if (selectedRecordIdsInput) {
                 selectedRecordIdsInput.value = selectedIds.join(',');
             }
         }
-        
+
         function clearSelectedTransmitIds() {
             updateUrlWithSelectedIds([]);
             const currentCheckboxes = document.querySelectorAll('.record-checkbox-transmit');
@@ -5548,13 +4355,10 @@ Villa Rosario,Victoria,Tarlac`;
             updateDeleteButtonState();
         }
 
-        // Load saved selections on page load
         loadSelectedTransmitIds();
         loadSelectedDeleteIds();
-        // Initialize filter form hidden inputs
         updateFilterFormHiddenInputs();
 
-        // Handle Clear Filters button to preserve selected IDs
         const clearFiltersBtn = document.getElementById('clear-filters-btn');
         if (clearFiltersBtn) {
             clearFiltersBtn.addEventListener('click', function(e) {
@@ -5562,25 +4366,21 @@ Villa Rosario,Victoria,Tarlac`;
                 const selectedTransmitIds = getSelectedIdsFromUrl();
                 const selectedDeleteIds = getSelectedDeleteIdsFromUrl();
                 let url = this.href;
-                
-                // Reset unassigned toggle when clearing filters
+
                 const unassignedToggle = document.getElementById('unassigned-toggle');
                 if (unassignedToggle) {
                     unassignedToggle.checked = false;
-                    // Update toggle visual state
                     const bg = document.getElementById('unassigned-toggle-bg');
                     const dot = document.getElementById('unassigned-toggle-dot');
                     if (bg && dot) {
                         bg.style.backgroundColor = '#cbd5e1';
                         dot.style.transform = 'translateX(0)';
                     }
-                    // Remove unassigned_only parameter from URL
                     const urlObj = new URL(url, window.location.origin);
                     urlObj.searchParams.delete('unassigned_only');
                     url = urlObj.toString();
                 }
-                
-                // Add selected IDs to the clear filters URL
+
                 if (selectedTransmitIds.length > 0) {
                     const urlObj = new URL(url, window.location.origin);
                     urlObj.searchParams.set('selected_transmit_ids', selectedTransmitIds.join(','));
@@ -5591,38 +4391,32 @@ Villa Rosario,Victoria,Tarlac`;
                     urlObj.searchParams.set('selected_delete_ids', selectedDeleteIds.join(','));
                     url = urlObj.toString();
                 }
-                
-                // Clear all filter form inputs
+
                 const filterForm = document.getElementById('filter-form');
                 if (filterForm) {
-                    // Clear text inputs
                     const textInputs = filterForm.querySelectorAll('input[type="text"], input[type="date"]');
                     textInputs.forEach(input => input.value = '');
-                    
-                    // Clear select dropdowns
+
                     const selectInputs = filterForm.querySelectorAll('select');
                     selectInputs.forEach(select => {
                         select.selectedIndex = 0;
                     });
-                    
-                    // Update active filters display to show no filters
+
                     setTimeout(function() {
                         updateActiveFiltersDisplay();
                     }, 100);
-                    
-                    // Reset date received type and hide conditional fields
+
                     const dateReceivedType = document.getElementById('tableDateReceivedType');
                     if (dateReceivedType) {
                         dateReceivedType.value = '';
                         const singleWrap = document.getElementById('tableDateReceivedSingleWrap');
                         const fromWrap = document.getElementById('tableDateReceivedFromWrap');
                         const toWrap = document.getElementById('tableDateReceivedToWrap');
-                        
+
                         if (singleWrap) singleWrap.style.display = 'none';
                         if (fromWrap) fromWrap.style.display = 'none';
                         if (toWrap) toWrap.style.display = 'none';
-                        
-                        // Disable the date inputs
+
                         const singleInput = singleWrap?.querySelector('input');
                         const fromInput = fromWrap?.querySelector('input');
                         const toInput = toWrap?.querySelector('input');
@@ -5630,12 +4424,11 @@ Villa Rosario,Victoria,Tarlac`;
                         if (fromInput) fromInput.disabled = true;
                         if (toInput) toInput.disabled = true;
                     }
-                    
-                    // Reset cascading location dropdowns
+
                     const provinceSelect = document.getElementById('tableProvince');
                     const municipalitySelect = document.getElementById('tableMunicipality');
                     const barangaySelect = document.getElementById('tableBarangay');
-                    
+
                     if (provinceSelect) provinceSelect.value = '';
                     if (municipalitySelect) {
                         municipalitySelect.value = '';
@@ -5646,9 +4439,9 @@ Villa Rosario,Victoria,Tarlac`;
                         barangaySelect.innerHTML = '<option value="">All Barangays</option>';
                     }
                 }
-                
+
                 showLoadingIndicator();
-                
+
                 fetch(url, {
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest'
@@ -5656,52 +4449,44 @@ Villa Rosario,Victoria,Tarlac`;
                 })
                 .then(response => response.text())
                 .then(html => {
-                    // Parse the HTML to extract the new table content
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(html, 'text/html');
-                    
-                    // Replace table content
+
                     const newTableWrapper = doc.querySelector('#table-wrapper');
                     const currentTableWrapper = document.getElementById('table-wrapper');
                     if (newTableWrapper && currentTableWrapper) {
                         currentTableWrapper.innerHTML = newTableWrapper.innerHTML;
                     }
-                    
-                    // Replace pagination
+
                     const newPagination = doc.querySelector('#pagination-container');
                     const currentPagination = document.getElementById('pagination-container');
                     if (newPagination && currentPagination) {
                         currentPagination.innerHTML = newPagination.innerHTML;
                     }
-                    
-                    // Update URL without reload
+
                     window.history.pushState({}, '', url);
-                    
-                    // Re-attach event listeners and restore checkbox state
+
                     reinitializeTableElements();
                     loadSelectedTransmitIds();
                     loadSelectedDeleteIds();
-                    
-                    // Update transmit button state to fix styling
+
                     updateTransmitButtonState();
                     updateDeleteButtonState();
-                    
-                    // Sync scrollbars after table replacement
+
                     setTimeout(function() {
                         if (window.syncTableScrollbars) {
                             window.syncTableScrollbars();
                         }
                     }, 100);
-                    
-                    // Restore checkbox visibility based on toggle button state
+
                     const toggleBtn = document.getElementById('select-records-transmit');
                     const isCancelSelection = toggleBtn && toggleBtn.textContent.includes('Cancel');
-                    
+
                     if (isCancelSelection) {
                         const colCheckboxes = document.querySelectorAll('.col-checkbox-transmit');
                         const recordCheckboxes = document.querySelectorAll('.record-checkbox-transmit');
                         const selectAllBoxes = document.querySelectorAll('#select-all-transmit');
-                        
+
                         colCheckboxes.forEach(el => {
                             el.style.display = 'table-cell';
                         });
@@ -5712,16 +4497,15 @@ Villa Rosario,Victoria,Tarlac`;
                             box.style.display = 'block';
                         });
                     }
-                    
-                    // Restore delete checkbox visibility based on toggle button state
+
                     const deleteToggleBtn = document.getElementById('delete-multiple');
                     const isCancelDelete = deleteToggleBtn && deleteToggleBtn.textContent.includes('Cancel');
-                    
+
                     if (isCancelDelete) {
                         const colDeleteCheckboxes = document.querySelectorAll('.col-checkbox');
                         const deleteRecordCheckboxes = document.querySelectorAll('.record-checkbox');
                         const selectAllDeleteBoxes = document.querySelectorAll('#select-all');
-                        
+
                         colDeleteCheckboxes.forEach(el => {
                             el.style.display = 'table-cell';
                         });
@@ -5732,50 +4516,41 @@ Villa Rosario,Victoria,Tarlac`;
                             box.style.display = 'block';
                         });
                     }
-                    
-                    // Re-attach pagination listeners
+
                     document.querySelectorAll('.pagination-link').forEach(link => {
                         link.addEventListener('click', arguments.callee);
                     });
                 })
                 .catch(error => {
-                    window.location.href = url; // Fallback to regular navigation
+                    window.location.href = url;
                 });
             });
         }
 
-        // Handle Clear Selections button
         const clearSelectionsBtn = document.getElementById('clear-selections');
         if (clearSelectionsBtn) {
             clearSelectionsBtn.addEventListener('click', function() {
-                // Clear both transmit and delete selections
                 clearSelectedTransmitIds();
                 clearSelectedDeleteIds();
-                // Clear selection order arrays
                 selectedIdsOrder.length = 0;
                 selectedSourcesOrder.length = 0;
-                // Update filter form hidden inputs
                 updateFilterFormHiddenInputs();
             });
         }
 
-        // Handle filter form submission with AJAX
         const filterForm = document.getElementById('filter-form');
         const applyFiltersBtn = document.getElementById('apply-filters-btn');
-        
-        // Function to update active filters display
+
         function updateActiveFiltersDisplay() {
             const activeFiltersList = document.getElementById('active-filters-list');
             const noFiltersMessage = document.getElementById('no-filters-message');
-            
+
             if (!activeFiltersList || !filterForm) return;
-            
+
             const filters = [];
-            
-            // Get all filter values
+
             const formData = new FormData(filterForm);
-            
-            // Text and select filters
+
             if (formData.get('farmerName')) {
                 filters.push(`<span style="background: #dbeafe; color: #1e40af; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 500;">Farmer: ${formData.get('farmerName')}</span>`);
             }
@@ -5812,8 +4587,7 @@ Villa Rosario,Victoria,Tarlac`;
             if (formData.get('admin_transmittal_number')) {
                 filters.push(`<span style="background: #fdf4ff; color: #7c3aed; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 500;">Admin Transmittal #: ${formData.get('admin_transmittal_number')}</span>`);
             }
-            
-            // Date filters
+
             if (formData.get('date_received_type') === 'single' && formData.get('date_received_single')) {
                 filters.push(`<span style="background: #fff7ed; color: #9a3412; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 500;">Date: ${formData.get('date_received_single')}</span>`);
             } else if (formData.get('date_received_type') === 'range') {
@@ -5827,14 +4601,12 @@ Villa Rosario,Victoria,Tarlac`;
                     filters.push(`<span style="background: #fff7ed; color: #9a3412; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 500;">${dateFilter}</span>`);
                 }
             }
-            
-            // Unassigned toggle
+
             const unassignedToggle = document.getElementById('unassigned-toggle');
             if (unassignedToggle && unassignedToggle.checked) {
                 filters.push(`<span style="background: #fef2f2; color: #dc2626; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 500;">Show Only Unassigned</span>`);
             }
-            
-            // Update display
+
             if (filters.length > 0) {
                 if (noFiltersMessage) {
                     noFiltersMessage.style.display = 'none';
@@ -5847,15 +4619,13 @@ Villa Rosario,Victoria,Tarlac`;
                 activeFiltersList.innerHTML = '<span id="no-filters-message" style="font-size: 13px; color: #94a3b8; font-style: italic;">No filters applied</span>';
             }
         }
-        
+
         function submitFilterForm() {
             if (!filterForm) return;
 
-            // Get form data
             const formData = new FormData(filterForm);
             const params = new URLSearchParams(formData);
 
-            // Preserve unassigned toggle state
             const unassignedToggle = document.getElementById('unassigned-toggle');
             if (unassignedToggle) {
                 if (unassignedToggle.checked) {
@@ -5865,10 +4635,8 @@ Villa Rosario,Victoria,Tarlac`;
                 }
             }
 
-            // Reset to page 1 when filters change to ensure correct pagination
             params.set('page', '1');
 
-            // Add selected IDs to preserve selections
             const selectedTransmitIds = getSelectedIdsFromUrl();
             const selectedDeleteIds = getSelectedDeleteIdsFromUrl();
             if (selectedTransmitIds.length > 0) {
@@ -5880,7 +4648,7 @@ Villa Rosario,Victoria,Tarlac`;
 
             const url = `${filterForm.action}?${params.toString()}`;
             showLoadingIndicator();
-            
+
             fetch(url, {
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'
@@ -5888,78 +4656,66 @@ Villa Rosario,Victoria,Tarlac`;
             })
             .then(response => response.text())
             .then(html => {
-                // Parse the HTML to extract the new table content
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, 'text/html');
-                
-                // Replace table content
+
                 const newTableWrapper = doc.querySelector('#table-wrapper');
                 const currentTableWrapper = document.getElementById('table-wrapper');
                 if (newTableWrapper && currentTableWrapper) {
                     currentTableWrapper.innerHTML = newTableWrapper.innerHTML;
-                    
-                    // Re-initialize row click highlighting for new table content
+
                     setTimeout(function() {
                         initializeRowClickHighlighting();
                     }, 100);
                 }
 
-                // Replace dashboard summary
                 const newDash3Summary = doc.querySelector('.dash3-summary');
                 const currentDash3Summary = document.querySelector('.dash3-summary');
                 if (newDash3Summary && currentDash3Summary) {
                     currentDash3Summary.innerHTML = newDash3Summary.innerHTML;
                 }
 
-                // Replace dashboard charts row
                 const newDash3ChartsRow = doc.querySelector('.dash3-charts-row');
                 const currentDash3ChartsRow = document.querySelector('.dash3-charts-row');
                 if (newDash3ChartsRow && currentDash3ChartsRow) {
                     currentDash3ChartsRow.innerHTML = newDash3ChartsRow.innerHTML;
                 }
 
-                // Replace dashboard grid cards
                 const newDash3Grid = doc.querySelector('#dash3-grid');
                 const currentDash3Grid = document.getElementById('dash3-grid');
                 if (newDash3Grid && currentDash3Grid) {
                     currentDash3Grid.innerHTML = newDash3Grid.innerHTML;
                 }
-                
-                // Replace pagination
+
                 const newPagination = doc.querySelector('#pagination-container');
                 const currentPagination = document.getElementById('pagination-container');
                 if (newPagination && currentPagination) {
                     currentPagination.innerHTML = newPagination.innerHTML;
                 }
-                
-                // Update URL without reload
+
                 window.history.pushState({}, '', url);
-                
-                // Re-attach event listeners and restore checkbox state
+
                 reinitializeTableElements();
                 loadSelectedTransmitIds();
                 loadSelectedDeleteIds();
-                
-                // Update transmit button state to fix styling
+
                 updateTransmitButtonState();
                 updateDeleteButtonState();
-                
-                // Sync scrollbars after table replacement
+
                 setTimeout(function() {
                     if (window.syncTableScrollbars) {
                         window.syncTableScrollbars();
                     }
                 }, 100);
-                
-                // Restore checkbox visibility based on toggle button state
+
                 const toggleBtn = document.getElementById('select-records-transmit');
                 const isCancelSelection = toggleBtn && toggleBtn.textContent.includes('Cancel');
-                
+
                 if (isCancelSelection) {
                     const colCheckboxes = document.querySelectorAll('.col-checkbox-transmit');
                     const recordCheckboxes = document.querySelectorAll('.record-checkbox-transmit');
                     const selectAllBoxes = document.querySelectorAll('#select-all-transmit');
-                    
+
                     colCheckboxes.forEach(el => {
                         el.style.display = 'table-cell';
                     });
@@ -5970,16 +4726,15 @@ Villa Rosario,Victoria,Tarlac`;
                         box.style.display = 'block';
                     });
                 }
-                
-                // Restore delete checkbox visibility based on toggle button state
+
                 const deleteToggleBtn = document.getElementById('delete-multiple');
                 const isCancelDelete = deleteToggleBtn && deleteToggleBtn.textContent.includes('Cancel');
-                
+
                 if (isCancelDelete) {
                     const colDeleteCheckboxes = document.querySelectorAll('.col-checkbox');
                     const deleteRecordCheckboxes = document.querySelectorAll('.record-checkbox');
                     const selectAllDeleteBoxes = document.querySelectorAll('#select-all');
-                    
+
                     colDeleteCheckboxes.forEach(el => {
                         el.style.display = 'table-cell';
                     });
@@ -5990,19 +4745,16 @@ Villa Rosario,Victoria,Tarlac`;
                         box.style.display = 'block';
                     });
                 }
-                
-                // Re-attach pagination listeners
+
                 document.querySelectorAll('.pagination-link').forEach(link => {
                     link.addEventListener('click', arguments.callee);
                 });
             })
             .catch(error => {
-                // Fallback to regular navigation
                 window.location.href = url;
             });
         }
-        
-        // Handle Enter key press on filter form inputs
+
         if (filterForm) {
             const filterInputs = filterForm.querySelectorAll('input, select');
             filterInputs.forEach(input => {
@@ -6015,17 +4767,15 @@ Villa Rosario,Victoria,Tarlac`;
             });
         }
 
-        // Handle Escape key shortcut for clearing filters
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
-                // Only trigger Escape key shortcut when focus is within filter form or its inputs
                 const activeElement = document.activeElement;
                 const isInFilterForm = filterForm && filterForm.contains(activeElement);
                 const isFilterInput = activeElement && (
-                    activeElement.id === 'filter-form' || 
+                    activeElement.id === 'filter-form' ||
                     activeElement.closest('#filter-form')
                 );
-                
+
                 if (isInFilterForm || isFilterInput) {
                     e.preventDefault();
                     const clearFiltersShortcutBtn = document.getElementById('clear-filters-shortcut-btn');
@@ -6036,31 +4786,26 @@ Villa Rosario,Victoria,Tarlac`;
             }
         });
 
-        // Handle clear filters shortcut button click
         const clearFiltersShortcutBtn = document.getElementById('clear-filters-shortcut-btn');
         if (clearFiltersShortcutBtn) {
             clearFiltersShortcutBtn.addEventListener('click', function(e) {
                 e.preventDefault();
-                // Navigate to admin page with nl-records tab to clear all filters
                 window.location.href = "{{ route('admin', ['tab' => 'nl-records']) }}";
             });
         }
 
-        // Add event listeners to update active filters display when inputs change
         if (filterForm) {
             const filterInputs = filterForm.querySelectorAll('input, select');
             filterInputs.forEach(input => {
                 input.addEventListener('input', updateActiveFiltersDisplay);
                 input.addEventListener('change', updateActiveFiltersDisplay);
             });
-            
-            // Also listen for unassigned toggle changes
+
             const unassignedToggle = document.getElementById('unassigned-toggle');
             if (unassignedToggle) {
                 unassignedToggle.addEventListener('change', updateActiveFiltersDisplay);
             }
 
-            // Handle per_page select change to preserve selected IDs
             const perPageSelect = filterForm.querySelector('select[name="per_page"]');
             if (perPageSelect) {
                 perPageSelect.addEventListener('change', function() {
@@ -6069,50 +4814,41 @@ Villa Rosario,Victoria,Tarlac`;
             }
         }
 
-        // Function to initialize row click highlighting
         function initializeRowClickHighlighting() {
             const tableRows = document.querySelectorAll('.records-table tbody tr.record-row');
             console.log('Initializing row highlighting for', tableRows.length, 'rows');
-            
-            // Use event delegation instead of individual listeners
+
             const tableBody = document.querySelector('.records-table tbody');
             if (tableBody) {
-                // Remove existing event listener if any
                 tableBody.removeEventListener('click', handleTableClick);
-                
-                // Add new event listener with event delegation
+
                 tableBody.addEventListener('click', handleTableClick);
                 console.log('Added event delegation listener to table body');
             }
         }
-        
-        // Handle table clicks with event delegation
+
         function handleTableClick(e) {
             const row = e.target.closest('tr.record-row');
             if (!row) {
                 console.log('Click not on a record row');
                 return;
             }
-            
-            // Don't highlight if clicking on buttons, checkboxes, links, or farmer name copy
+
             if (e.target.closest('button') || e.target.closest('input') || e.target.closest('a') || e.target.closest('.farmer-name-copy')) {
                 console.log('Click on interactive element, skipping highlight');
                 return;
             }
-            
+
             console.log('Row clicked via delegation');
-            
-            // Check if this row is already highlighted
+
             const isHighlighted = row.style.backgroundColor === '#006c35';
-            
+
             if (isHighlighted) {
                 console.log('Unhighlighting row');
-                
-                // Unhighlight this row
+
                 row.style.backgroundColor = '';
                 row.style.color = '';
-                
-                // Reset text color for all cells in this row
+
                 const cells = row.querySelectorAll('td');
                 cells.forEach(cell => {
                     cell.style.color = '';
@@ -6123,13 +4859,11 @@ Villa Rosario,Victoria,Tarlac`;
                 });
             } else {
                 console.log('Highlighting row');
-                
-                // Remove highlight from all other rows
+
                 const allRows = document.querySelectorAll('.records-table tbody tr.record-row');
                 allRows.forEach(r => {
                     r.style.backgroundColor = '';
                     r.style.color = '';
-                    // Reset text color for all cells
                     const cells = r.querySelectorAll('td');
                     cells.forEach(cell => {
                         cell.style.color = '';
@@ -6139,17 +4873,14 @@ Villa Rosario,Victoria,Tarlac`;
                         }
                     });
                 });
-                
-                // Highlight current row
+
                 row.style.backgroundColor = '#006c35';
                 row.style.color = 'white';
-                
-                // Update text color for all cells in the highlighted row
+
                 const cells = row.querySelectorAll('td');
                 cells.forEach(cell => {
                     cell.style.color = 'white';
-                    
-                    // Handle account field color specifically
+
                     const accountField = cell.querySelector('.account-field');
                     if (accountField) {
                         accountField.style.color = 'white';
@@ -6157,14 +4888,12 @@ Villa Rosario,Victoria,Tarlac`;
                 });
             }
         }
-        
-        // Initialize active filters display on page load
+
         document.addEventListener('DOMContentLoaded', function() {
             updateActiveFiltersDisplay();
             initializeRowClickHighlighting();
         });
 
-        // Handle button click event
         if (applyFiltersBtn) {
             applyFiltersBtn.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -6172,15 +4901,13 @@ Villa Rosario,Victoria,Tarlac`;
             });
         }
 
-        // AJAX Pagination - prevent page refresh
         const paginationLinks = document.querySelectorAll('.pagination-link');
-        
+
         paginationLinks.forEach(link => {
             link.addEventListener('click', function(e) {
                 e.preventDefault();
                 let url = this.href;
-                
-                // Preserve unassigned toggle state
+
                 const unassignedToggle = document.getElementById('unassigned-toggle');
                 if (unassignedToggle) {
                     const urlObj = new URL(url, window.location.origin);
@@ -6191,15 +4918,13 @@ Villa Rosario,Victoria,Tarlac`;
                     }
                     url = urlObj.toString();
                 }
-                
-                // Preserve selected transmit IDs in URL
+
                 const selectedIds = getSelectedIdsFromUrl();
                 if (selectedIds.length > 0) {
                     const urlObj = new URL(url, window.location.origin);
                     urlObj.searchParams.set('selected_transmit_ids', selectedIds.join(','));
                     url = urlObj.toString();
                 }
-                // Preserve selected delete IDs in URL
                 const selectedDeleteIds = getSelectedDeleteIdsFromUrl();
                 if (selectedDeleteIds.length > 0) {
                     const urlObj = new URL(url, window.location.origin);
@@ -6207,7 +4932,7 @@ Villa Rosario,Victoria,Tarlac`;
                     url = urlObj.toString();
                 }
                 showLoadingIndicator();
-                
+
                 fetch(url, {
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest'
@@ -6215,44 +4940,36 @@ Villa Rosario,Victoria,Tarlac`;
                 })
                 .then(response => response.text())
                 .then(html => {
-                    // Parse the HTML to extract the new table content
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(html, 'text/html');
-                    
-                    // Replace table content
+
                     const newTableWrapper = doc.querySelector('#table-wrapper');
                     const currentTableWrapper = document.getElementById('table-wrapper');
                     if (newTableWrapper && currentTableWrapper) {
                         currentTableWrapper.innerHTML = newTableWrapper.innerHTML;
                     }
-                    
-                    // Replace pagination
+
                     const newPagination = doc.querySelector('#pagination-container');
                     const currentPagination = document.getElementById('pagination-container');
                     if (newPagination && currentPagination) {
                         currentPagination.innerHTML = newPagination.innerHTML;
                     }
-                    
-                    // Update URL without reload
+
                     window.history.pushState({}, '', url);
 
-                    // Re-attach event listeners and restore checkbox state
                     reinitializeTableElements();
                     loadSelectedTransmitIds();
                     loadSelectedDeleteIds();
-                    
-                    // Update transmit button state to fix styling
+
                     updateTransmitButtonState();
                     updateDeleteButtonState();
-                    
-                    // Sync scrollbars after table replacement
+
                     setTimeout(function() {
                         if (window.syncTableScrollbars) {
                             window.syncTableScrollbars();
                         }
                     }, 100);
 
-                    // Restore checkbox visibility based on toggle button state
                     const toggleBtn = document.getElementById('select-records-transmit');
                     const isCancelSelection = toggleBtn && toggleBtn.textContent.includes('Cancel');
 
@@ -6272,7 +4989,6 @@ Villa Rosario,Victoria,Tarlac`;
                         });
                     }
 
-                    // Restore delete checkbox visibility based on toggle button state
                     const deleteToggleBtn = document.getElementById('delete-multiple');
                     const isCancelDelete = deleteToggleBtn && deleteToggleBtn.textContent.includes('Cancel');
 
@@ -6291,20 +5007,18 @@ Villa Rosario,Victoria,Tarlac`;
                             box.style.display = 'block';
                         });
                     }
-                    
-                    // Re-attach pagination listeners
+
                     document.querySelectorAll('.pagination-link').forEach(link => {
                         link.addEventListener('click', arguments.callee);
                     });
                 })
                 .catch(error => {
-                    window.location.href = url; // Fallback to regular navigation
+                    window.location.href = url;
                 });
             });
         });
-        
+
         function reinitializeTableElements() {
-            // Re-select elements after table update
             const newTransmitCheckboxes = document.querySelectorAll('.record-checkbox-transmit');
             const newTransmitCheckboxElements = document.querySelectorAll('.col-checkbox-transmit');
             const newTransmitAllBox = document.getElementById('select-all-transmit');
@@ -6316,19 +5030,16 @@ Villa Rosario,Victoria,Tarlac`;
             const newSelectAllBox = document.getElementById('select-all');
             const newDeleteSelectedBtn = document.getElementById('delete-selected');
 
-            // Re-attach event listeners
             newTransmitCheckboxes.forEach(cb => {
                 cb.addEventListener('change', function() {
                     const selectedIds = getSelectedIdsFromUrl();
                     const checkboxValue = cb.value;
                     const source = cb.dataset.source;
-                    
+
                     if (this.checked) {
                         if (!selectedIds.includes(checkboxValue)) {
                             selectedIds.push(checkboxValue);
-                            // Track selection order
                             selectedIdsOrder.push(checkboxValue);
-                            // Track source order if this source hasn't been selected yet
                             if (source && !selectedSourcesOrder.includes(source)) {
                                 selectedSourcesOrder.push(source);
                             }
@@ -6337,12 +5048,10 @@ Villa Rosario,Victoria,Tarlac`;
                         const index = selectedIds.indexOf(checkboxValue);
                         if (index > -1) {
                             selectedIds.splice(index, 1);
-                            // Remove from selection order
                             const orderIndex = selectedIdsOrder.indexOf(checkboxValue);
                             if (orderIndex > -1) {
                                 selectedIdsOrder.splice(orderIndex, 1);
                             }
-                            // Check if any records from this source are still selected
                             if (source) {
                                 const sourceStillSelected = selectedIdsOrder.some(id => {
                                     const checkbox = document.querySelector(`.record-checkbox-transmit[value="${id}"]`);
@@ -6366,42 +5075,35 @@ Villa Rosario,Victoria,Tarlac`;
                 let selectedIds = getSelectedIdsFromUrl();
 
                 if (this.checked) {
-                    // Add all current checkboxes to selection
                     newTransmitCheckboxes.forEach(cb => {
                         cb.checked = true;
                         const source = cb.dataset.source;
                         if (!selectedIds.includes(cb.value)) {
                             selectedIds.push(cb.value);
-                            // Track selection order
                             selectedIdsOrder.push(cb.value);
-                            // Track source order if this source hasn't been selected yet
                             if (source && !selectedSourcesOrder.includes(source)) {
                                 selectedSourcesOrder.push(source);
                             }
                         }
                     });
                 } else {
-                    // Remove all current checkboxes from selection
                     newTransmitCheckboxes.forEach(cb => {
                         cb.checked = false;
                         const index = selectedIds.indexOf(cb.value);
                         if (index > -1) {
                             selectedIds.splice(index, 1);
-                            // Remove from selection order
                             const orderIndex = selectedIdsOrder.indexOf(cb.value);
                             if (orderIndex > -1) {
                                 selectedIdsOrder.splice(orderIndex, 1);
                             }
                         }
                     });
-                    // Clear source order when all are deselected
                     selectedSourcesOrder.length = 0;
                 }
                 updateUrlWithSelectedIds(selectedIds);
                 updateTransmitButtonState();
             });
 
-            // Re-attach event listeners for delete checkboxes
             newDeleteCheckboxes.forEach(cb => {
                 cb.addEventListener('change', function() {
                     const selectedIds = getSelectedDeleteIdsFromUrl();
@@ -6425,7 +5127,6 @@ Villa Rosario,Victoria,Tarlac`;
                 let selectedIds = getSelectedDeleteIdsFromUrl();
 
                 if (this.checked) {
-                    // Add all current checkboxes to selection
                     newDeleteCheckboxes.forEach(cb => {
                         cb.checked = true;
                         if (!selectedIds.includes(cb.value)) {
@@ -6433,7 +5134,6 @@ Villa Rosario,Victoria,Tarlac`;
                         }
                     });
                 } else {
-                    // Remove all current checkboxes from selection
                     newDeleteCheckboxes.forEach(cb => {
                         cb.checked = false;
                         const index = selectedIds.indexOf(cb.value);
@@ -6447,24 +5147,23 @@ Villa Rosario,Victoria,Tarlac`;
             });
 
             newTransmitToggleBtn?.addEventListener('click', function() {
-                // Toggle logic here (same as before)
                 let firstElement = newTransmitCheckboxElements[0];
                 let firstCheckbox = newTransmitCheckboxes[0];
-                let isHidden = (firstElement && firstElement.style.display === 'none') || 
+                let isHidden = (firstElement && firstElement.style.display === 'none') ||
                                (firstCheckbox && firstCheckbox.style.display === 'none');
-                
+
                 newTransmitCheckboxElements.forEach(el => {
                     el.style.display = isHidden ? 'table-cell' : 'none';
                 });
                 newTransmitCheckboxes.forEach(cb => {
                     cb.style.display = isHidden ? 'block' : 'none';
                 });
-                
+
                 const selectAllTransmitBoxes = document.querySelectorAll('#select-all-transmit');
                 selectAllTransmitBoxes.forEach(box => {
                     box.style.display = isHidden ? 'block' : 'none';
                 });
-                
+
                 if (isHidden) {
                     this.textContent = 'Cancel Selection';
                     this.style.backgroundColor = '#6c757d';
@@ -6478,17 +5177,14 @@ Villa Rosario,Victoria,Tarlac`;
                 }
             });
 
-            // Update filter form hidden inputs after reinitialization
             updateFilterFormHiddenInputs();
 
-            // Re-attach pagination listeners
             const newPaginationLinks = document.querySelectorAll('.pagination-link');
             newPaginationLinks.forEach(link => {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
                     let url = this.href;
 
-                    // Preserve unassigned toggle state
                     const unassignedToggle = document.getElementById('unassigned-toggle');
                     if (unassignedToggle) {
                         const urlObj = new URL(url, window.location.origin);
@@ -6500,14 +5196,12 @@ Villa Rosario,Victoria,Tarlac`;
                         url = urlObj.toString();
                     }
 
-                    // Preserve selected transmit IDs in URL
                     const selectedIds = getSelectedIdsFromUrl();
                     if (selectedIds.length > 0) {
                         const urlObj = new URL(url, window.location.origin);
                         urlObj.searchParams.set('selected_transmit_ids', selectedIds.join(','));
                         url = urlObj.toString();
                     }
-                    // Preserve selected delete IDs in URL
                     const selectedDeleteIds = getSelectedDeleteIdsFromUrl();
                     if (selectedDeleteIds.length > 0) {
                         const urlObj = new URL(url, window.location.origin);
@@ -6523,44 +5217,36 @@ Villa Rosario,Victoria,Tarlac`;
                     })
                     .then(response => response.text())
                     .then(html => {
-                        // Parse the HTML to extract the new table content
                         const parser = new DOMParser();
                         const doc = parser.parseFromString(html, 'text/html');
 
-                        // Replace table content
                         const newTableWrapper = doc.querySelector('#table-wrapper');
                         const currentTableWrapper = document.getElementById('table-wrapper');
                         if (newTableWrapper && currentTableWrapper) {
                             currentTableWrapper.innerHTML = newTableWrapper.innerHTML;
                         }
 
-                        // Replace pagination
                         const newPagination = doc.querySelector('#pagination-container');
                         const currentPagination = document.getElementById('pagination-container');
                         if (newPagination && currentPagination) {
                             currentPagination.innerHTML = newPagination.innerHTML;
                         }
 
-                        // Update URL without reload
                         window.history.pushState({}, '', url);
 
-                        // Re-attach event listeners and restore checkbox state
                         reinitializeTableElements();
                         loadSelectedTransmitIds();
                         loadSelectedDeleteIds();
 
-                        // Update transmit button state to fix styling
                         updateTransmitButtonState();
                         updateDeleteButtonState();
 
-                        // Sync scrollbars after table replacement
                         setTimeout(function() {
                             if (window.syncTableScrollbars) {
                                 window.syncTableScrollbars();
                             }
                         }, 100);
 
-                        // Restore checkbox visibility based on toggle button state
                         const toggleBtn = document.getElementById('select-records-transmit');
                         const isCancelSelection = toggleBtn && toggleBtn.textContent.includes('Cancel');
 
@@ -6580,7 +5266,6 @@ Villa Rosario,Victoria,Tarlac`;
                             });
                         }
 
-                        // Restore delete checkbox visibility based on toggle button state
                         const deleteToggleBtn = document.getElementById('delete-multiple');
                         const isCancelDelete = deleteToggleBtn && deleteToggleBtn.textContent.includes('Cancel');
 
@@ -6600,29 +5285,26 @@ Villa Rosario,Victoria,Tarlac`;
                             });
                         }
 
-                        // Re-attach pagination listeners
                         document.querySelectorAll('.pagination-link').forEach(link => {
                             link.addEventListener('click', arguments.callee);
                         });
                     })
                     .catch(error => {
-                        window.location.href = url; // Fallback to regular navigation
+                        window.location.href = url;
                     });
                 });
             });
         }
 
-        // Clear selections when canceling
         transmitToggleBtn?.addEventListener('click', function() {
             const currentCheckboxElements = document.querySelectorAll('.col-checkbox-transmit');
-            const isHidden = (currentCheckboxElements[0]?.style.display === 'none') || 
+            const isHidden = (currentCheckboxElements[0]?.style.display === 'none') ||
                            (transmitCheckboxes[0]?.style.display === 'none');
             if (!isHidden) {
                 clearSelectedTransmitIds();
             }
         });
 
-        // 4. Handle Submission to Print Preview - OPEN IN NEW TAB
         transmitActionBtn?.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopImmediatePropagation();
@@ -6630,31 +5312,26 @@ Villa Rosario,Victoria,Tarlac`;
             const selectedIds = getSelectedIdsFromUrl();
 
             if (selectedIds.length > 0) {
-                // Clear URL selections before transmitting
                 updateUrlWithSelectedIds([]);
 
-                // Open print preview in new tab with IDs as URL parameter
                 const printPreviewUrl = "{{ route('admin.print-preview') }}?ids=" + encodeURIComponent(selectedIds.join(',')) + "&order=" + encodeURIComponent(selectedIdsOrder.join(',')) + "&sources=" + encodeURIComponent(selectedSourcesOrder.join(','));
                 window.open(printPreviewUrl, '_blank');
-                this.style.backgroundColor = '#6c757d'; // Gray out
+                this.style.backgroundColor = '#6c757d';
             } else {
                 this.textContent = 'Delete Multiple';
-                this.style.backgroundColor = ''; // Reset color
-                
-                // Reset state when canceling
+                this.style.backgroundColor = '';
+
                 recordCheckboxes.forEach(cb => cb.checked = false);
                 if(selectAllBox) selectAllBox.checked = false;
                 if(deleteSelectedBtn) deleteSelectedBtn.disabled = true;
             }
         });
 
-        // 3. Select All Logic
         selectAllBox?.addEventListener('change', function() {
             let selectedIds = getSelectedDeleteIdsFromUrl();
             const currentCheckboxes = document.querySelectorAll('.record-checkbox');
 
             if (this.checked) {
-                // Add all current checkboxes to selection
                 currentCheckboxes.forEach(cb => {
                     cb.checked = true;
                     if (!selectedIds.includes(cb.value)) {
@@ -6662,7 +5339,6 @@ Villa Rosario,Victoria,Tarlac`;
                     }
                 });
             } else {
-                // Remove all current checkboxes from selection
                 currentCheckboxes.forEach(cb => {
                     cb.checked = false;
                     const index = selectedIds.indexOf(cb.value);
@@ -6675,12 +5351,10 @@ Villa Rosario,Victoria,Tarlac`;
             updateDeleteButtonState();
         });
 
-        // 4. Verification Prompt (Your existing dialog logic)
         deleteSelectedBtn?.addEventListener('click', function() {
             if (!this.disabled) {
                 const selectedIds = getSelectedDeleteIdsFromUrl();
                 if (selectedIds.length > 0) {
-                    // Show count instead of names to avoid delay
                     const listElement = document.querySelector('.bulk-delete-list');
                     listElement.innerHTML = '';
                     const li = document.createElement('li');
@@ -6697,7 +5371,6 @@ Villa Rosario,Victoria,Tarlac`;
             if (selectedRecordIdsInput) {
                 selectedRecordIdsInput.value = selectedIds.join(',');
             }
-            // Clear URL selections before deleting
             updateUrlWithSelectedDeleteIds([]);
             document.getElementById('bulk-form')?.submit();
         });
@@ -6706,14 +5379,12 @@ Villa Rosario,Victoria,Tarlac`;
             bulkDeleteDialog?.close();
         });
 
-        // Show inline loading state for table-related submit actions (exclude filter form)
         document.querySelectorAll('form[action="{{ route('admin') }}"], #bulk-form').forEach(formEl => {
             if (formEl.id !== 'filter-form') {
                 formEl.addEventListener('submit', showLoadingIndicator);
             }
         });
 
-        // Quality-of-life shortcuts: D (dashboard), N (NL), / (focus farmer search)
         document.addEventListener('keydown', function (event) {
             if (event.target && ['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target.tagName)) {
                 return;
@@ -6729,7 +5400,6 @@ Villa Rosario,Victoria,Tarlac`;
             }
         });
 
-        // Edit Record Modal - Use event delegation to handle dynamically loaded buttons
         const editRecordDialog = document.getElementById('recordEditDialog');
         const closeEditRecordModal = document.querySelector('.closeEditRecordDialog');
         const editRecordForm = document.getElementById('recordEditForm');
@@ -6740,12 +5410,10 @@ Villa Rosario,Victoria,Tarlac`;
             });
         }
 
-        // Handle form submission for edit record
         if (editRecordForm) {
             editRecordForm.addEventListener('submit', function(e) {
                 e.preventDefault();
 
-                // Update hidden address field before submission
                 const editProvinceField = editRecordForm.querySelector('#editProvince');
                 const editMunicipalityField = editRecordForm.querySelector('#editMunicipality');
                 const editBarangayField = editRecordForm.querySelector('#editBarangay');
@@ -6757,7 +5425,6 @@ Villa Rosario,Victoria,Tarlac`;
                 }
 
                 const formData = new FormData(editRecordForm);
-                // Ensure _method parameter is included for PUT request
                 if (!formData.has('_method')) {
                     formData.append('_method', 'PUT');
                 }
@@ -6766,7 +5433,6 @@ Villa Rosario,Victoria,Tarlac`;
                 console.log('Form action:', formAction);
                 console.log('Form data:', Array.from(formData.entries()));
 
-                // Show loading state
                 const submitButton = editRecordForm.querySelector('button[type="submit"]');
                 if (submitButton) {
                     submitButton.disabled = true;
@@ -6785,14 +5451,13 @@ Villa Rosario,Victoria,Tarlac`;
                 .then(function(response) {
                     console.log('Response status:', response.status);
                     console.log('Response ok:', response.ok);
-                    
-                    // Handle 404 (record not found) specifically
+
                     if (response.status === 404) {
                         return response.json().then(function(data) {
                             throw new Error(data.message || 'Record not found. Please refresh the page and try again.');
                         });
                     }
-                    
+
                     return response.text().then(function(text) {
                         console.log('Response text:', text);
                         try {
@@ -6806,9 +5471,7 @@ Villa Rosario,Victoria,Tarlac`;
                 .then(function(data) {
                     console.log('Parsed data:', data);
                     if (data.success) {
-                        // Close modal
                         editRecordDialog.close();
-                        // Reload page to show updated data
                         window.location.reload();
                     } else {
                         showModalMessage('Error updating record: ' + (data.message || 'Unknown error'), 'error');
@@ -6816,20 +5479,16 @@ Villa Rosario,Victoria,Tarlac`;
                 })
                 .catch(function(error) {
                     console.error('Error:', error);
-                    
-                    // Check if this is a record not found error
+
                     if (error.message && error.message.includes('Record not found')) {
                         showModalMessage(error.message, 'error');
-                        
-                        // Refresh the table after a short delay to show updated data
+
                         setTimeout(function() {
                             const filterForm = document.getElementById('filter-form');
                             if (filterForm) {
-                                // Trigger a filter refresh to reload the table
                                 const event = new Event('submit');
                                 filterForm.dispatchEvent(event);
                             } else {
-                                // Fallback to page reload
                                 window.location.reload();
                             }
                         }, 2000);
@@ -6838,7 +5497,6 @@ Villa Rosario,Victoria,Tarlac`;
                     }
                 })
                 .finally(function() {
-                    // Reset button state
                     if (submitButton) {
                         submitButton.disabled = false;
                         submitButton.textContent = 'Update Record';
@@ -6848,22 +5506,18 @@ Villa Rosario,Victoria,Tarlac`;
         }
 
     });
-        
-    // Dashboard province slicer (Aurora / Nueva Ecija)
+
         document.addEventListener('click', function (e) {
             const btn = e.target?.closest?.('.dashProvinceSlicer');
             if (!btn) return;
             const select = document.getElementById('dashProvince');
             if (!select) return;
             select.value = btn.getAttribute('data-value') ?? '';
-            // Submit the dashboard filter form (the one containing dash_province)
             const form = select.closest('form');
             form?.submit();
         });
 
-    // Automatic logout on browser/tab close
     window.addEventListener('beforeunload', function(e) {
-        // Send logout request using navigator.sendBeacon for reliable delivery
         const logoutData = new FormData();
         logoutData.append('auto_logout', 'true');
         logoutData.append('channel', 'admin');
@@ -6871,14 +5525,14 @@ Villa Rosario,Victoria,Tarlac`;
     });
 </script>
 
-    {{-- Real-time pending approvals polling - removed due to syntax errors --}}
 
-    </div> <!-- END NL Records Section -->
+
+    </div>
 
         </div>
     </dialog>
 
-    <!-- User Maintenance Modal -->
+
     <dialog class="user-maintenance-dialog largeModal rounded-2xl shadow-2xl bg-white backdrop:bg-black/40 p-0" id="userMaintenanceModal">
         <div class="user-maintenance-header">
             <div>

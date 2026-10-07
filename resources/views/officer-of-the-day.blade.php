@@ -2,17 +2,9 @@
 
 @section('title', 'Officer of the day')
 
-@push('styles')
-<style>
-</style>
-@endpush
-
-@section('page-styles')
-@endsection
-
 @section('content')
     <div class="min-h-screen bg-gradient-to-br from-pcic-100 via-white to-pcic-100">
-        {{-- Top Header Bar --}}
+
         <div class="odHeader sticky top-0 z-20 w-full bg-white/90 backdrop-blur-md border-b border-gray-200/60">
             <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
                 <div class="flex items-center gap-3 min-w-0">
@@ -147,10 +139,10 @@
             </div>
         </div>
 
-        <!-- Backdrop -->
+
         <div id="addRecordBackdrop" class="fixed inset-0 bg-gray-900/50 z-[9998] hidden" style="display: none;"></div>
 
-        <!-- Add Record Modal -->
+
         <div id="addRecordDialog" class="addRecordDialog rounded-2xl shadow-2xl bg-white p-0 w-[min(640px,calc(100vw-2rem))] fixed z-[9999] hidden" style="display: none; position: absolute; z-index: 9999;">
             <div id="addRecordDialogheader" class="px-5 pt-5 pb-3 border-b border-gray-100 cursor-move">
                 <h3 class="text-base font-black text-gray-900">Add record</h3>
@@ -219,11 +211,17 @@
             <input type="text" id="remarks" name="remarks" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
             <label for="controlNumber" class="text-xs font-bold text-gray-600 text-right">Control Number:</label>
             <input type="text" id="controlNumber" name="control_number" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
-            <label for="noticePdf" class="text-xs font-bold text-gray-600 text-right">Supporting PDF:</label>
+            <label for="noticeImages" class="text-xs font-bold text-gray-600 text-right">Notice / claim photos:</label>
             <div class="flex flex-col gap-2">
-                <input type="file" id="noticePdf" name="notice_pdf" accept="application/pdf,.pdf" class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700">
-                <button type="button" class="clear-add-notice-pdf-selection w-fit rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50" hidden>Clear selected PDF</button>
-                <span class="text-xs text-gray-500">PDF only. Maximum 30 MB.</span>
+                <input type="file" id="noticeImages" name="notice_images[]" accept="image/jpeg,image/png,image/webp" multiple class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700">
+                <button type="button" class="clear-add-notice-image-selection w-fit rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50" hidden>Clear selected photos</button>
+                <span class="text-xs text-gray-500">JPG, PNG, or WebP. Maximum 30 MB per photo.</span>
+            </div>
+            <label for="noticePdfs" class="text-xs font-bold text-gray-600 text-right">Supporting PDFs:</label>
+            <div class="flex flex-col gap-2">
+                <input type="file" id="noticePdfs" name="notice_pdfs[]" accept="application/pdf,.pdf" multiple class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700">
+                <button type="button" class="clear-add-notice-pdf-selection w-fit rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50" hidden>Clear selected PDFs</button>
+                <span class="text-xs text-gray-500">PDF only. Maximum 30 MB per file.</span>
             </div>
             <div></div>
             <div class="flex gap-2 pt-1">
@@ -252,7 +250,6 @@
     </dialog>
 
     <script>
-        // Function to fetch and populate latest record
         function populateFormWithLatestRecord() {
             fetch('{{ route('records.latest') }}?source=OD')
                 .then(response => response.json())
@@ -260,7 +257,6 @@
                     if (data.success && data.record) {
                         const form = document.querySelector('#addRecordDialog form');
                         if (form) {
-                            // Clear all fields first
                             if (form.querySelector('#farmerName')) form.querySelector('#farmerName').value = '';
                             if (form.querySelector('#line')) form.querySelector('#line').value = '';
                             if (form.querySelector('#program')) form.querySelector('#program').value = '';
@@ -268,18 +264,15 @@
                             if (form.querySelector('#date_occurrence')) form.querySelector('#date_occurrence').value = '';
                             if (form.querySelector('#remarks')) form.querySelector('#remarks').value = '';
                             if (form.querySelector('#controlNumber')) form.querySelector('#controlNumber').value = '';
-                            
-                            // Populate retained values from the latest record
+
                             if (form.querySelector('#province')) {
                                 form.querySelector('#province').value = data.record.province || '';
-                                // Trigger change to enable municipality
                                 form.querySelector('#province').dispatchEvent(new Event('change'));
                             }
                             if (form.querySelector('#modeOfPayment')) form.querySelector('#modeOfPayment').value = data.record.modeOfPayment || '';
                             if (form.querySelector('#date_received')) form.querySelector('#date_received').value = data.record.date_received || '';
                             if (form.querySelector('#controlNumber')) form.querySelector('#controlNumber').value = data.record.control_number || '';
-                            
-                            // Handle municipality and barangay after province change
+
                             setTimeout(() => {
                                 if (form.querySelector('#municipality') && data.record.municipality) {
                                     form.querySelector('#municipality').value = data.record.municipality;
@@ -308,18 +301,15 @@
             const suffixHidden = document.getElementById('customTransmittalSuffix');
             const addRecordBtn = document.querySelector('.addRecordButton');
 
-            // Populate form when add record button is clicked
             if (addRecordBtn) {
                 addRecordBtn.addEventListener('click', populateFormWithLatestRecord);
             }
 
-            // Handle form submission via AJAX
             const addRecordForm = document.getElementById('addRecordForm');
             if (addRecordForm) {
                 addRecordForm.addEventListener('submit', function(e) {
                     e.preventDefault();
-                    
-                    // Save current form values before submission
+
                     const dateReceivedValue = addRecordForm.querySelector('#date_received') ? addRecordForm.querySelector('#date_received').value : '';
                     const modeOfPaymentValue = addRecordForm.querySelector('#modeOfPayment') ? addRecordForm.querySelector('#modeOfPayment').value : '';
                     const provinceValue = addRecordForm.querySelector('#province') ? addRecordForm.querySelector('#province').value : '';
@@ -328,15 +318,15 @@
                     const accountsValue = addRecordForm.querySelector('#accounts') ? addRecordForm.querySelector('#accounts').value : '';
                     const facebookPageUrlValue = addRecordForm.querySelector('#facebook_page_url') ? addRecordForm.querySelector('#facebook_page_url').value : '';
                     const controlNumberValue = addRecordForm.querySelector('#controlNumber') ? addRecordForm.querySelector('#controlNumber').value : '';
-                    
+
                     const formData = new FormData(addRecordForm);
                     const submitBtn = addRecordForm.querySelector('button[type="submit"]');
-                    
+
                     if (submitBtn) {
                         submitBtn.disabled = true;
                         submitBtn.textContent = 'Adding...';
                     }
-                    
+
                     fetch(addRecordForm.action, {
                         method: 'POST',
                         body: formData,
@@ -348,7 +338,6 @@
                     .then(data => {
                         if (data.success) {
                             showModalMessage(data.message, 'success');
-                            // Restore retained values
                             if (addRecordForm.querySelector('#date_received')) addRecordForm.querySelector('#date_received').value = dateReceivedValue;
                             if (addRecordForm.querySelector('#modeOfPayment')) addRecordForm.querySelector('#modeOfPayment').value = modeOfPaymentValue;
                             if (addRecordForm.querySelector('#province')) addRecordForm.querySelector('#province').value = provinceValue;
@@ -357,18 +346,18 @@
                             if (addRecordForm.querySelector('#accounts')) addRecordForm.querySelector('#accounts').value = accountsValue;
                             if (addRecordForm.querySelector('#facebook_page_url')) addRecordForm.querySelector('#facebook_page_url').value = facebookPageUrlValue;
                             if (addRecordForm.querySelector('#controlNumber')) addRecordForm.querySelector('#controlNumber').value = controlNumberValue;
-                            
-                            // Clear other fields
+
                             if (addRecordForm.querySelector('#farmerName')) addRecordForm.querySelector('#farmerName').value = '';
                             if (addRecordForm.querySelector('#line')) addRecordForm.querySelector('#line').value = '';
                             if (addRecordForm.querySelector('#program')) addRecordForm.querySelector('#program').value = '';
                             if (addRecordForm.querySelector('#causeOfDamage')) addRecordForm.querySelector('#causeOfDamage').value = '';
                             if (addRecordForm.querySelector('#date_occurrence')) addRecordForm.querySelector('#date_occurrence').value = '';
                             if (addRecordForm.querySelector('#remarks')) addRecordForm.querySelector('#remarks').value = '';
-                            if (addRecordForm.querySelector('#noticePdf')) addRecordForm.querySelector('#noticePdf').value = '';
+                            if (addRecordForm.querySelector('#noticeImages')) addRecordForm.querySelector('#noticeImages').value = '';
+                            if (addRecordForm.querySelector('#noticePdfs')) addRecordForm.querySelector('#noticePdfs').value = '';
+                            addRecordForm.querySelector('.clear-add-notice-image-selection')?.setAttribute('hidden', '');
                             addRecordForm.querySelector('.clear-add-notice-pdf-selection')?.setAttribute('hidden', '');
-                            
-                            // Refresh table data without closing dialog
+
                             setTimeout(function() {
                                 fetch(window.location.href, {
                                     headers: {
@@ -387,7 +376,7 @@
                                 });
                             }, 1500);
                         } else {
-                            const uploadError = data.errors?.notice_pdf?.[0];
+                            const uploadError = Object.values(data.errors || {}).flat()[0];
                             showModalMessage(uploadError || data.message || 'Error adding record', 'error');
                         }
                     })
@@ -410,7 +399,7 @@
                 const month = String(today.getMonth() + 1).padStart(2, '0');
                 const day = String(today.getDate()).padStart(2, '0');
                 prefixInput.value = `${year}-${month}${day}`;
-                
+
                 suffixInput.value = '';
                 suffixInput.focus();
                 dialog.showModal();
@@ -422,7 +411,7 @@
 
             confirmBtn.addEventListener('click', function() {
                 const suffix = suffixInput.value.trim();
-                
+
                 if (!suffix || suffix.length < 1 || suffix.length > 3 || isNaN(suffix)) {
                     showModalMessage('Please enter a valid number between 1 and 999', 'warning');
                     suffixInput.focus();
@@ -511,13 +500,22 @@
             <input type="text" id="remarks" name="remarks" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
             <label for="controlNumber" class="text-xs font-bold text-gray-600 text-right">Control Number:</label>
             <input type="text" id="controlNumber" name="control_number" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
-            <label for="editNoticePdf" class="text-xs font-bold text-gray-600 text-right">Supporting PDF:</label>
+            <label for="editNoticeImages" class="text-xs font-bold text-gray-600 text-right">Notice / claim photos:</label>
             <div class="flex flex-col gap-2">
-                <input type="file" id="editNoticePdf" name="notice_pdf" accept="application/pdf,.pdf" class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700">
-                <button type="button" class="clear-notice-pdf-selection w-fit rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50" hidden>Clear selected PDF</button>
+                <input type="file" id="editNoticeImages" name="notice_images[]" accept="image/jpeg,image/png,image/webp" multiple class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700">
+                <button type="button" class="clear-notice-image-selection w-fit rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50" hidden>Clear selected photos</button>
+                <div id="editNoticeImageAttachments" class="flex flex-col gap-2"></div>
+                <button type="button" id="viewEditNoticeImages" class="notice-image-view-btn w-fit" data-image-urls="[]" data-farmer-name="" hidden>View / Print all photos</button>
+                <span id="editNoticeImageStatus" class="text-xs text-gray-500"></span>
+                <span class="text-xs text-gray-500">JPG, PNG, or WebP. Maximum 30 MB per photo. Existing photos are kept unless removed.</span>
+            </div>
+            <label for="editNoticePdfs" class="text-xs font-bold text-gray-600 text-right">Supporting PDFs:</label>
+            <div class="flex flex-col gap-2">
+                <input type="file" id="editNoticePdfs" name="notice_pdfs[]" accept="application/pdf,.pdf" multiple class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700">
+                <button type="button" class="clear-notice-pdf-selection w-fit rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50" hidden>Clear selected PDFs</button>
+                <div id="editNoticePdfAttachments" class="flex flex-col gap-2"></div>
                 <span id="editNoticePdfStatus" class="text-xs text-gray-500"></span>
-                <button type="button" id="removeNoticePdfButton" class="w-fit rounded-lg border border-red-200 px-3 py-1.5 text-xs font-bold text-red-700 hover:bg-red-50" hidden>Remove current PDF</button>
-                <span class="text-xs text-gray-500">PDF only, maximum 30 MB. Leave empty to keep the current file.</span>
+                <span class="text-xs text-gray-500">PDF only. Maximum 30 MB per file. Existing PDFs are kept unless removed.</span>
             </div>
             <div></div>
             <div class="flex gap-2 pt-1">
@@ -532,376 +530,21 @@
 
 @push('scripts')
 <script>
-// Automatic logout on browser/tab close
 window.addEventListener('beforeunload', function(e) {
-    // Send logout request using navigator.sendBeacon for reliable delivery
     navigator.sendBeacon('{{ route('officer.logout') }}', new FormData());
 });
 
-// Also handle page visibility change (user switches tabs)
 document.addEventListener('visibilitychange', function() {
     if (document.visibilityState === 'hidden') {
-        // User switched away from the tab, mark as away after a delay
         setTimeout(function() {
             if (document.visibilityState === 'hidden') {
                 navigator.sendBeacon('{{ route('officer.logout') }}', new FormData());
             }
-        }, 30000); // 30 seconds delay
+        }, 30000);
     }
 });
 </script>
 
-<script>
-// Edit Record Modal
-const editRecordDialog = document.getElementById('recordEditDialog');
-const closeEditRecordModal = document.querySelector('.closeEditRecordDialog');
-const editRecordForm = document.getElementById('recordEditForm');
-
-document.addEventListener('click', function(e) {
-    if (e.target.classList.contains('editButton') || e.target.closest('.editButton')) {
-        const button = e.target.classList.contains('editButton') ? e.target : e.target.closest('.editButton');
-
-        if (!editRecordDialog || !editRecordForm) {
-            console.error('Edit dialog or form not found');
-            return;
-        }
-
-        try {
-            const recordId = button.getAttribute('data-id');
-            const farmerName = button.getAttribute('data-farmer-name');
-            const province = button.getAttribute('data-province');
-            const municipality = button.getAttribute('data-municipality');
-            const barangay = button.getAttribute('data-barangay');
-            const address = button.getAttribute('data-address');
-            const program = button.getAttribute('data-program');
-            const line = button.getAttribute('data-line');
-            const causeOfDamage = button.getAttribute('data-cause-of-damage');
-            const modeOfPayment = button.getAttribute('data-mode-of-payment');
-            const accounts = button.getAttribute('data-accounts');
-            const fbPageUrl = button.getAttribute('data-fb-page-url');
-            const dateOccurrence = button.getAttribute('data-date-occurrence');
-            const dateReceived = button.getAttribute('data-date-received');
-            const remarks = button.getAttribute('data-remarks');
-            const controlNumber = button.getAttribute('data-control-number');
-            const source = button.getAttribute('data-source');
-            const transmittalNumber = button.getAttribute('data-transmittal-number');
-            const adminTransmittalNumber = button.getAttribute('data-admin-transmittal-number');
-
-            const farmerNameField = editRecordForm.querySelector('#farmerName');
-            const editProvinceField = editRecordForm.querySelector('#editProvince');
-            const editMunicipalityField = editRecordForm.querySelector('#editMunicipality');
-            const editBarangayField = editRecordForm.querySelector('#editBarangay');
-            const addressField = editRecordForm.querySelector('#editRecordAddress');
-            const programField = editRecordForm.querySelector('#program');
-            const lineField = editRecordForm.querySelector('#line');
-            const causeOfDamageField = editRecordForm.querySelector('#causeOfDamage');
-            const modeOfPaymentField = editRecordForm.querySelector('#modeOfPayment');
-            const accountsField = editRecordForm.querySelector('#accounts');
-            const fbPageUrlField = editRecordForm.querySelector('#facebook_page_url');
-            const dateOccurrenceField = editRecordForm.querySelector('#date_occurrence');
-            const dateReceivedField = editRecordForm.querySelector('#date_received');
-            const remarksField = editRecordForm.querySelector('#remarks');
-            const controlNumberField = editRecordForm.querySelector('#controlNumber');
-            const transmittalNumberField = editRecordForm.querySelector('#transmittal_number');
-            const adminTransmittalNumberField = editRecordForm.querySelector('#admin_transmittal_number');
-            const sourceField = editRecordForm.querySelector('#source');
-
-            if (farmerNameField) farmerNameField.value = farmerName || '';
-            if (editProvinceField) editProvinceField.value = province || '';
-            if (editMunicipalityField) editMunicipalityField.value = municipality || '';
-            if (editBarangayField) editBarangayField.value = barangay || '';
-            if (addressField) addressField.value = address || '';
-            if (programField) programField.value = program || '';
-            if (lineField) lineField.value = line || '';
-            if (causeOfDamageField) causeOfDamageField.value = causeOfDamage || '';
-            if (modeOfPaymentField) modeOfPaymentField.value = modeOfPayment || '';
-            if (accountsField) accountsField.value = accounts || '';
-            if (fbPageUrlField) fbPageUrlField.value = fbPageUrl || '';
-            if (dateOccurrenceField) dateOccurrenceField.value = dateOccurrence || '';
-            if (dateReceivedField) dateReceivedField.value = dateReceived || '';
-            if (remarksField) remarksField.value = remarks || '';
-            if (controlNumberField) controlNumberField.value = controlNumber || '';
-            if (transmittalNumberField) transmittalNumberField.value = transmittalNumber || '';
-            if (adminTransmittalNumberField) adminTransmittalNumberField.value = adminTransmittalNumber || '';
-            if (sourceField) sourceField.value = source || '';
-
-            editRecordForm.action = '/records/' + recordId;
-
-            if (editProvinceField && editMunicipalityField && editBarangayField) {
-                if (editProvinceField.value) {
-                    editMunicipalityField.disabled = false;
-                    const event = new Event('change');
-                    editProvinceField.dispatchEvent(event);
-
-                    if (editMunicipalityField.value) {
-                        editBarangayField.disabled = false;
-                        const municipalityEvent = new Event('change');
-                        editMunicipalityField.dispatchEvent(municipalityEvent);
-                    }
-                }
-            }
-
-            editRecordDialog.showModal();
-        } catch (error) {
-            console.error('Error opening edit dialog:', error);
-        }
-    }
-});
-
-if (closeEditRecordModal && editRecordDialog) {
-    closeEditRecordModal.addEventListener('click', function() {
-        editRecordDialog.close();
-    });
-}
-
-if (editRecordForm) {
-    editRecordForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        const editProvinceField = editRecordForm.querySelector('#editProvince');
-        const editMunicipalityField = editRecordForm.querySelector('#editMunicipality');
-        const editBarangayField = editRecordForm.querySelector('#editBarangay');
-        const addressField = editRecordForm.querySelector('#editRecordAddress');
-        if (editProvinceField && editMunicipalityField && editBarangayField && addressField) {
-            addressField.value = [editBarangayField.value, editMunicipalityField.value, editProvinceField.value]
-                .filter(Boolean)
-                .join(', ');
-        }
-
-        const formData = new FormData(editRecordForm);
-        if (!formData.has('_method')) {
-            formData.append('_method', 'PUT');
-        }
-        const formAction = editRecordForm.action;
-
-        console.log('Form action:', formAction);
-        console.log('Form data:', Array.from(formData.entries()));
-
-        const submitButton = editRecordForm.querySelector('button[type="submit"]');
-        if (submitButton) {
-            submitButton.disabled = true;
-            submitButton.textContent = 'Updating...';
-        }
-
-        fetch(formAction, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json'
-            }
-        })
-        .then(function(response) {
-            console.log('Response status:', response.status);
-            console.log('Response ok:', response.ok);
-            return response.text().then(function(text) {
-                console.log('Response text:', text);
-                try {
-                    return JSON.parse(text);
-                } catch (e) {
-                    console.error('Failed to parse JSON:', e);
-                    throw new Error('Invalid JSON response');
-                }
-            });
-        })
-        .then(function(data) {
-            console.log('Parsed data:', data);
-            if (data.success) {
-                editRecordDialog.close();
-                window.location.reload();
-            } else {
-                showModalMessage('Error updating record: ' + (data.message || 'Unknown error'), 'error');
-            }
-        })
-        .catch(function(error) {
-            console.error('Error:', error);
-            showModalMessage('Error updating record. Please try again.', 'error');
-        })
-        .finally(function() {
-            if (submitButton) {
-                submitButton.disabled = false;
-                submitButton.textContent = 'Update Record';
-            }
-        });
-    });
-}
-
-// Add Record Modal Functionality
-(function() {
-    var addRecordDialog = document.getElementById('addRecordDialog');
-    var addRecordBackdrop = document.getElementById('addRecordBackdrop');
-    var closeAddRecordModal = document.querySelector('.closeAddRecordModal');
-    
-    // Function to show modal
-    function showAddRecordModal() {
-        if (addRecordDialog && addRecordBackdrop) {
-            // Center the modal
-            var viewportWidth = window.innerWidth;
-            var viewportHeight = window.innerHeight;
-            var dialogWidth = Math.min(640, viewportWidth - 32);
-            var dialogHeight = Math.min(500, viewportHeight - 32);
-            
-            var left = Math.max(16, (viewportWidth - dialogWidth) / 2);
-            var top = Math.max(16, (viewportHeight - dialogHeight) / 2);
-            
-            addRecordDialog.style.left = left + 'px';
-            addRecordDialog.style.top = top + 'px';
-            addRecordDialog.style.width = dialogWidth + 'px';
-            addRecordDialog.style.display = 'block';
-            addRecordBackdrop.style.display = 'block';
-            document.body.style.overflow = 'hidden';
-            document.documentElement.style.overflow = 'hidden';
-            
-            // Restore saved location values if they exist
-            restoreLocationValues();
-        }
-    }
-    
-    // Function to hide modal
-    function hideAddRecordModal() {
-        if (addRecordDialog && addRecordBackdrop) {
-            addRecordDialog.style.display = 'none';
-            addRecordBackdrop.style.display = 'none';
-            document.body.style.overflow = '';
-            document.documentElement.style.overflow = '';
-            
-            // Clear saved location values when manually closing
-            clearLocationValues();
-        }
-    }
-    
-    // Save location values to localStorage
-    function saveLocationValues() {
-        var province = document.getElementById('province');
-        var municipality = document.getElementById('municipality');
-        var barangay = document.getElementById('barangay');
-        
-        if (province && municipality && barangay) {
-            localStorage.setItem('od_province', province.value);
-            localStorage.setItem('od_municipality', municipality.value);
-            localStorage.setItem('od_barangay', barangay.value);
-        }
-    }
-    
-    // Restore location values from localStorage
-    function restoreLocationValues() {
-        var province = document.getElementById('province');
-        var municipality = document.getElementById('municipality');
-        var barangay = document.getElementById('barangay');
-        
-        if (province && municipality && barangay) {
-            var savedProvince = localStorage.getItem('od_province');
-            var savedMunicipality = localStorage.getItem('od_municipality');
-            var savedBarangay = localStorage.getItem('od_barangay');
-            
-            if (savedProvince) {
-                province.value = savedProvince;
-                // Enable municipality dropdown
-                municipality.disabled = false;
-                municipality.classList.remove('bg-gray-50');
-                municipality.classList.add('bg-white');
-                
-                // Trigger change event to populate municipalities
-                var event = new Event('change');
-                province.dispatchEvent(event);
-                
-                // After municipalities are loaded, set the saved value
-                setTimeout(function() {
-                    if (savedMunicipality) {
-                        municipality.value = savedMunicipality;
-                        // Enable barangay dropdown
-                        barangay.disabled = false;
-                        barangay.classList.remove('bg-gray-50');
-                        barangay.classList.add('bg-white');
-                        
-                        // Trigger change event to populate barangays
-                        var municipalityEvent = new Event('change');
-                        municipality.dispatchEvent(municipalityEvent);
-                        
-                        // After barangays are loaded, set the saved value
-                        setTimeout(function() {
-                            if (savedBarangay) {
-                                barangay.value = savedBarangay;
-                            }
-                        }, 100);
-                    }
-                }, 100);
-            }
-        }
-    }
-    
-    // Clear location values from localStorage
-    function clearLocationValues() {
-        localStorage.removeItem('od_province');
-        localStorage.removeItem('od_municipality');
-        localStorage.removeItem('od_barangay');
-    }
-    
-    // Close button functionality
-    if (closeAddRecordModal) {
-        closeAddRecordModal.addEventListener('click', hideAddRecordModal);
-    }
-    
-    // Close on backdrop click
-    if (addRecordBackdrop) {
-        addRecordBackdrop.addEventListener('click', hideAddRecordModal);
-    }
-    
-    // Close on ESC key
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && addRecordDialog && addRecordDialog.style.display === 'block') {
-            hideAddRecordModal();
-        }
-    });
-    
-    // Make showAddRecordModal available globally
-    window.showAddRecordModal = showAddRecordModal;
-    
-    // Add event listener to the add record button
-    var addRecordButton = document.querySelector('.addRecordButton');
-    if (addRecordButton) {
-        addRecordButton.addEventListener('click', showAddRecordModal);
-    }
-})();
-
-// Make the DIV element draggagle (W3Schools approach)
-dragElement(document.getElementById("addRecordDialog"));
-
-function dragElement(elmnt) {
-  var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-  if (document.getElementById(elmnt.id + "header")) {
-    document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
-  } else {
-    elmnt.onmousedown = dragMouseDown;
-  }
-
-  function dragMouseDown(e) {
-    e = e || window.event;
-    e.preventDefault();
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-    document.onmouseup = closeDragElement;
-    document.onmousemove = elementDrag;
-  }
-
-  function elementDrag(e) {
-    e = e || window.event;
-    e.preventDefault();
-    pos1 = pos3 - e.clientX;
-    pos2 = pos4 - e.clientY;
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
-  }
-
-  function closeDragElement() {
-    document.onmouseup = null;
-    document.onmousemove = null;
-  }
-}
-
-// Automatic logout on browser/tab close
-</script>
+@vite('resources/js/pages/officer-records.js')
 
 @endsection

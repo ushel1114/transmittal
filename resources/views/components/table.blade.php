@@ -1,471 +1,8 @@
 @props(['records', 'showDelete' => true, 'showEncoder' => false, 'showApproval' => false, 'showAction' => false, 'showCheckbox' => true, 'showFilters' => false, 'showSortableHeaders' => true, 'showAdminTransmittal' => false, 'showNoticeImage' => false, 'hideAccountsColumn' => false, 'hideSourceColumn' => false, 'hideProvinceColumn' => false, 'hideDateReceivedColumn' => false, 'useDateEncodedAsDateReceived' => false, 'allPrograms' => [], 'allLines' => [], 'allSources' => [], 'allModes' => []])
 
-<style>
-/* Default account field color - mustard yellow */
-.account-field {
-    color: #D4A017 !important;
-}
+@vite('resources/css/pages/records-table.css')
 
-/* Farmer name copy hover effect */
-.farmer-name-copy:hover {
-    color: #D4A017 !important;
-}
-
-/* Prevent text selection when clicking farmer name */
-.farmer-name-copy {
-    user-select: none;
-}
-
-/* Sticky table header using CSS */
-.records-table thead th {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background-color: #006c35;
-    color: white;
-    font-weight: bold;
-    padding: 8px 12px;
-    text-align: left;
-    white-space: nowrap;
-    border-bottom: 2px solid #005a2b;
-}
-
-/* Make account text bold only when it's a link */
-.account-field:link,
-.account-field:visited {
-    font-weight: bold !important;
-}
-
-/* Style account field when row is selected with green background */
-tr.selected .account-field {
-    color: white !important;
-    font-weight: bold !important;
-}
-
-/* Also target rows with green background (any selected state) */
-tr[style*="background-color: rgb(0, 108, 53)"] .account-field,
-tr[style*="background-color: #006c35"] .account-field,
-tr.bg-green-600 .account-field,
-tr.bg-green-700 .account-field {
-    color: white !important;
-    font-weight: bold !important;
-}
-
-/* Table wrapper with scroll */
-.table-wrapper {
-    overflow-x: hidden;
-    overflow-y: hidden;
-    border: none;
-}
-
-/* Top scrollbar sync */
-.table-scroll-sync-top {
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    overflow-x: auto;
-    overflow-y: hidden;
-    height: 20px;
-    margin-bottom: 0;
-    width: 100%;
-    border-bottom: 1px solid #e5e7eb;
-    background: white;
-}
-
-.table-scroll-sync-top::-webkit-scrollbar {
-    height: 12px;
-}
-
-.table-scroll-sync-top::-webkit-scrollbar-track {
-    background: #f1f1f1;
-}
-
-.table-scroll-sync-top::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 6px;
-}
-
-.table-scroll-sync-top::-webkit-scrollbar-thumb:hover {
-    background: #555;
-}
-
-/* Bottom scrollbar sync */
-.table-scroll-sync-bottom {
-    position: sticky;
-    bottom: 0;
-    z-index: 50;
-    overflow-x: auto;
-    overflow-y: hidden;
-    height: 20px;
-    margin-top: 0;
-    width: 100%;
-    border-top: 1px solid #e5e7eb;
-    background: white;
-}
-
-.table-scroll-sync-bottom::-webkit-scrollbar {
-    height: 12px;
-}
-
-.table-scroll-sync-bottom::-webkit-scrollbar-track {
-    background: #f1f1f1;
-}
-
-.table-scroll-sync-bottom::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 6px;
-}
-
-.table-scroll-sync-bottom::-webkit-scrollbar-thumb:hover {
-    background: #555;
-}
-
-.table-scroll-spacer {
-    height: 1px;
-    min-height: 1px;
-}
-
-/* JavaScript-based sticky headers with improved alignment */
-.fixed-table-header {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background-color: #006c35;
-    overflow-x: auto;
-    overflow-y: hidden;
-    border: none;
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE and Edge */
-}
-
-.fixed-table-header::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera */
-}
-
-.fixed-table-header table {
-    margin: 0;
-    border-collapse: separate;
-    border-spacing: 0;
-    width: 100%;
-    table-layout: fixed;
-}
-
-.fixed-table-header th {
-    background-color: #006c35 !important;
-    color: white !important;
-    font-weight: bold !important;
-    padding: 8px 12px;
-    text-align: left;
-    white-space: nowrap;
-    border: none;
-    box-sizing: border-box;
-    min-width: 80px;
-}
-
-/* Allow header columns to adjust dynamically based on content */
-.fixed-table-header .col-remarks {
-    max-width: 300px;
-}
-
-.fixed-table-header th:last-child {
-    border-right: none;
-}
-
-.table-wrapper td {
-    padding: 8px 12px;
-    border-bottom: 1px solid #dee2e6;
-    border-right: 1px solid #f0f0f0;
-    box-sizing: border-box;
-    white-space: nowrap;
-}
-
-.table-wrapper .col-remarks {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 300px;
-}
-
-/* Allow columns to adjust dynamically based on content */
-
-.table-wrapper td:last-child {
-    border-right: none;
-}
-
-/* Ensure checkbox columns have proper width in fixed header */
-.fixed-table-header .col-checkbox,
-.fixed-table-header .col-checkbox-transmit {
-    width: 50px;
-    min-width: 50px;
-    text-align: center;
-    padding: 8px 4px;
-}
-
-/* Ensure checkbox columns are visible when they should be */
-.fixed-table-header .col-checkbox[style*="display: none"],
-.fixed-table-header .col-checkbox-transmit[style*="display: none"] {
-    display: none !important;
-}
-
-.fixed-table-header .col-checkbox:not([style*="display: none"]),
-.fixed-table-header .col-checkbox-transmit:not([style*="display: none"]) {
-    display: table-cell !important;
-    width: 50px !important;
-    min-width: 50px !important;
-}
-
-.table-wrapper table {
-    border-collapse: separate;
-    border-spacing: 0;
-    margin-top: -1px; /* Prevent double border */
-}
-
-.table-wrapper th {
-    visibility: visible;
-}
-
-/* Dark mode support for table components */
-body.dark-mode .records-table thead th,
-body.dark-mode .fixed-table-header th {
-    background-color: #111827 !important;
-    color: #e2e8f0 !important;
-    border-color: rgba(148, 163, 184, 0.22) !important;
-}
-
-body.dark-mode .table-scroll-sync-top,
-body.dark-mode .table-scroll-sync-bottom {
-    background: #0f172a !important;
-    border-color: rgba(148, 163, 184, 0.28) !important;
-}
-
-body.dark-mode .table-scroll-sync-top::-webkit-scrollbar-track,
-body.dark-mode .table-scroll-sync-bottom::-webkit-scrollbar-track {
-    background: #111827 !important;
-}
-
-body.dark-mode .table-scroll-sync-top::-webkit-scrollbar-thumb,
-body.dark-mode .table-scroll-sync-bottom::-webkit-scrollbar-thumb {
-    background: #4b5563 !important;
-}
-
-body.dark-mode .table-wrapper table {
-    background: #111827 !important;
-    border-color: rgba(148, 163, 184, 0.24) !important;
-}
-
-body.dark-mode .table-wrapper th,
-body.dark-mode .table-wrapper td {
-    color: #e2e8f0 !important;
-    border-color: rgba(148, 163, 184, 0.22) !important;
-}
-
-body.dark-mode .table-wrapper thead tr.filter-row {
-    background: #111827 !important;
-}
-
-body.dark-mode .table-wrapper tbody tr:nth-child(odd) {
-    background: #0f172a !important;
-}
-
-body.dark-mode .table-wrapper tbody tr:nth-child(even) {
-    background: #111827 !important;
-}
-
-body.dark-mode .table-wrapper tbody tr:hover {
-    background: rgba(59, 130, 246, 0.16) !important;
-}
-
-body.dark-mode .table-wrapper input,
-body.dark-mode .table-wrapper select {
-    background: #0f172a !important;
-    color: #e2e8f0 !important;
-    border-color: rgba(148, 163, 184, 0.28) !important;
-}
-</style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Using CSS sticky positioning for table headers - no JavaScript needed
-    // The CSS .records-table thead th { position: sticky; top: 0; } handles both vertical and horizontal scrolling
-    // Handle checkbox changes to style account fields
-    function updateAccountStyling() {
-        const checkboxes = document.querySelectorAll('input[type="checkbox"].record-checkbox, input[type="checkbox"].record-checkbox-transmit');
-
-        checkboxes.forEach(checkbox => {
-            const row = checkbox.closest('tr');
-            if (row) {
-                if (checkbox.checked) {
-                    row.classList.add('selected');
-                } else {
-                    row.classList.remove('selected');
-                }
-            }
-        });
-    }
-
-    // Initial styling
-    updateAccountStyling();
-
-    // Add event listeners to checkboxes
-    document.addEventListener('change', function(e) {
-        if (e.target.type === 'checkbox' && (e.target.classList.contains('record-checkbox') || e.target.classList.contains('record-checkbox-transmit'))) {
-            const row = e.target.closest('tr');
-            if (row) {
-                if (e.target.checked) {
-                    row.classList.add('selected');
-                } else {
-                    row.classList.remove('selected');
-                }
-            }
-        }
-    });
-
-    // Handle select all checkboxes
-    document.addEventListener('change', function(e) {
-        if (e.target.id === 'select-all' || e.target.id === 'select-all-transmit') {
-            setTimeout(updateAccountStyling, 10);
-        }
-    });
-
-    // Sync top and bottom scrollbars for table horizontal scrolling
-    window.syncTableScrollbars = function() {
-        // Find all table scroll sync elements
-        const scrollTops = document.querySelectorAll('.table-scroll-sync-top');
-        const scrollBottoms = document.querySelectorAll('.table-scroll-sync-bottom');
-
-        scrollTops.forEach(function(scrollTop) {
-            const scrollWrapper = scrollTop.nextElementSibling;
-            const scrollSpacer = scrollTop.querySelector('.table-scroll-spacer');
-            const table = scrollWrapper ? scrollWrapper.querySelector('.records-table') : null;
-            const scrollBottom = scrollWrapper ? scrollWrapper.nextElementSibling : null;
-            const scrollSpacerBottom = scrollBottom ? scrollBottom.querySelector('.table-scroll-spacer') : null;
-
-            if (!scrollTop || !scrollWrapper || !scrollSpacer || !table || !scrollBottom || !scrollSpacerBottom) {
-                return;
-            }
-
-            // Function to update spacer width
-            function updateSpacerWidth() {
-                const tableWidth = table.scrollWidth;
-                scrollSpacer.style.width = tableWidth + 'px';
-                scrollSpacerBottom.style.width = tableWidth + 'px';
-            }
-
-            // Set the spacer width to match the table width
-            updateSpacerWidth();
-
-            if (scrollWrapper.dataset.scrollSyncInitialized !== 'true') {
-                function syncScrollPosition(source) {
-                    scrollTop.scrollLeft = source.scrollLeft;
-                    scrollWrapper.scrollLeft = source.scrollLeft;
-                    scrollBottom.scrollLeft = source.scrollLeft;
-                }
-
-                scrollTop.addEventListener('scroll', function() {
-                    syncScrollPosition(scrollTop);
-                });
-
-                scrollWrapper.addEventListener('scroll', function() {
-                    syncScrollPosition(scrollWrapper);
-                });
-
-                scrollBottom.addEventListener('scroll', function() {
-                    syncScrollPosition(scrollBottom);
-                });
-
-                scrollWrapper.dataset.scrollSyncInitialized = 'true';
-            }
-
-            if (scrollWrapper.dataset.scrollResizeInitialized !== 'true') {
-                window.addEventListener('resize', updateSpacerWidth);
-
-                if (typeof ResizeObserver !== 'undefined') {
-                    const resizeObserver = new ResizeObserver(function() {
-                        updateSpacerWidth();
-                    });
-                    resizeObserver.observe(table);
-                }
-
-                scrollWrapper.dataset.scrollResizeInitialized = 'true';
-            }
-        });
-    }
-
-    // Initialize scrollbar sync with a slight delay to ensure table is rendered
-    setTimeout(syncTableScrollbars, 100);
-
-    // Re-initialize after table updates (for AJAX loaded content)
-    const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            if (mutation.addedNodes.length > 0) {
-                setTimeout(syncTableScrollbars, 50);
-            }
-        });
-    });
-
-    const tableWrappers = document.querySelectorAll('.table-wrapper');
-    tableWrappers.forEach(function(tableWrapper) {
-        observer.observe(tableWrapper, { childList: true, subtree: true });
-    });
-
-    // Handle farmer name copy to clipboard
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('farmer-name-copy')) {
-            // Stop event propagation to prevent row highlighting from being affected
-            e.stopPropagation();
-            const farmerName = e.target.getAttribute('data-farmer-name');
-            if (farmerName) {
-                // Try modern Clipboard API first
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                    navigator.clipboard.writeText(farmerName).then(function() {
-                        if (typeof showModalMessage === 'function') {
-                            showModalMessage('Farmer name copied to clipboard!', 'success');
-                        }
-                    }).catch(function(err) {
-                        console.error('Clipboard API failed, trying fallback:', err);
-                        copyToClipboardFallback(farmerName);
-                    });
-                } else {
-                    // Fallback for non-secure contexts (HTTP)
-                    copyToClipboardFallback(farmerName);
-                }
-            }
-        }
-    });
-
-    // Fallback method for copying text (works in HTTP contexts)
-    function copyToClipboardFallback(text) {
-        const textarea = document.createElement('textarea');
-        textarea.value = text;
-        textarea.style.position = 'fixed';
-        textarea.style.left = '-999999px';
-        textarea.style.top = '-999999px';
-        document.body.appendChild(textarea);
-        textarea.focus();
-        textarea.select();
-
-        try {
-            const successful = document.execCommand('copy');
-            document.body.removeChild(textarea);
-            if (successful) {
-                if (typeof showModalMessage === 'function') {
-                    showModalMessage('Farmer name copied to clipboard!', 'success');
-                }
-            } else {
-                if (typeof showModalMessage === 'function') {
-                    showModalMessage('Failed to copy farmer name', 'error');
-                }
-            }
-        } catch (err) {
-            console.error('Fallback copy failed:', err);
-            document.body.removeChild(textarea);
-            if (typeof showModalMessage === 'function') {
-                showModalMessage('Failed to copy farmer name', 'error');
-            }
-        }
-    }
-});
-</script>
+@vite('resources/js/pages/records-table.js')
 
 @php
 $currentSort = request('sort_by', 'id');
@@ -495,49 +32,49 @@ if (! function_exists('getSortIndicator')) {
 <div class="table-filters" style="margin-bottom: 15px; padding: 15px; background: #f0fdf4; border: 1px solid rgba(0, 108, 53, 0.18); border-radius: 16px;">
     <form method="GET" style="display: contents;">
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: end;">
-            <!-- 1. Transmittal Number Filter -->
+
             <div>
                 <label style="display: block; margin-bottom: 5px; font-weight: 600;">Control Number</label>
                 <input type="text" placeholder="Control Number" name="transmittal_number" value="{{ request('transmittal_number') }}" style="width: 100%; padding: 5px;">
             </div>
-            
-            <!-- 2. Encoder Filter -->
+
+
             @if($showEncoder)
             <div>
                 <label style="display: block; margin-bottom: 5px; font-weight: 600;">Encoder</label>
                 <input type="text" placeholder="Search Encoder" name="encoderName" value="{{ request('encoderName') }}" style="width: 100%; padding: 5px;">
             </div>
             @endif
-            
-            <!-- 3. Farmer Name Filter -->
+
+
             <div>
                 <label style="display: block; margin-bottom: 5px; font-weight: 600;">Farmer Name</label>
                 <input type="text" placeholder="Search Farmer" name="farmerName" value="{{ request('farmerName') }}" style="width: 100%; padding: 5px;">
             </div>
-            
-            <!-- 4. Municipality Filter -->
+
+
             @if(!$hideProvinceColumn)
             <div>
                 <label style="display: block; margin-bottom: 5px; font-weight: 600;">Municipality</label>
                 <input type="text" placeholder="Municipality" name="municipality" value="{{ request('municipality') }}" style="width: 100%; padding: 5px;">
             </div>
             @endif
-            
-            <!-- 5. Barangay Filter -->
+
+
             <div>
                 <label style="display: block; margin-bottom: 5px; font-weight: 600;">Barangay</label>
                 <input type="text" placeholder="Barangay" name="barangay" value="{{ request('barangay') }}" style="width: 100%; padding: 5px;">
             </div>
-            
-            <!-- 6. Province Filter -->
+
+
             @if(!$hideProvinceColumn)
             <div>
                 <label style="display: block; margin-bottom: 5px; font-weight: 600;">Province</label>
                 <input type="text" placeholder="Province" name="province" value="{{ request('province') }}" style="width: 100%; padding: 5px;">
             </div>
             @endif
-            
-            <!-- 7. Line Filter -->
+
+
             <div>
                 <label style="display: block; margin-bottom: 5px; font-weight: 600;">Line</label>
                 <select name="line" style="width: 100%; padding: 5px;">
@@ -547,8 +84,8 @@ if (! function_exists('getSortIndicator')) {
                     @endforeach
                 </select>
             </div>
-            
-            <!-- 8. Program Filter -->
+
+
             <div>
                 <label style="display: block; margin-bottom: 5px; font-weight: 600;">Program</label>
                 <select name="program" style="width: 100%; padding: 5px;">
@@ -558,8 +95,8 @@ if (! function_exists('getSortIndicator')) {
                     @endforeach
                 </select>
             </div>
-            
-            <!-- 9. Date of Occurrence Filter -->
+
+
             <div>
                 <label style="display: block; margin-bottom: 5px; font-weight: 600;">Date of Occurrence</label>
                 <select name="date_occurrence_filter_type" style="width: 100%; padding: 5px; margin-bottom: 5px;">
@@ -575,14 +112,14 @@ if (! function_exists('getSortIndicator')) {
                     <input type="date" name="date_occurrence_to" value="{{ request('date_occurrence_to') }}" placeholder="To" style="width: 100%; padding: 5px;">
                 </div>
             </div>
-            
-            <!-- 10. Cause of Damage Filter -->
+
+
             <div>
                 <label style="display: block; margin-bottom: 5px; font-weight: 600;">Cause of Damage</label>
                 <input type="text" placeholder="Damage" name="causeOfDamage" value="{{ request('causeOfDamage') }}" style="width: 100%; padding: 5px;">
             </div>
-            
-            <!-- 11. Date Received Filter -->
+
+
             <div>
                 <label style="display: block; margin-bottom: 5px; font-weight: 600;">Date Received</label>
                 <select name="date_received_filter_type" style="width: 100%; padding: 5px; margin-bottom: 5px;">
@@ -598,16 +135,16 @@ if (! function_exists('getSortIndicator')) {
                     <input type="date" name="date_received_to" value="{{ request('date_received_to') }}" placeholder="To" style="width: 100%; padding: 5px;">
                 </div>
             </div>
-            
-            <!-- 12. Account Filter -->
+
+
             @if(!$hideAccountsColumn)
             <div>
                 <label style="display: block; margin-bottom: 5px; font-weight: 600;">Account</label>
                 <input type="text" placeholder="Account" name="accounts" value="{{ request('accounts') }}" style="width: 100%; padding: 5px;">
             </div>
             @endif
-            
-            <!-- 13. Mode of Payment Filter -->
+
+
             <div>
                 <label style="display: block; margin-bottom: 5px; font-weight: 600;">Mode of Payment</label>
                 <select name="modeOfPayment" style="width: 100%; padding: 5px;">
@@ -617,20 +154,20 @@ if (! function_exists('getSortIndicator')) {
                     @endforeach
                 </select>
             </div>
-            
-            <!-- 14. Remarks Filter -->
+
+
             <div>
                 <label style="display: block; margin-bottom: 5px; font-weight: 600;">Remarks</label>
                 <input type="text" placeholder="Remarks" name="remarks" value="{{ request('remarks') }}" style="width: 100%; padding: 5px;">
             </div>
-            
+
             @if($showAdminTransmittal)
             <div>
                 <label style="display: block; margin-bottom: 5px; font-weight: 600;">Admin Transmittal</label>
                 <input type="text" placeholder="Admin Transmittal" name="admin_transmittal_number" value="{{ request('admin_transmittal_number') }}" style="width: 100%; padding: 5px;">
             </div>
             @endif
-            
+
             @if($showApproval)
             <div>
                 <label style="display: block; margin-bottom: 5px; font-weight: 600;">Status</label>
@@ -641,8 +178,8 @@ if (! function_exists('getSortIndicator')) {
                 </select>
             </div>
             @endif
-            
-            <!-- Submit Button -->
+
+
             <div style="display: flex; gap: 10px;">
                 <button type="submit" style="padding: 8px 16px; background: #006c35; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: 800; font-size: 13px; letter-spacing: 0.2px; transition: background 0.15s ease;">Apply Filters</button>
                 <a href="{{ request()->url() }}" style="padding: 8px 16px; background: #64748b; color: white; text-decoration: none; border-radius: 10px; font-weight: 800; font-size: 13px; letter-spacing: 0.2px;">Clear</a>
@@ -652,7 +189,7 @@ if (! function_exists('getSortIndicator')) {
 </div>
 @endif
 
-<!-- Top scrollbar for horizontal scrolling -->
+
 <div class="table-scroll-sync-top" id="table-scroll-top-{{ $showCheckbox ? '1' : '0' }}-{{ $showAdminTransmittal ? '1' : '0' }}">
     <div class="table-scroll-spacer" id="table-scroll-spacer-{{ $showCheckbox ? '1' : '0' }}-{{ $showAdminTransmittal ? '1' : '0' }}"></div>
 </div>
@@ -679,7 +216,7 @@ if (! function_exists('getSortIndicator')) {
             @if($showNoticeImage)
             <th class="no-print col-notice-image">Notice Image</th>
             @endif
-            <!-- 1. Date Received -->
+
             @if(!$hideDateReceivedColumn)
             <th class="col-date-received">
                 @if($showSortableHeaders)
@@ -689,8 +226,8 @@ if (! function_exists('getSortIndicator')) {
                 @endif
             </th>
             @endif
-            
-            <!-- 2. Encoder -->
+
+
             @if($showEncoder)
             <th class="col-encoder">
                 @if($showSortableHeaders)
@@ -700,8 +237,8 @@ if (! function_exists('getSortIndicator')) {
                 @endif
             </th>
             @endif
-            
-            <!-- 3. Farmer Name -->
+
+
             <th class="col-farmer-name">
                 @if($showSortableHeaders)
                 <a href="{{ getSortUrl('farmerName', $currentSort, $currentOrder, $oppositeOrder) }}" style="color: inherit; text-decoration: none; cursor: pointer;">Farmer Name{{ getSortIndicator('farmerName', $currentSort, $currentOrder) }}</a>
@@ -709,8 +246,8 @@ if (! function_exists('getSortIndicator')) {
                 Farmer Name
                 @endif
             </th>
-            
-            <!-- 4. Municipality -->
+
+
             @if(!$hideProvinceColumn)
             <th class="col-municipality">
                 @if($showSortableHeaders)
@@ -720,8 +257,8 @@ if (! function_exists('getSortIndicator')) {
                 @endif
             </th>
             @endif
-            
-            <!-- 5. Barangay -->
+
+
             <th class="col-barangay">
                 @if($showSortableHeaders)
                 <a href="{{ getSortUrl('barangay', $currentSort, $currentOrder, $oppositeOrder) }}" style="color: inherit; text-decoration: none; cursor: pointer;">{{ $hideProvinceColumn ? 'Address' : 'Barangay' }}{{ getSortIndicator('barangay', $currentSort, $currentOrder) }}</a>
@@ -729,8 +266,8 @@ if (! function_exists('getSortIndicator')) {
                 {{ $hideProvinceColumn ? 'Address' : 'Barangay' }}
                 @endif
             </th>
-            
-            <!-- 6. Province -->
+
+
             @if(!$hideProvinceColumn)
             <th class="col-province">
                 @if($showSortableHeaders)
@@ -740,8 +277,8 @@ if (! function_exists('getSortIndicator')) {
                 @endif
             </th>
             @endif
-            
-            <!-- 7. Line -->
+
+
             <th class="col-line">
                 @if($showSortableHeaders)
                 <a href="{{ getSortUrl('line', $currentSort, $currentOrder, $oppositeOrder) }}" style="color: inherit; text-decoration: none; cursor: pointer;">Line{{ getSortIndicator('line', $currentSort, $currentOrder) }}</a>
@@ -749,8 +286,8 @@ if (! function_exists('getSortIndicator')) {
                 Line
                 @endif
             </th>
-            
-            <!-- 8. Program -->
+
+
             <th class="col-program">
                 @if($showSortableHeaders)
                 <a href="{{ getSortUrl('program', $currentSort, $currentOrder, $oppositeOrder) }}" style="color: inherit; text-decoration: none; cursor: pointer;">Program{{ getSortIndicator('program', $currentSort, $currentOrder) }}</a>
@@ -758,8 +295,8 @@ if (! function_exists('getSortIndicator')) {
                 Program
                 @endif
             </th>
-            
-            <!-- 9. Date of Occurrence -->
+
+
             <th class="col-date-occurrence">
                 @if($showSortableHeaders)
                 <a href="{{ getSortUrl('date_occurrence', $currentSort, $currentOrder, $oppositeOrder) }}" style="color: inherit; text-decoration: none; cursor: pointer;">Date of Occurrence{{ getSortIndicator('date_occurrence', $currentSort, $currentOrder) }}</a>
@@ -767,8 +304,8 @@ if (! function_exists('getSortIndicator')) {
                 Date of Occurrence
                 @endif
             </th>
-            
-            <!-- 10. Cause of Damage -->
+
+
             <th class="col-causeOfDamage">
                 @if($showSortableHeaders)
                 <a href="{{ getSortUrl('causeOfDamage', $currentSort, $currentOrder, $oppositeOrder) }}" style="color: inherit; text-decoration: none; cursor: pointer;">Cause of Damage{{ getSortIndicator('causeOfDamage', $currentSort, $currentOrder) }}</a>
@@ -776,8 +313,8 @@ if (! function_exists('getSortIndicator')) {
                 Cause of Damage
                 @endif
             </th>
-            
-            <!-- 11. Control Number -->
+
+
             <th class="col-control-number">
                 @if($showSortableHeaders)
                 <a href="{{ getSortUrl('transmittal_number', $currentSort, $currentOrder, $oppositeOrder) }}" style="color: inherit; text-decoration: none; cursor: pointer;">Control Number{{ getSortIndicator('transmittal_number', $currentSort, $currentOrder) }}</a>
@@ -785,9 +322,9 @@ if (! function_exists('getSortIndicator')) {
                 Control Number
                 @endif
             </th>
-            
-                        
-            <!-- 12. Account -->
+
+
+
             @if(!$hideAccountsColumn)
             <th class="col-accounts">
                 @if($showSortableHeaders)
@@ -797,8 +334,8 @@ if (! function_exists('getSortIndicator')) {
                 @endif
             </th>
             @endif
-            
-            <!-- 13. Mode of Payment -->
+
+
             <th class="col-modeOfPayment">
                 @if($showSortableHeaders)
                 <a href="{{ getSortUrl('modeOfPayment', $currentSort, $currentOrder, $oppositeOrder) }}" style="color: inherit; text-decoration: none; cursor: pointer;">Mode of Payment{{ getSortIndicator('modeOfPayment', $currentSort, $currentOrder) }}</a>
@@ -806,8 +343,8 @@ if (! function_exists('getSortIndicator')) {
                 Mode of Payment
                 @endif
             </th>
-            
-            <!-- 14. Remarks -->
+
+
             <th class="col-remarks">
                 @if($showSortableHeaders)
                 <a href="{{ getSortUrl('remarks', $currentSort, $currentOrder, $oppositeOrder) }}" style="color: inherit; text-decoration: none; cursor: pointer;">Remarks{{ getSortIndicator('remarks', $currentSort, $currentOrder) }}</a>
@@ -815,8 +352,8 @@ if (! function_exists('getSortIndicator')) {
                 Remarks
                 @endif
             </th>
-            
-            <!-- 15. Date Encoded -->
+
+
             <th class="col-date-encoded">
                 @if($showSortableHeaders)
                 <a href="{{ getSortUrl('created_at', $currentSort, $currentOrder, $oppositeOrder) }}" style="color: inherit; text-decoration: none; cursor: pointer;">Date Encoded{{ getSortIndicator('created_at', $currentSort, $currentOrder) }}</a>
@@ -883,8 +420,8 @@ if (! function_exists('getSortIndicator')) {
                 data-transmittal-number="{{ e($record->transmittal_number) }}"
                 data-admin-transmittal-number="{{ e($record->admin_transmittal_number) }}"
                 data-admin-transmittal-assigned-at="{{ $record->admin_transmittal_assigned_at ? e(is_string($record->admin_transmittal_assigned_at) ? date('M d, Y', strtotime($record->admin_transmittal_assigned_at)) : $record->admin_transmittal_assigned_at->format('M d, Y')) : 'N/A' }}"
-                data-notice-image-url="{{ $record->notice_image_path ? route('admin.records.notice-image', $record) : '' }}"
-                data-notice-pdf-name="{{ $record->notice_pdf_path ? basename($record->notice_pdf_path) : '' }}"
+                data-notice-images="{{ $record->attachments->where('type', 'image')->map(fn ($attachment) => ['id' => $attachment->id, 'name' => $attachment->original_name, 'url' => route('records.attachments.show', [$record, $attachment])])->values()->toJson() }}"
+                data-notice-pdfs="{{ $record->attachments->where('type', 'pdf')->map(fn ($attachment) => ['id' => $attachment->id, 'name' => $attachment->original_name, 'url' => route('records.attachments.show', [$record, $attachment])])->values()->toJson() }}"
                 >edit</button>
             </td>
             @if($showDelete)
@@ -905,20 +442,20 @@ if (! function_exists('getSortIndicator')) {
             @endif
             @if($showNoticeImage)
             <td class="no-print col-notice-image">
-                @if($record->notice_image_path)
+                @if($record->attachments->where('type', 'image')->isNotEmpty())
                     <button
                         type="button"
                         class="notice-image-view-btn"
-                        data-image-url="{{ route('admin.records.notice-image', $record) }}"
+                        data-image-urls="{{ $record->attachments->where('type', 'image')->map(fn ($attachment) => route('records.attachments.show', [$record, $attachment]))->values()->toJson() }}"
                         data-farmer-name="{{ $record->farmerName }}"
-                    >View / Print</button>
+                    >View / Print photos</button>
                 @else
                     <span class="notice-image-unavailable">—</span>
                 @endif
             </td>
             @endif
             @if(!$hideDateReceivedColumn)
-            <!-- 1. Date Received -->
+
             <td class="col-date-received">
                 @if($useDateEncodedAsDateReceived)
                     {{ $record->created_at ? $record->created_at->format('M d, Y') : '—' }}
@@ -927,23 +464,23 @@ if (! function_exists('getSortIndicator')) {
                 @endif
             </td>
             @endif
-            
-            <!-- 2. Encoder -->
+
+
             @if($showEncoder)
             <td class="col-encoder">{{ $record->encoderName ?? 'Unknown' }}</td>
             @endif
-            
-            <!-- 3. Farmer Name -->
+
+
             <td class="col-farmer-name">
                 <span class="farmer-name-copy cursor-pointer transition-colors" style="color: inherit;" data-farmer-name="{{ e($record->farmerName) }}" title="Click to copy farmer name">{{ $record->farmerName }}</span>
             </td>
-            
-            <!-- 4. Municipality -->
+
+
             @if(!$hideProvinceColumn)
             <td class="col-municipality">{{ $record->municipality ?? '—' }}</td>
             @endif
-            
-            <!-- 5. Barangay -->
+
+
             <td class="col-barangay">
                 @if($hideProvinceColumn)
                     {{ trim(implode(', ', array_filter([$record->barangay, $record->municipality]))) ?: '—' }}
@@ -951,28 +488,28 @@ if (! function_exists('getSortIndicator')) {
                     {{ $record->barangay ?? '—' }}
                 @endif
             </td>
-            
-            <!-- 6. Province -->
+
+
             @if(!$hideProvinceColumn)
             <td class="col-province">{{ $record->province ?? '—' }}</td>
             @endif
-            
-            <!-- 7. Line -->
+
+
             <td class="col-line">{{ $record->line }}</td>
-            
-            <!-- 8. Program -->
+
+
             <td class="col-program">{{ $record->program }}</td>
-            
-            <!-- 9. Date of Occurrence -->
+
+
             <td class="col-date-occurrence">{{ $record->date_occurrence ? $record->date_occurrence : '—' }}</td>
-            
-            <!-- 10. Cause of Damage -->
+
+
             <td class="col-causeOfDamage">{{ $record->causeOfDamage }}</td>
-            
-            <!-- 11. Control Number -->
+
+
             <td class="col-control-number">{{ $record->control_number ?? '—' }}</td>
-            
-            <!-- 12. Account -->
+
+
             @if(!$hideAccountsColumn)
             <td class="col-accounts">
                 @php
@@ -990,14 +527,14 @@ if (! function_exists('getSortIndicator')) {
                 @endif
             </td>
             @endif
-            
-            <!-- 13. Mode of Payment -->
+
+
             <td class="col-modeOfPayment">{{ $record->modeOfPayment ?: '—' }}</td>
-            
-            <!-- 14. Remarks -->
+
+
             <td class="col-remarks">{{ $record->remarks }}</td>
-            
-            <!-- 15. Date Encoded -->
+
+
             <td class="col-date-encoded">{{ $record->created_at ? $record->created_at->format('M d, Y') : '—' }}</td>
             @if($showAdminTransmittal)
             <td class="col-admin-transmittal-number">{{ empty($record->admin_transmittal_number) ? '—' : $record->admin_transmittal_number }}</td>
@@ -1020,7 +557,7 @@ if (! function_exists('getSortIndicator')) {
 </table>
 </div>
 
-<!-- Bottom scrollbar for horizontal scrolling -->
+
 <div class="table-scroll-sync-bottom" id="table-scroll-bottom-{{ $showCheckbox ? '1' : '0' }}-{{ $showAdminTransmittal ? '1' : '0' }}">
     <div class="table-scroll-spacer" id="table-scroll-spacer-bottom-{{ $showCheckbox ? '1' : '0' }}-{{ $showAdminTransmittal ? '1' : '0' }}"></div>
 </div>
@@ -1041,180 +578,14 @@ if (! function_exists('getSortIndicator')) {
 </div>
     @endif
 
-<style>
-/* Sticky table headers */
-.records-table thead th {
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    background: #006c35;
-    color: #fff;
-    font-size: 12px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border-bottom: 2px solid #005428;
-}
-.records-table thead th a {
-    color: #fff !important;
-    text-decoration: none;
-}
-.records-table thead th a:hover {
-    text-decoration: underline;
-}
 
-/* Table filter inputs & selects — PCIC theme */
-.table-filters label {
-    font-size: 12px;
-    font-weight: 900;
-    color: #334155;
-    letter-spacing: 0.2px;
-}
-.table-filters input,
-.table-filters select {
-    width: 100%;
-    height: 36px;
-    padding: 0 10px;
-    font-size: 13px;
-    border: 1px solid rgba(15, 23, 42, 0.16);
-    border-radius: 10px;
-    background: #fff;
-    outline: none;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
-    box-sizing: border-box;
-}
-.table-filters input:focus,
-.table-filters select:focus {
-    border-color: rgba(0, 108, 53, 0.55);
-    box-shadow: 0 0 0 3px rgba(0, 108, 53, 0.15);
-}
-.table-filters select {
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    padding-right: 34px;
-}
 
-/* Record row interaction */
-.record-row {
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
 
-.record-row:hover {
-    background-color: #e8e8e8;
-}
 
-.record-row.highlighted {
-    background-color: #006c35 !important;
-    border: 3px solid #003d1c !important;
-    box-shadow: 0 4px 8px rgba(0, 61, 28, 0.4);
-    color: white !important;
-    font-weight: 600;
-}
 
-.record-row.highlighted td {
-    border-top: 1px solid #003d1c !important;
-    border-bottom: 1px solid #003d1c !important;
-    color: white !important;
-}
-
-.record-row.highlighted td:first-child {
-    border-left: 3px solid #003d1c !important;
-}
-
-.record-row.highlighted td:last-child {
-    border-right: 3px solid #003d1c !important;
-}
-
-/* Button styling in highlighted rows */
-.record-row.highlighted .editButton {
-    background-color: white !important;
-    color: #006c35 !important;
-    border: 1px solid white !important;
-    font-weight: 600;
-}
-
-.record-row.highlighted .deleteButton {
-    background-color: #f44336 !important;
-    color: white !important;
-    border: 1px solid #f44336 !important;
-    font-weight: 600;
-}
-</style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Row highlighting functionality
-    const recordRows = document.querySelectorAll('.record-row');
-    
-    recordRows.forEach(row => {
-        row.addEventListener('click', function(e) {
-            // Don't highlight if clicking on buttons, inputs, links, or farmer name copy
-            if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.tagName === 'A' || e.target.closest('button, input, a, .farmer-name-copy')) {
-                return;
-            }
-
-            const isAlreadyHighlighted = this.classList.contains('highlighted');
-
-            // Remove highlight from all rows
-            recordRows.forEach(r => r.classList.remove('highlighted'));
-
-            // Toggle highlight for clicked row
-            if (!isAlreadyHighlighted) {
-                this.classList.add('highlighted');
-            }
-        });
-    });
-    
-    // Date filter type switching functionality
-    const dateOccurrenceFilterType = document.querySelector('select[name="date_occurrence_filter_type"]');
-    const dateReceivedFilterType = document.querySelector('select[name="date_received_filter_type"]');
-    
-    if (dateOccurrenceFilterType) {
-        dateOccurrenceFilterType.addEventListener('change', function() {
-            const singleDiv = document.getElementById('date_occurrence_single');
-            const rangeDiv = document.getElementById('date_occurrence_range');
-            
-            if (this.value === 'single') {
-                singleDiv.style.display = 'block';
-                rangeDiv.style.display = 'none';
-            } else if (this.value === 'range') {
-                singleDiv.style.display = 'none';
-                rangeDiv.style.display = 'block';
-            } else {
-                singleDiv.style.display = 'none';
-                rangeDiv.style.display = 'none';
-            }
-        });
-    }
-    
-    if (dateReceivedFilterType) {
-        dateReceivedFilterType.addEventListener('change', function() {
-            const singleDiv = document.getElementById('date_received_single');
-            const rangeDiv = document.getElementById('date_received_range');
-            
-            if (this.value === 'single') {
-                singleDiv.style.display = 'block';
-                rangeDiv.style.display = 'none';
-            } else if (this.value === 'range') {
-                singleDiv.style.display = 'none';
-                rangeDiv.style.display = 'block';
-            } else {
-                singleDiv.style.display = 'none';
-                rangeDiv.style.display = 'none';
-            }
-        });
-    }
-});
-
-</script>
-
-<!-- Simple View Record Modal -->
 <div id="viewRecordModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; padding: 20px; box-sizing: border-box;">
     <div style="background: white; max-width: 800px; margin: 0 auto; border-radius: 12px; max-height: 90vh; overflow: hidden; position: relative; top: 50%; transform: translateY(-50%);">
-        <!-- Modal Header -->
+
         <div style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center;">
             <h3 style="margin: 0; font-size: 18px; font-weight: bold;">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-right: 8px;">
@@ -1228,14 +599,14 @@ document.addEventListener('DOMContentLoaded', function() {
             </button>
         </div>
 
-        <!-- Modal Body -->
+
         <div style="padding: 20px; max-height: 60vh; overflow-y: auto;">
             <div id="recordDetails">
-                <!-- Record details will be loaded here -->
+
             </div>
         </div>
 
-        <!-- Modal Footer -->
+
         <div style="background: #f8f9fa; padding: 15px 20px; border-top: 1px solid #e9ecef; text-align: right;">
             <button type="button" id="closeModalFooterBtn" style="background: #6c757d; color: white; border: none; padding: 8px 20px; border-radius: 6px; cursor: pointer; font-size: 14px;">Close</button>
         </div>
@@ -1243,622 +614,3 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 
 @include('components.notice-image-print-dialog')
-
-<script>
-(function () {
-    let selectedPreviewUrl = null;
-
-    document.addEventListener('click', function (event) {
-        const clearSelectionButton = event.target.closest('.clear-notice-image-selection');
-        if (clearSelectionButton) {
-            const form = clearSelectionButton.closest('form');
-            const imageInput = form?.querySelector('input[type="file"][name="notice_image"]');
-
-            if (imageInput) {
-                imageInput.value = '';
-                clearSelectionButton.hidden = true;
-            }
-
-            if (imageInput?.id === 'editNoticeImage') {
-                if (selectedPreviewUrl) {
-                    URL.revokeObjectURL(selectedPreviewUrl);
-                    selectedPreviewUrl = null;
-                }
-
-                const currentImageUrl = imageInput.dataset.currentImageUrl || '';
-                const preview = form.querySelector('#editNoticeImagePreview');
-                const previewContainer = form.querySelector('#editNoticeImagePreviewContainer');
-                const printButton = form.querySelector('#editNoticeImagePrintButton');
-                const removeImageInput = form.querySelector('[name="remove_notice_image"]');
-                const removeImageButton = form.querySelector('#removeNoticeImageButton');
-                const status = form.querySelector('#editNoticeImageStatus');
-
-                if (preview && previewContainer) {
-                    preview.hidden = !currentImageUrl;
-                    preview.src = currentImageUrl;
-                    previewContainer.hidden = !currentImageUrl;
-                }
-                if (printButton) {
-                    printButton.dataset.imageUrl = currentImageUrl;
-                    printButton.hidden = !currentImageUrl;
-                }
-                if (removeImageInput) {
-                    removeImageInput.value = '0';
-                }
-                if (removeImageButton) {
-                    removeImageButton.hidden = !currentImageUrl;
-                }
-                if (status) {
-                    status.textContent = currentImageUrl
-                        ? 'Current image restored. Choose a replacement or remove it.'
-                        : 'No image uploaded.';
-                }
-            }
-
-            return;
-        }
-
-        const removeImageButton = event.target.closest('#removeNoticeImageButton');
-        if (removeImageButton) {
-            if (selectedPreviewUrl) {
-                URL.revokeObjectURL(selectedPreviewUrl);
-                selectedPreviewUrl = null;
-            }
-
-            const form = removeImageButton.closest('form');
-            const imageInput = form?.querySelector('#editNoticeImage');
-            const removeImageInput = form?.querySelector('[name="remove_notice_image"]');
-            const preview = form?.querySelector('#editNoticeImagePreview');
-            const previewContainer = form?.querySelector('#editNoticeImagePreviewContainer');
-            const printButton = form?.querySelector('#editNoticeImagePrintButton');
-            const status = form?.querySelector('#editNoticeImageStatus');
-
-            if (imageInput) {
-                imageInput.value = '';
-            }
-            if (removeImageInput) {
-                removeImageInput.value = '1';
-            }
-            if (preview) {
-                preview.hidden = true;
-                preview.removeAttribute('src');
-            }
-            if (previewContainer) {
-                previewContainer.hidden = true;
-            }
-            if (printButton) {
-                printButton.hidden = true;
-                printButton.dataset.imageUrl = '';
-            }
-
-            removeImageButton.hidden = true;
-            if (status) {
-                status.textContent = 'This image will be removed when you save.';
-            }
-
-            return;
-        }
-
-        const editButton = event.target.closest('.editButton');
-        if (!editButton) {
-            return;
-        }
-
-        const form = document.getElementById('recordEditForm');
-        const preview = form?.querySelector('#editNoticeImagePreview');
-        const previewContainer = form?.querySelector('#editNoticeImagePreviewContainer');
-        const imageInput = form?.querySelector('#editNoticeImage');
-        const printButton = form?.querySelector('#editNoticeImagePrintButton');
-        const removeImageInput = form?.querySelector('[name="remove_notice_image"]');
-        const removeImageButton = form?.querySelector('#removeNoticeImageButton');
-        const clearSelectionButton = form?.querySelector('.clear-notice-image-selection');
-        const status = form?.querySelector('#editNoticeImageStatus');
-        const imageUrl = editButton.dataset.noticeImageUrl;
-
-        if (selectedPreviewUrl) {
-            URL.revokeObjectURL(selectedPreviewUrl);
-            selectedPreviewUrl = null;
-        }
-
-        if (imageInput) {
-            imageInput.value = '';
-            imageInput.dataset.currentImageUrl = imageUrl || '';
-        }
-        if (clearSelectionButton) {
-            clearSelectionButton.hidden = true;
-        }
-        if (removeImageInput) {
-            removeImageInput.value = '0';
-        }
-
-        if (preview && previewContainer) {
-            previewContainer.hidden = !imageUrl;
-            preview.hidden = !imageUrl;
-            preview.src = imageUrl || '';
-            if (printButton) {
-                printButton.dataset.imageUrl = imageUrl || '';
-                printButton.hidden = !imageUrl;
-            }
-        }
-        if (removeImageButton) {
-            removeImageButton.hidden = !imageUrl;
-        }
-        if (status) {
-            status.textContent = imageUrl ? 'Current image. Choose a replacement or remove it.' : 'No image uploaded.';
-        }
-    });
-
-    document.addEventListener('change', function (event) {
-        const imageInput = event.target.closest('input[type="file"][name="notice_image"]');
-        if (!imageInput) {
-            return;
-        }
-
-        const form = imageInput.form;
-        const clearSelectionButton = form?.querySelector('.clear-notice-image-selection');
-        const image = imageInput.files?.[0];
-
-        if (clearSelectionButton) {
-            clearSelectionButton.hidden = !image;
-        }
-
-        if (imageInput.id !== 'editNoticeImage') {
-            return;
-        }
-
-        const preview = form?.querySelector('#editNoticeImagePreview');
-        const previewContainer = form?.querySelector('#editNoticeImagePreviewContainer');
-        const printButton = form?.querySelector('#editNoticeImagePrintButton');
-        const removeImageInput = form?.querySelector('[name="remove_notice_image"]');
-        const removeImageButton = form?.querySelector('#removeNoticeImageButton');
-        const status = form?.querySelector('#editNoticeImageStatus');
-        if (!preview || !previewContainer) {
-            return;
-        }
-
-        if (selectedPreviewUrl) {
-            URL.revokeObjectURL(selectedPreviewUrl);
-            selectedPreviewUrl = null;
-        }
-
-        if (image) {
-            selectedPreviewUrl = URL.createObjectURL(image);
-            preview.src = selectedPreviewUrl;
-            preview.hidden = false;
-            previewContainer.hidden = false;
-            if (printButton) {
-                printButton.dataset.imageUrl = selectedPreviewUrl;
-                printButton.hidden = false;
-            }
-            if (removeImageInput) {
-                removeImageInput.value = '0';
-            }
-            if (removeImageButton) {
-                removeImageButton.hidden = false;
-            }
-            if (status) {
-                status.textContent = 'Selected image will replace the current image when you save.';
-            }
-        }
-    });
-
-    document.addEventListener('close', function (event) {
-        if (event.target.id !== 'recordEditDialog' || !selectedPreviewUrl) {
-            return;
-        }
-
-        URL.revokeObjectURL(selectedPreviewUrl);
-        selectedPreviewUrl = null;
-    }, true);
-})();
-</script>
-
-<style>
-.view-record-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
-}
-
-.view-record-btn:hover {
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
-}
-
-.view-record-btn:active {
-    transform: translateY(0);
-}
-
-/* Modal Animations */
-#viewRecordModal[style*="block"] {
-    animation: fadeIn 0.3s ease-out;
-}
-
-#viewRecordModal[style*="block"] > div {
-    animation: slideUp 0.3s ease-out;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-@keyframes slideUp {
-    from { 
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to { 
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Record Details Styling */
-.detail-section {
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-    border-radius: 12px;
-    padding: 20px;
-    border: 1px solid #e2e8f0;
-    transition: all 0.2s ease;
-}
-
-.detail-section:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    transform: translateY(-2px);
-}
-
-.detail-section h4 {
-    color: #1e293b;
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.detail-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 12px;
-}
-
-.detail-item {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.detail-label {
-    font-size: 11px;
-    font-weight: 500;
-    color: #64748b;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.detail-value {
-    font-size: 14px;
-    color: #1e293b;
-    font-weight: 500;
-    word-break: break-word;
-}
-
-.detail-value.empty {
-    color: #94a3b8;
-    font-style: italic;
-}
-
-/* Remarks Section */
-.remarks-section {
-    background: linear-gradient(135deg, #fef7f0 0%, #fef3e2 100%);
-    border: 1px solid #fbbf24;
-}
-
-.remarks-content {
-    background: white;
-    border-radius: 8px;
-    padding: 16px;
-    min-height: 80px;
-    max-height: 200px;
-    overflow-y: auto;
-    white-space: pre-wrap;
-    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-    font-size: 13px;
-    line-height: 1.5;
-    color: #374151;
-}
-
-.remarks-content:empty::before {
-    content: "No remarks available";
-    color: #9ca3af;
-    font-style: italic;
-}
-</style>
-
-<script>
-// Isolated View Record Modal Functionality
-(function() {
-    let modal = null;
-    let closeBtn = null;
-    let closeFooterBtn = null;
-    let recordDetails = null;
-    let isModalOpen = false;
-
-    // Initialize modal elements
-    function initModal() {
-        modal = document.getElementById('viewRecordModal');
-        closeBtn = document.getElementById('closeModalBtn');
-        closeFooterBtn = document.getElementById('closeModalFooterBtn');
-        recordDetails = document.getElementById('recordDetails');
-        
-        if (!modal || !closeBtn || !closeFooterBtn || !recordDetails) {
-            console.error('Modal elements not found');
-            return false;
-        }
-
-        // Attach close button event listeners (remove old listeners first to prevent duplicates)
-        closeBtn.removeEventListener('click', closeModal);
-        closeFooterBtn.removeEventListener('click', closeModal);
-        modal.removeEventListener('click', handleBackdropClick);
-        
-        closeBtn.addEventListener('click', closeModal);
-        closeFooterBtn.addEventListener('click', closeModal);
-        modal.addEventListener('click', handleBackdropClick);
-        
-        return true;
-    }
-
-    // Handle backdrop click separately to avoid event listener issues
-    function handleBackdropClick(e) {
-        if (e.target === modal) {
-            closeModal(e);
-        }
-    }
-
-    // Close modal functions
-    function closeModal(e) {
-        if (e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-        
-        if (modal && isModalOpen) {
-            modal.style.display = 'none';
-            document.body.style.overflow = '';
-            isModalOpen = false;
-        }
-    }
-
-    // Open view modal function
-    function openViewModal(recordId, e) {
-        if (e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-        
-        if (!initModal()) {
-            console.error('Failed to initialize modal');
-            return;
-        }
-
-        // Prevent double opening
-        if (isModalOpen) {
-            return;
-        }
-
-        // Find the record data from the table row
-        const row = document.querySelector(`.view-record-btn[data-record-id="${recordId}"]`).closest('tr');
-        if (!row) {
-            console.error('Record row not found');
-            return;
-        }
-
-        // Extract record data from the row
-        const recordData = extractRecordData(row);
-        
-        // Populate modal with record data
-        populateModal(recordData);
-        
-        // Show modal
-        modal.style.display = 'block';
-        document.body.style.overflow = 'hidden';
-        isModalOpen = true;
-    }
-
-    // Extract record data from table row
-    function extractRecordData(row) {
-        const viewBtn = row.querySelector('.view-record-btn');
-        const editBtn = row.querySelector('.editButton');
-        
-        // Use edit button data attributes for accurate data
-        const data = {
-            id: viewBtn.getAttribute('data-record-id') || 'N/A',
-            farmerName: editBtn.getAttribute('data-farmer-name') || 'N/A',
-            province: editBtn.getAttribute('data-province') || 'N/A',
-            municipality: editBtn.getAttribute('data-municipality') || 'N/A',
-            barangay: editBtn.getAttribute('data-barangay') || 'N/A',
-            address: editBtn.getAttribute('data-address') || 'N/A',
-            program: editBtn.getAttribute('data-program') || 'N/A',
-            line: editBtn.getAttribute('data-line') || 'N/A',
-            causeOfDamage: editBtn.getAttribute('data-cause-of-damage') || 'N/A',
-            modeOfPayment: editBtn.getAttribute('data-mode-of-payment') || 'N/A',
-            accounts: editBtn.getAttribute('data-accounts') || 'N/A',
-            dateOccurrence: editBtn.getAttribute('data-date-occurrence') || 'N/A',
-            dateReceived: editBtn.getAttribute('data-date-received') || 'N/A',
-            dateEncoded: editBtn.getAttribute('data-created-at') || 'N/A',
-            remarks: editBtn.getAttribute('data-remarks') || '',
-            source: editBtn.getAttribute('data-source') || 'N/A',
-            adminTransmittalNumber: editBtn.getAttribute('data-admin-transmittal-number') || 'N/A',
-            encoderName: editBtn.getAttribute('data-encoder-name') || 'N/A'
-        };
-
-        // Get encoder from table cell if not in data attributes
-        if (data.encoderName === 'N/A') {
-            const encoderCell = row.querySelector('.col-encoder');
-            if (encoderCell) {
-                data.encoderName = encoderCell.textContent.trim() || 'N/A';
-            }
-        }
-
-        // Get transmittal number from table cell
-        const adminTransmittalAssignedAt = editBtn.getAttribute('data-admin-transmittal-assigned-at');
-        const transmittalCell = row.querySelector('.col-control-number');
-        if (transmittalCell) {
-            data.transmittalNumber = transmittalCell.textContent.trim() || 'N/A';
-        }
-        data.adminTransmittalAssignedAt = adminTransmittalAssignedAt || 'N/A';
-
-        return data;
-    }
-
-    // Populate modal with record data
-    function populateModal(data) {
-        recordDetails.innerHTML = `
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
-                <!-- FARMER DETAILS Section -->
-                <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border-radius: 12px; padding: 20px; border: 1px solid #e2e8f0;">
-                    <h3 style="color: #1e293b; font-size: 18px; font-weight: bold; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-                            <circle cx="9" cy="7" r="4"/>
-                            <path d="m22 21-3-3"/>
-                        </svg>
-                        FARMER DETAILS
-                    </h3>
-                    <div style="display: grid; gap: 12px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0;">
-                            <span style="font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase;">NAME</span>
-                            <span style="font-size: 14px; color: #1e293b; font-weight: 500;">${data.farmerName}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0;">
-                            <span style="font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase;">PROVINCE</span>
-                            <span style="font-size: 14px; color: #1e293b; font-weight: 500;">${data.province}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0;">
-                            <span style="font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase;">MUNICIPALITY</span>
-                            <span style="font-size: 14px; color: #1e293b; font-weight: 500;">${data.municipality}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0;">
-                            <span style="font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase;">BARANGAY</span>
-                            <span style="font-size: 14px; color: #1e293b; font-weight: 500;">${data.barangay}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0;">
-                            <span style="font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase;">LINE</span>
-                            <span style="font-size: 14px; color: #1e293b; font-weight: 500;">${data.line}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0;">
-                            <span style="font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase;">PROGRAM</span>
-                            <span style="font-size: 14px; color: #1e293b; font-weight: 500;">${data.program}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0;">
-                            <span style="font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase;">ACCOUNT</span>
-                            <span style="font-size: 14px; color: #1e293b; font-weight: 500;">${data.accounts}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase;">MODE OF PAYMENT</span>
-                            <span style="font-size: 14px; color: #1e293b; font-weight: 500;">${data.modeOfPayment}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- OTHER DETAILS Section -->
-                <div style="background: linear-gradient(135deg, #fef7f0 0%, #fef3e2 100%); border-radius: 12px; padding: 20px; border: 1px solid #fbbf24;">
-                    <h3 style="color: #1e293b; font-size: 18px; font-weight: bold; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                            <line x1="16" y1="2" x2="16" y2="6"/>
-                            <line x1="8" y1="2" x2="8" y2="6"/>
-                            <line x1="3" y1="10" x2="21" y2="10"/>
-                        </svg>
-                        OTHER DETAILS
-                    </h3>
-                    <div style="display: grid; gap: 12px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #fbbf24;">
-                            <span style="font-size: 12px; font-weight: 600; color: #92400e; text-transform: uppercase;">DATE RECEIVED</span>
-                            <span style="font-size: 14px; color: #1e293b; font-weight: 500;">${data.dateReceived}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #fbbf24;">
-                            <span style="font-size: 12px; font-weight: 600; color: #92400e; text-transform: uppercase;">DATE ENCODED</span>
-                            <span style="font-size: 14px; color: #1e293b; font-weight: 500;">${data.dateEncoded}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #fbbf24;">
-                            <span style="font-size: 12px; font-weight: 600; color: #92400e; text-transform: uppercase;">DATE OF OCCURRENCE</span>
-                            <span style="font-size: 14px; color: #1e293b; font-weight: 500;">${data.dateOccurrence}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #fbbf24;">
-                            <span style="font-size: 12px; font-weight: 600; color: #92400e; text-transform: uppercase;">ENCODER</span>
-                            <span style="font-size: 14px; color: #1e293b; font-weight: 500;">${data.encoderName}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #fbbf24;">
-                            <span style="font-size: 12px; font-weight: 600; color: #92400e; text-transform: uppercase;">SOURCE</span>
-                            <span style="font-size: 14px; color: #1e293b; font-weight: 500;">${data.source}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #fbbf24;">
-                            <span style="font-size: 12px; font-weight: 600; color: #92400e; text-transform: uppercase;">CONTROL NUMBER</span>
-                            <span style="font-size: 14px; color: #1e293b; font-weight: 500;">${data.transmittalNumber}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #fbbf24;">
-                            <span style="font-size: 12px; font-weight: 600; color: #92400e; text-transform: uppercase;">ADMIN TRANSMITTAL #</span>
-                            <span style="font-size: 14px; color: #1e293b; font-weight: 500;">${data.adminTransmittalNumber || 'N/A'}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #fbbf24;">
-                            <span style="font-size: 12px; font-weight: 600; color: #92400e; text-transform: uppercase;">ADMIN TRANSMITTAL ASSIGNED</span>
-                            <span style="font-size: 14px; color: #1e293b; font-weight: 500;">${data.adminTransmittalAssignedAt || 'N/A'}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #fbbf24;">
-                            <span style="font-size: 12px; font-weight: 600; color: #92400e; text-transform: uppercase;">CAUSE OF DAMAGE</span>
-                            <span style="font-size: 14px; color: #1e293b; font-weight: 500;">${data.causeOfDamage}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #fbbf24;">
-                            <span style="font-size: 12px; font-weight: 600; color: #92400e; text-transform: uppercase;">RECORD ID</span>
-                            <span style="font-size: 14px; color: #1e293b; font-weight: 500;">${data.id}</span>
-                        </div>
-                        <div style="margin-top: 20px;">
-                            <div style="font-size: 12px; font-weight: 600; color: #92400e; text-transform: uppercase; margin-bottom: 8px;">REMARKS</div>
-                            <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #fbbf24; min-height: 80px; max-height: 150px; overflow-y: auto; white-space: pre-wrap; font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace; font-size: 13px; line-height: 1.5; color: #374151;">${data.remarks || 'No remarks available'}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    // Initialize when DOM is ready
-    document.addEventListener('DOMContentLoaded', function() {
-        // Close on ESC key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && isModalOpen) {
-                closeModal(e);
-            }
-        });
-
-        // View record click handler with event delegation and stopPropagation
-        document.addEventListener('click', function(e) {
-            const viewBtn = e.target.closest('.view-record-btn');
-            if (viewBtn) {
-                e.preventDefault();
-                e.stopPropagation();
-                const recordId = viewBtn.getAttribute('data-record-id');
-                if (recordId) {
-                    setTimeout(function() {
-                        openViewModal(recordId, e);
-                    }, 50); // Small delay to prevent immediate closing
-                }
-            }
-        });
-    });
-})();
-</script>

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
+    Schema::dropIfExists('record_attachments');
     Schema::dropIfExists('records');
     Schema::create('records', function (Blueprint $table) {
         $table->id();
@@ -37,9 +38,18 @@ beforeEach(function () {
         $table->timestamp('approved_at')->nullable();
         $table->timestamps();
     });
+    Schema::create('record_attachments', function (Blueprint $table) {
+        $table->id();
+        $table->foreignId('record_id')->constrained()->cascadeOnDelete();
+        $table->string('type', 16);
+        $table->string('path');
+        $table->string('original_name');
+        $table->timestamps();
+    });
 });
 
 afterEach(function () {
+    Schema::dropIfExists('record_attachments');
     Schema::dropIfExists('records');
 });
 
@@ -251,6 +261,63 @@ test('each receiving channel can upload a PDF with a record', function (string $
     expect($pdfPath)->toStartWith('claim-pdfs/');
     Storage::disk('local')->assertExists($pdfPath);
 })->with(['OD', 'Email', 'Facebook']);
+
+test('receiving channels can upload multiple photos and PDFs with a record', function () {
+    Storage::fake('local');
+    $data = encoderNoticeImageStoreData(fakeNoticeImage(1));
+    unset($data['notice_image']);
+    $data['notice_images'] = [fakeNoticeImage(1), fakeNoticeImage(1)];
+    $data['notice_pdfs'] = [fakeNoticePdf('first.pdf'), fakeNoticePdf('second.pdf')];
+
+    $response = $this->withSession(noticePdfSession('Email'))
+        ->withHeader('Accept', 'application/json')
+        ->post(route('records'), $data);
+
+    $response->assertOk()->assertJson(['success' => true]);
+    $record = Record::query()->firstOrFail();
+    expect($record->attachments()->where('type', 'image')->count())->toBe(2)
+        ->and($record->attachments()->where('type', 'pdf')->count())->toBe(2);
+
+    foreach ($record->attachments as $attachment) {
+        Storage::disk('local')->assertExists($attachment->path);
+    }
+});
+
+test('editing a record adds multiple attachments and removes only selected files', function () {
+    Storage::fake('local');
+    Storage::disk('local')->put('claim-notices/existing.jpg', file_get_contents(public_path('images/PCIC_RO3A_LOGO.jpg')));
+    $record = Record::create([
+        ...encoderNoticeImageUpdateData(),
+        'address' => 'San Vicente, Gapan, Nueva Ecija',
+        'encoderName' => 'Email Encoder',
+        'encoder_id' => 42,
+        'notice_image_path' => 'claim-notices/existing.jpg',
+    ]);
+
+    $response = $this->withSession(noticePdfSession('Email'))
+        ->putJson(route('records.update', $record), [
+            ...encoderNoticeImageUpdateData(),
+            'notice_images' => [fakeNoticeImage(1), fakeNoticeImage(1)],
+            'notice_pdfs' => [fakeNoticePdf('claim.pdf')],
+        ]);
+
+    $response->assertOk()->assertJson(['success' => true]);
+    $imageAttachments = $record->attachments()->where('type', 'image')->orderBy('id')->get();
+    $pdfAttachment = $record->attachments()->where('type', 'pdf')->firstOrFail();
+    expect($imageAttachments->count())->toBe(3);
+
+    $removeResponse = $this->withSession(noticePdfSession('Email'))
+        ->putJson(route('records.update', $record), [
+            ...encoderNoticeImageUpdateData(),
+            'remove_attachment_ids' => [$imageAttachments[1]->id],
+        ]);
+
+    $removeResponse->assertOk()->assertJson(['success' => true]);
+    Storage::disk('local')->assertMissing($imageAttachments[1]->path);
+    Storage::disk('local')->assertExists($imageAttachments[0]->path);
+    Storage::disk('local')->assertExists($pdfAttachment->path);
+    expect($record->attachments()->where('type', 'image')->count())->toBe(2);
+});
 
 test('receiving channels can remove their existing PDF while editing a record', function () {
     Storage::fake('local');

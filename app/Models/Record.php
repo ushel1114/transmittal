@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Record extends Model
 {
@@ -39,4 +40,9 @@ class Record extends Model
         'approved_at' => 'datetime',
         'date_received' => 'date',
     ];
+
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(RecordAttachment::class)->orderBy('id');
+    }
 }

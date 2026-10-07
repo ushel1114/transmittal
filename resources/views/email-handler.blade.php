@@ -3,168 +3,16 @@
 @section('title', 'Email')
 
 @push('styles')
-<style>
-</style>
+@vite('resources/css/pages/email-handler.css')
 @endpush
 
 @section('page-styles')
-<style>
-    html, body {
-        overflow-x: hidden;
-    }
-
-    .channel-page-shell {
-        padding-top: 57px;
-    }
-
-    .channel-fixed-header {
-        position: fixed;
-        top: 0;
-        right: 0;
-        left: 0;
-        height: 57px;
-        border-bottom: 2px solid #94a3b8;
-        box-shadow: 0 2px 6px rgb(15 23 42 / 10%);
-    }
-
-    .channel-workspace {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr);
-        grid-template-rows: repeat(2, minmax(0, 1fr));
-        flex: 1;
-        width: 100%;
-        min-height: 0;
-        align-items: stretch;
-    }
-
-    .channel-controls,
-    .channel-records {
-        display: flex;
-        flex-direction: column;
-        min-width: 0;
-        min-height: 0;
-        height: 100%;
-        border: 1px solid #94a3b8;
-        border-radius: 1rem;
-        box-shadow: 0 2px 8px rgb(15 23 42 / 8%);
-    }
-
-    .contentContainer.channel-page-content {
-        flex: 1;
-        width: 100%;
-        min-height: 0;
-        max-width: none;
-        margin: 0;
-        box-sizing: border-box;
-        align-items: stretch;
-        justify-content: stretch;
-        padding: 16px 18px;
-    }
-
-    .channel-controls > #controlActions,
-    .channel-controls > #addRecordPanel {
-        flex: 1;
-        min-height: 0;
-        overflow-y: auto;
-    }
-
-    .channel-records > .p-4 {
-        display: flex;
-        flex-direction: column;
-        flex: 1;
-        min-height: 0;
-        gap: 0.75rem;
-        overflow: hidden;
-    }
-
-    .channel-records .table-scroll-sync-top,
-    .channel-records .table-scroll-sync-bottom {
-        display: none;
-    }
-
-    .channel-records .table-wrapper {
-        flex: 1;
-        min-height: 0;
-        width: 100%;
-        max-width: 100%;
-        overflow: auto;
-        border: 1px solid #94a3b8;
-        border-radius: 0.75rem;
-        background: #fff;
-    }
-
-    #recordsPanel:has(.empty-state) .table-wrapper {
-        display: none;
-    }
-
-    .channel-records .empty-state {
-        flex: 1;
-        min-height: 0;
-        padding: 1rem !important;
-    }
-
-    .channel-pagination {
-        flex: 0 0 auto;
-        margin: auto 0 0 !important;
-        padding-top: 0.5rem;
-    }
-
-    .channel-pagination #pagination-container {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .channel-pagination .channel-page-link,
-    .channel-pagination .channel-page-disabled,
-    .channel-pagination .channel-page-current {
-        display: inline-flex;
-        min-height: 2.25rem;
-        align-items: center;
-        justify-content: center;
-        padding: 0.5rem 0.875rem;
-        border: 1px solid #e2e8f0;
-        border-radius: 0.75rem;
-        font-size: 0.8125rem;
-        font-weight: 700;
-        text-decoration: none;
-    }
-
-    .channel-pagination .channel-page-link {
-        border-color: #006c35;
-        background: #006c35;
-        color: #fff;
-        transition: background-color 0.15s ease;
-    }
-
-    .channel-pagination .channel-page-link:hover {
-        background: #005428;
-    }
-
-    .channel-pagination .channel-page-disabled {
-        background: #f1f5f9;
-        color: #94a3b8;
-    }
-
-    .channel-pagination .channel-page-current {
-        background: #f8fafc;
-        color: #334155;
-    }
-
-    @media (min-width: 1024px) {
-        .channel-workspace {
-            grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
-            grid-template-rows: minmax(0, 1fr);
-        }
-    }
-</style>
+@vite('resources/css/pages/channel.css')
 @endsection
 
 @section('content')
     <div class="min-h-screen flex flex-col bg-gradient-to-br from-pcic-100 via-white to-pcic-100 {{ $isLoggedIn ? 'channel-page-shell' : '' }}">
-        {{-- Top Header Bar --}}
+
         <div class="odHeader sticky top-0 z-20 w-full bg-white/90 backdrop-blur-md border-b border-gray-200/60 {{ $isLoggedIn ? 'channel-fixed-header' : '' }}">
             <div class="max-w-6xl mx-auto h-full px-4 py-3 flex items-center justify-between gap-3">
                 <div class="flex items-center gap-3 min-w-0">
@@ -226,9 +74,9 @@
 			<div class="date-filter-container border border-gray-200 bg-gray-50 rounded-lg p-3">
 				<div class="flex flex-col gap-3">
 					<label class="text-xs font-bold text-gray-700 mb-2">Filter Records By Date</label>
-					
+
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-						<!-- Date Encoded Filter -->
+
 						<div class="date-encoded-filter">
 							<div class="flex items-center gap-2 mb-2">
 							<input type="checkbox" id="use_date_encoded" name="use_date_encoded" value="1" {{ request('use_date_encoded') || (!request('use_date_received') && !request('date_received')) ? 'checked' : '' }} class="w-4 h-4 text-pcic-600 focus:ring-pcic-500 border-gray-300 rounded">
@@ -236,8 +84,8 @@
 						</div>
 							<input type="date" name="date_encoded" value="{{ request('date_encoded', now()->format('Y-m-d')) }}" class="h-10 px-3 rounded-lg border border-gray-300 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 bg-white outline-none text-sm shadow-sm w-full">
 						</div>
-						
-						<!-- Date Received Filter -->
+
+
 						<div class="date-received-filter">
 							<div class="flex items-center gap-2 mb-2">
 							<input type="checkbox" id="use_date_received" name="use_date_received" value="1" {{ request('use_date_received') ? 'checked' : '' }} class="w-4 h-4 text-pcic-600 focus:ring-pcic-500 border-gray-300 rounded">
@@ -246,8 +94,8 @@
 							<input type="date" name="date_received" value="{{ request('date_received', now()->format('Y-m-d')) }}" class="h-10 px-3 rounded-lg border border-gray-300 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 bg-white outline-none text-sm shadow-sm w-full">
 						</div>
 					</div>
-					
-					<!-- Filter Options Help -->
+
+
 					<div class="text-xs text-gray-500 bg-blue-50 border border-blue-200 rounded p-2 mt-2">
 						<strong>How to use:</strong><br>
 						• Check one or both date filters<br>
@@ -362,14 +210,14 @@
                 <label class="block text-xs font-bold text-gray-600" for="accounts">Email account
                     <input type="text" id="accounts" name="accounts" placeholder="Email address or username" class="mt-1.5 h-10 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
                 </label>
-                <label class="block text-xs font-bold text-gray-600" for="notice_image">Notice of loss / claim image <span class="font-medium text-gray-400">(optional)</span>
-                    <input type="file" id="notice_image" name="notice_image" accept="image/jpeg,image/png,image/webp" class="mt-1.5 block w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 file:mr-3 file:rounded-md file:border-0 file:bg-pcic-50 file:px-3 file:py-1.5 file:text-xs file:font-bold file:text-pcic-700 hover:file:bg-pcic-100">
-                    <span class="mt-1 block text-xs font-medium text-gray-500">JPG, PNG, or WebP. Maximum 30 MB.</span>
+                <label class="block text-xs font-bold text-gray-600" for="notice_images">Notice of loss / claim photos <span class="font-medium text-gray-400">(optional)</span>
+                    <input type="file" id="notice_images" name="notice_images[]" accept="image/jpeg,image/png,image/webp" multiple class="mt-1.5 block w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 file:mr-3 file:rounded-md file:border-0 file:bg-pcic-50 file:px-3 file:py-1.5 file:text-xs file:font-bold file:text-pcic-700 hover:file:bg-pcic-100">
+                    <span class="mt-1 block text-xs font-medium text-gray-500">JPG, PNG, or WebP. Maximum 30 MB per photo.</span>
                 </label>
                 <button type="button" class="clear-add-notice-image-selection w-fit rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50" hidden>Clear selected image</button>
-                <label class="block text-xs font-bold text-gray-600" for="notice_pdf">Supporting document <span class="font-medium text-gray-400">(PDF, optional)</span>
-                    <input type="file" id="notice_pdf" name="notice_pdf" accept="application/pdf,.pdf" class="mt-1.5 block w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 file:mr-3 file:rounded-md file:border-0 file:bg-pcic-50 file:px-3 file:py-1.5 file:text-xs file:font-bold file:text-pcic-700 hover:file:bg-pcic-100">
-                    <span class="mt-1 block text-xs font-medium text-gray-500">PDF only. Maximum 30 MB.</span>
+                <label class="block text-xs font-bold text-gray-600" for="notice_pdfs">Supporting documents <span class="font-medium text-gray-400">(PDF, optional)</span>
+                    <input type="file" id="notice_pdfs" name="notice_pdfs[]" accept="application/pdf,.pdf" multiple class="mt-1.5 block w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 file:mr-3 file:rounded-md file:border-0 file:bg-pcic-50 file:px-3 file:py-1.5 file:text-xs file:font-bold file:text-pcic-700 hover:file:bg-pcic-100">
+                    <span class="mt-1 block text-xs font-medium text-gray-500">PDF only. Maximum 30 MB per file.</span>
                 </label>
                 <button type="button" class="clear-add-notice-pdf-selection w-fit rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50" hidden>Clear selected PDF</button>
                 <div class="pt-2">
@@ -481,25 +329,22 @@
             <input type="text" id="remarks" name="remarks" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full ">
             <label for="accounts" class="text-xs font-bold text-gray-600 text-right">Account (email):</label>
             <input type="text" id="accounts" name="accounts" placeholder="Email address or username" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full ">
-            <label for="editNoticeImage" class="text-xs font-bold text-gray-600 text-right">Notice / claim image:</label>
+            <label for="editNoticeImages" class="text-xs font-bold text-gray-600 text-right">Notice / claim photos:</label>
             <div class="flex flex-col gap-2">
-                <input type="file" id="editNoticeImage" name="notice_image" accept="image/jpeg,image/png,image/webp" class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700">
-                <button type="button" class="clear-notice-image-selection w-fit rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50" hidden>Clear selected image</button>
-                <div id="editNoticeImagePreviewContainer" hidden>
-                    <img id="editNoticeImagePreview" alt="Notice of loss or claim preview" hidden class="max-h-40 rounded-lg border border-gray-200 object-contain">
-                    <button type="button" id="editNoticeImagePrintButton" class="notice-image-view-btn mt-2" data-image-url="" hidden>View / Print image</button>
-                </div>
-                <button type="button" id="removeNoticeImageButton" class="mt-1 w-fit rounded-lg border border-red-200 px-3 py-1.5 text-xs font-bold text-red-700 hover:bg-red-50" hidden>Remove current image</button>
+                <input type="file" id="editNoticeImages" name="notice_images[]" accept="image/jpeg,image/png,image/webp" multiple class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700">
+                <button type="button" class="clear-notice-image-selection w-fit rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50" hidden>Clear selected photos</button>
+                <div id="editNoticeImageAttachments" class="flex flex-col gap-2"></div>
+                <button type="button" id="viewEditNoticeImages" class="notice-image-view-btn w-fit" data-image-urls="[]" data-farmer-name="" hidden>View / Print all photos</button>
                 <span id="editNoticeImageStatus" class="text-xs text-gray-500"></span>
-                <span class="text-xs text-gray-500">Optional. JPG, PNG, or WebP; maximum 30 MB. Leave empty to keep the current image.</span>
+                <span class="text-xs text-gray-500">JPG, PNG, or WebP. Maximum 30 MB per photo. Existing photos are kept unless removed.</span>
             </div>
-            <label for="editNoticePdf" class="text-xs font-bold text-gray-600 text-right">Supporting PDF:</label>
+            <label for="editNoticePdfs" class="text-xs font-bold text-gray-600 text-right">Supporting PDFs:</label>
             <div class="flex flex-col gap-2">
-                <input type="file" id="editNoticePdf" name="notice_pdf" accept="application/pdf,.pdf" class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700">
-                <button type="button" class="clear-notice-pdf-selection w-fit rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50" hidden>Clear selected PDF</button>
+                <input type="file" id="editNoticePdfs" name="notice_pdfs[]" accept="application/pdf,.pdf" multiple class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700">
+                <button type="button" class="clear-notice-pdf-selection w-fit rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50" hidden>Clear selected PDFs</button>
+                <div id="editNoticePdfAttachments" class="flex flex-col gap-2"></div>
                 <span id="editNoticePdfStatus" class="text-xs text-gray-500"></span>
-                <button type="button" id="removeNoticePdfButton" class="w-fit rounded-lg border border-red-200 px-3 py-1.5 text-xs font-bold text-red-700 hover:bg-red-50" hidden>Remove current PDF</button>
-                <span class="text-xs text-gray-500">PDF only, maximum 30 MB. Leave empty to keep the current file.</span>
+                <span class="text-xs text-gray-500">PDF only. Maximum 30 MB per file. Existing PDFs are kept unless removed.</span>
             </div>
             <div></div>
             <div class="flex gap-2 pt-1">
@@ -515,7 +360,6 @@
 
 @push('scripts')
 <script>
-// Edit Record Modal
 const editRecordDialog = document.getElementById('recordEditDialog');
 const closeEditRecordModal = document.querySelector('.closeEditRecordDialog');
 const editRecordForm = document.getElementById('recordEditForm');
@@ -695,80 +539,13 @@ function clearFilter(filterName) {
     }
 }
 
-<style>
-/* New Toggle Switch Styles */
-.toggle-container {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.toggle-switch {
-    position: relative;
-    display: inline-block;
-    width: 44px;
-    height: 24px;
-}
-
-.toggle-switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.toggle-slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    transition: .4s;
-    border-radius: 24px;
-}
-
-.toggle-slider:before {
-    position: absolute;
-    content: "";
-    height: 18px;
-    width: 18px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white;
-    transition: .4s;
-    border-radius: 50%;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
-
-.toggle-switch input:checked + .toggle-slider {
-    background-color: #006c35;
-}
-
-.toggle-switch input:focus + .toggle-slider {
-    box-shadow: 0 0 1px #006c35;
-}
-
-.toggle-switch input:checked + .toggle-slider:before {
-    transform: translateX(20px);
-}
-
-.toggle-label-text {
-    font-size: 11px;
-    color: #64748b;
-    font-weight: 500;
-}
-</style>
-
 <script>
-// Simple toggle functionality for date filters
 document.addEventListener('DOMContentLoaded', function() {
-    
-    // Date Received Toggle (existing functionality)
+
     const enableDateReceivedToggle = document.getElementById('enable_date_received');
     const dateReceivedInput = document.querySelector('input[name="date_received"]');
     const dateReceivedContainer = document.querySelector('.date-received-container');
-    
+
     if (enableDateReceivedToggle && dateReceivedInput) {
         function updateEnableDateReceivedToggle() {
             if (enableDateReceivedToggle.checked) {
@@ -789,16 +566,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         }
-        
+
         enableDateReceivedToggle.addEventListener('change', updateEnableDateReceivedToggle);
         updateEnableDateReceivedToggle();
     }
-    
-    // Date Encoded Toggle
+
     const dateEncodedToggle = document.getElementById('enable_date_encoded');
     const dateEncodedInput = document.querySelector('input[name="date_encoded"]');
     const dateEncodedContainer = document.querySelector('.date-encoded-container');
-    
+
     if (dateEncodedToggle && dateEncodedInput) {
         function updateDateEncodedToggle() {
             if (dateEncodedToggle.checked) {
@@ -819,7 +595,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         }
-        
+
         dateEncodedToggle.addEventListener('change', updateDateEncodedToggle);
         updateDateEncodedToggle();
     }
@@ -827,7 +603,6 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <script>
-// Add Record Form Functionality
 (function() {
     var addRecordPanel = document.getElementById('addRecordPanel');
     var controlActions = document.getElementById('controlActions');
@@ -862,8 +637,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     addRecordButton?.addEventListener('click', showAddRecordForm);
     returnToControlsButton?.addEventListener('click', showControls);
-    
-    // Function to fetch and populate latest record
+
     function populateFormWithLatestRecord() {
         fetch('{{ route('records.latest') }}?source=Email')
             .then(response => response.json())
@@ -880,8 +654,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (form.querySelector('#modeOfPayment') && !form.querySelector('#modeOfPayment').value) form.querySelector('#modeOfPayment').value = data.record.modeOfPayment || '';
                         if (form.querySelector('#date_received') && !form.querySelector('#date_received').value) form.querySelector('#date_received').value = data.record.date_received || '';
                         if (form.querySelector('#accounts') && !form.querySelector('#accounts').value) form.querySelector('#accounts').value = data.record.accounts || '';
-                        
-                        // Handle municipality and barangay after province change
+
                         setTimeout(() => {
                             if (shouldPrefillLocation && form.querySelector('#municipality') && data.record.municipality) {
                                 form.querySelector('#municipality').value = data.record.municipality;
@@ -898,58 +671,50 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => console.error('Error fetching latest record:', error));
     }
-    
+
     populateFormWithLatestRecord();
-    
-    // Save location values to localStorage
+
     function saveLocationValues() {
         var province = document.getElementById('province');
         var municipality = document.getElementById('municipality');
         var barangay = document.getElementById('barangay');
-        
+
         if (province && municipality && barangay) {
             localStorage.setItem('email_province', province.value);
             localStorage.setItem('email_municipality', municipality.value);
             localStorage.setItem('email_barangay', barangay.value);
         }
     }
-    
-    // Restore location values from localStorage
+
     function restoreLocationValues() {
         var province = document.getElementById('province');
         var municipality = document.getElementById('municipality');
         var barangay = document.getElementById('barangay');
-        
+
         if (province && municipality && barangay) {
             var savedProvince = localStorage.getItem('email_province');
             var savedMunicipality = localStorage.getItem('email_municipality');
             var savedBarangay = localStorage.getItem('email_barangay');
-            
+
             if (savedProvince) {
                 province.value = savedProvince;
-                // Enable municipality dropdown
                 municipality.disabled = false;
                 municipality.classList.remove('bg-gray-50');
                 municipality.classList.add('bg-white');
-                
-                // Trigger change event to populate municipalities
+
                 var event = new Event('change');
                 province.dispatchEvent(event);
-                
-                // After municipalities are loaded, set the saved value
+
                 setTimeout(function() {
                     if (savedMunicipality) {
                         municipality.value = savedMunicipality;
-                        // Enable barangay dropdown
                         barangay.disabled = false;
                         barangay.classList.remove('bg-gray-50');
                         barangay.classList.add('bg-white');
-                        
-                        // Trigger change event to populate barangays
+
                         var municipalityEvent = new Event('change');
                         municipality.dispatchEvent(municipalityEvent);
-                        
-                        // After barangays are loaded, set the saved value
+
                         setTimeout(function() {
                             if (savedBarangay) {
                                 barangay.value = savedBarangay;
@@ -960,15 +725,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
-    
-    // Clear location values from localStorage
+
     function clearLocationValues() {
         localStorage.removeItem('email_province');
         localStorage.removeItem('email_municipality');
         localStorage.removeItem('email_barangay');
     }
-    
-    // Add form submission handler to save location values
+
     var addRecordForm = document.getElementById('addRecordForm');
     if (addRecordForm) {
         addRecordForm.addEventListener('submit', function(e) {
@@ -983,23 +746,22 @@ document.addEventListener('DOMContentLoaded', function() {
                     .join(', ');
             }
             saveLocationValues();
-            
-            // Save current form values before submission
+
             var dateReceivedValue = addRecordForm.querySelector('#date_received') ? addRecordForm.querySelector('#date_received').value : '';
             var modeOfPaymentValue = addRecordForm.querySelector('#modeOfPayment') ? addRecordForm.querySelector('#modeOfPayment').value : '';
             var provinceValue = addRecordForm.querySelector('#province') ? addRecordForm.querySelector('#province').value : '';
             var municipalityValue = addRecordForm.querySelector('#municipality') ? addRecordForm.querySelector('#municipality').value : '';
             var barangayValue = addRecordForm.querySelector('#barangay') ? addRecordForm.querySelector('#barangay').value : '';
             var accountsValue = addRecordForm.querySelector('#accounts') ? addRecordForm.querySelector('#accounts').value : '';
-            
+
             var formData = new FormData(addRecordForm);
             var submitBtn = addRecordForm.querySelector('button[type="submit"]');
-            
+
             if (submitBtn) {
                 submitBtn.disabled = true;
                 submitBtn.textContent = 'Adding...';
             }
-            
+
             fetch(addRecordForm.action, {
                 method: 'POST',
                 body: formData,
@@ -1011,15 +773,13 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 if (data.success) {
                     showModalMessage(data.message, 'success');
-                    // Restore retained values
                     if (addRecordForm.querySelector('#date_received')) addRecordForm.querySelector('#date_received').value = dateReceivedValue;
                     if (addRecordForm.querySelector('#modeOfPayment')) addRecordForm.querySelector('#modeOfPayment').value = modeOfPaymentValue;
                     if (addRecordForm.querySelector('#province')) addRecordForm.querySelector('#province').value = provinceValue;
                     if (addRecordForm.querySelector('#municipality')) addRecordForm.querySelector('#municipality').value = municipalityValue;
                     if (addRecordForm.querySelector('#barangay')) addRecordForm.querySelector('#barangay').value = barangayValue;
                     if (addRecordForm.querySelector('#accounts')) addRecordForm.querySelector('#accounts').value = accountsValue;
-                    
-                    // Clear other fields
+
                     if (addRecordForm.querySelector('#farmerName')) addRecordForm.querySelector('#farmerName').value = '';
                     if (addRecordForm.querySelector('#line')) addRecordForm.querySelector('#line').value = '';
                     if (addRecordForm.querySelector('#program')) addRecordForm.querySelector('#program').value = '';
@@ -1027,11 +787,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (addRecordForm.querySelector('#date_occurrence')) addRecordForm.querySelector('#date_occurrence').value = '';
                     if (addRecordForm.querySelector('#remarks')) addRecordForm.querySelector('#remarks').value = '';
                     if (addRecordForm.querySelector('#controlNumber')) addRecordForm.querySelector('#controlNumber').value = '';
-                    if (addRecordForm.querySelector('#notice_image')) addRecordForm.querySelector('#notice_image').value = '';
-                    if (addRecordForm.querySelector('#notice_pdf')) addRecordForm.querySelector('#notice_pdf').value = '';
+                    if (addRecordForm.querySelector('#notice_images')) addRecordForm.querySelector('#notice_images').value = '';
+                    if (addRecordForm.querySelector('#notice_pdfs')) addRecordForm.querySelector('#notice_pdfs').value = '';
                     addRecordForm.querySelector('.clear-add-notice-image-selection')?.setAttribute('hidden', '');
                     addRecordForm.querySelector('.clear-add-notice-pdf-selection')?.setAttribute('hidden', '');
-                    
+
                     fetch(window.location.href, {
                             headers: {
                                 'X-Requested-With': 'XMLHttpRequest'
@@ -1058,7 +818,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             showModalMessage('Record saved, but the list could not refresh. Reload the page to view it.', 'warning');
                         });
                 } else {
-                    var uploadError = data.errors?.notice_image?.[0] || data.errors?.notice_pdf?.[0] || null;
+                    var uploadError = Object.values(data.errors || {}).flat()[0] || null;
                     showModalMessage(uploadError || data.message || 'Error adding record', 'error');
                 }
             })
@@ -1074,27 +834,23 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-    
+
 })();
 
 </script>
 
 <script>
-// Automatic logout on browser/tab close
 window.addEventListener('beforeunload', function(e) {
-    // Send logout request using navigator.sendBeacon for reliable delivery
     navigator.sendBeacon('{{ route('email.logout') }}', new FormData());
 });
 
-// Also handle page visibility change (user switches tabs)
 document.addEventListener('visibilitychange', function() {
     if (document.visibilityState === 'hidden') {
-        // User switched away from the tab, mark as away after a delay
         setTimeout(function() {
             if (document.visibilityState === 'hidden') {
                 navigator.sendBeacon('{{ route('email.logout') }}', new FormData());
             }
-        }, 30000); // 30 seconds delay
+        }, 30000);
     }
 });
 </script>

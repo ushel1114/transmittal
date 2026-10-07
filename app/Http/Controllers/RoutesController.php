@@ -294,7 +294,7 @@ class RoutesController extends Controller
         $encoderId = $request->session()->get('email_user_id');
 
         // Use encoder_id for efficient user-specific querying
-        $query = Record::where('source', 'Email');
+        $query = Record::with('attachments')->where('source', 'Email');
 
         // Filter by logged-in user's encoder ID (default behavior)
         if ($encoderId) {
@@ -436,7 +436,7 @@ class RoutesController extends Controller
         $encoderId = $facebookUserId;
 
         // Show Facebook records filtered by logged-in user's encoder ID
-        $query = Record::where('source', 'Facebook');
+        $query = Record::with('attachments')->where('source', 'Facebook');
 
         // Filter by logged-in user's encoder ID
         if ($encoderId) {
@@ -542,7 +542,7 @@ class RoutesController extends Controller
             $officerRecord = Officer::where('name', $officerFullName)->first();
             $encoderId = $officerRecord ? $officerRecord->id : null;
 
-            $query = Record::where('source', 'OD');
+            $query = Record::with('attachments')->where('source', 'OD');
 
             // Filter by encoder_id if available
             if ($encoderId) {
@@ -829,7 +829,7 @@ class RoutesController extends Controller
             return redirect()->route('welcome')->with('error', 'Please login as admin to access this page');
         }
 
-        $query = Record::query();
+        $query = Record::with('attachments');
 
         if ($request->filled('farmerName')) {
             $query->where('farmerName', 'like', '%'.$request->farmerName.'%');
@@ -2095,6 +2095,7 @@ class RoutesController extends Controller
         $allSources = Record::distinct()->pluck('source')->filter()->sort()->values();
 
         $records = $this->filteredAllRecordsQuery($request)
+            ->with('attachments')
             ->orderByDesc('id')
             ->paginate(50)
             ->withQueryString();
