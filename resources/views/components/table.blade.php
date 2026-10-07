@@ -945,7 +945,12 @@ if (! function_exists('getSortIndicator')) {
                 </button>
             </td>
             <td class="no-print col-view">
-                <button type="button" class="view-record-btn" data-record-id="{{ $record->id }}">
+                <button
+                    type="button"
+                    class="view-record-btn"
+                    data-record-id="{{ $record->id }}"
+                    onclick="window.openRecordViewModal(this, event)"
+                >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                         <circle cx="12" cy="12" r="3"/>
@@ -1126,5 +1131,92 @@ if (! function_exists('getSortIndicator')) {
         </div>
     </div>
 </div>
+
+<script>
+    window.openRecordViewModal = function (button, event) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+        const modal = document.getElementById('viewRecordModal');
+        const recordDetails = document.getElementById('recordDetails');
+        const row = button.closest('tr');
+        const editButton = row?.querySelector('.editButton');
+
+        if (!modal || !recordDetails || !editButton) {
+            console.error('Unable to open record details: required table or modal elements are missing.');
+            return;
+        }
+
+        const encoderCell = row.querySelector('.col-encoder');
+        const transmittalCell = row.querySelector('.col-control-number');
+        const details = [
+            ['Record ID', button.dataset.recordId],
+            ['Farmer name', editButton.dataset.farmerName],
+            ['Province', editButton.dataset.province],
+            ['Municipality', editButton.dataset.municipality],
+            ['Barangay', editButton.dataset.barangay],
+            ['Address', editButton.dataset.address],
+            ['Program', editButton.dataset.program],
+            ['Line', editButton.dataset.line],
+            ['Cause of damage', editButton.dataset.causeOfDamage],
+            ['Mode of payment', editButton.dataset.modeOfPayment],
+            ['Account', editButton.dataset.accounts],
+            ['Date of occurrence', editButton.dataset.dateOccurrence],
+            ['Date received', editButton.dataset.dateReceived],
+            ['Date encoded', editButton.dataset.createdAt],
+            ['Transmittal number', transmittalCell?.textContent.trim()],
+            ['Admin transmittal number', editButton.dataset.adminTransmittalNumber],
+            ['Encoder', encoderCell?.textContent.trim()],
+            ['Source', editButton.dataset.source],
+            ['Remarks', editButton.dataset.remarks]
+        ];
+        const escapeHtml = value => String(value || 'N/A').replace(/[&<>"']/g, character => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        })[character]);
+
+        recordDetails.innerHTML = `
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;">
+                ${details.map(([label, value]) => `
+                    <div style="padding:10px;border-bottom:1px solid #e2e8f0;">
+                        <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;">${escapeHtml(label)}</div>
+                        <div style="font-size:14px;color:#1e293b;white-space:pre-wrap;overflow-wrap:anywhere;">${escapeHtml(value)}</div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    };
+
+    (function () {
+        const modal = document.getElementById('viewRecordModal');
+        const closeButtons = [
+            document.getElementById('closeModalBtn'),
+            document.getElementById('closeModalFooterBtn')
+        ];
+
+        const closeModal = function () {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        };
+
+        closeButtons.forEach(button => button?.addEventListener('click', closeModal));
+        modal?.addEventListener('click', function (event) {
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && modal?.style.display === 'block') {
+                closeModal();
+            }
+        });
+    })();
+</script>
 
 @include('components.notice-image-print-dialog')
