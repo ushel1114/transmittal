@@ -229,25 +229,22 @@
         `;
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && isModalOpen) {
-                closeModal(e);
-            }
-        });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && isModalOpen) {
+            closeModal(e);
+        }
+    });
 
-        document.addEventListener('click', function(e) {
-            const viewBtn = e.target.closest('.view-record-btn');
-            if (viewBtn) {
-                e.preventDefault();
-                e.stopPropagation();
-                const recordId = viewBtn.getAttribute('data-record-id');
-                if (recordId) {
-                    setTimeout(function() {
-                        openViewModal(recordId, e);
-                    }, 50);
-                }
+    document.addEventListener('click', function(e) {
+        const target = e.target instanceof Element ? e.target : null;
+        const viewBtn = target?.closest('.view-record-btn');
+        if (viewBtn) {
+            e.preventDefault();
+            e.stopPropagation();
+            const recordId = viewBtn.getAttribute('data-record-id');
+            if (recordId) {
+                openViewModal(recordId);
             }
-        });
+        }
     });
 })();
