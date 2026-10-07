@@ -937,29 +937,30 @@ body.dark-mode.public-records-page .table-wrapper table tbody tr:hover {
                                 && filled(session('officer_name'))
                                 && (string) session('officer_id') === (string) $record->encoder_id
                             );
+                        $viewRecordData = [
+                            'id' => $record->id,
+                            'farmerName' => $record->farmerName,
+                            'encoderName' => $record->encoderName,
+                            'source' => $record->source,
+                            'municipality' => $record->municipality,
+                            'barangay' => $record->barangay,
+                            'date_received' => $record->date_received ? \Illuminate\Support\Carbon::parse($record->date_received)->format('M d, Y') : null,
+                            'created_at' => $record->created_at?->format('M d, Y h:i A'),
+                            'admin_transmittal_number' => $record->admin_transmittal_number,
+                            'remarks' => $record->remarks,
+                            'causeOfDamage' => $record->causeOfDamage,
+                            'line' => $record->line,
+                            'modeOfPayment' => $record->modeOfPayment,
+                            'accounts' => $record->accounts,
+                            'facebook_page_url' => $record->facebook_page_url,
+                        ];
                     @endphp
                     <tr>
                         <td>
                             <button
                                 type="button"
                                 class="view-btn"
-                                data-record='@json([
-                                    "id" => $record->id,
-                                    "farmerName" => $record->farmerName,
-                                    "encoderName" => $record->encoderName,
-                                    "source" => $record->source,
-                                    "municipality" => $record->municipality,
-                                    "barangay" => $record->barangay,
-                                    "date_received" => $record->date_received ? \Illuminate\Support\Carbon::parse($record->date_received)->format("M d, Y") : null,
-                                    "created_at" => $record->created_at?->format("M d, Y h:i A"),
-                                    "admin_transmittal_number" => $record->admin_transmittal_number,
-                                    "remarks" => $record->remarks,
-                                    "causeOfDamage" => $record->causeOfDamage,
-                                    "line" => $record->line,
-                                    "modeOfPayment" => $record->modeOfPayment,
-                                    "accounts" => $record->accounts,
-                                    "facebook_page_url" => $record->facebook_page_url,
-                                ])'
+                                data-record="{{ json_encode($viewRecordData, JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_HEX_TAG) }}"
                                 onclick="viewRecord(this)"
                             >View</button>
                             @if ($record->attachments->where('type', 'image')->isNotEmpty() && $canViewNoticeImage)

@@ -148,6 +148,53 @@ html, body {
         color: #334155;
     }
 
+    .channel-add-record-form {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.5rem 0.75rem;
+        padding: 0.75rem;
+    }
+
+    .channel-add-record-form > label {
+        display: block;
+        min-width: 0;
+        font-size: 10px;
+        line-height: 1rem;
+        font-weight: 600;
+    }
+
+    .channel-add-record-form > label > input:not([type="file"]),
+    .channel-add-record-form > label > select {
+        box-sizing: border-box;
+        width: 100%;
+        height: 2.125rem;
+        margin-top: 0.25rem;
+        padding: 0 0.625rem;
+        font-size: 0.75rem;
+    }
+
+    .channel-add-record-form__attachments,
+    .channel-add-record-form__clear,
+    .channel-add-record-form__actions {
+        grid-column: 1 / -1;
+    }
+
+    .channel-add-record-form > label > input[type="file"] {
+        margin-top: 0.25rem;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.6875rem;
+    }
+
+    .channel-add-record-form > label > span {
+        margin-top: 0.125rem;
+        font-size: 9px;
+        line-height: 0.875rem;
+    }
+
+    .channel-add-record-form > div > button[type="submit"] {
+        height: 2.25rem;
+    }
+
     @media (min-width: 768px) {
         .channel-workspace {
             grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
@@ -282,7 +329,7 @@ html, body {
                 </div>
                 <button type="button" id="returnToControlsButton" class="shrink-0 h-9 px-3 rounded-lg border border-gray-200 bg-white text-xs font-bold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer">Back to controls</button>
             </div>
-            <form action="{{ route('records') }}" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 gap-3 p-5" id="addRecordForm" data-async-record-form>
+            <form action="{{ route('records') }}" method="POST" enctype="multipart/form-data" class="channel-add-record-form grid" id="addRecordForm" data-async-record-form>
                 @csrf
                 <input type="hidden" name="source" value="Facebook">
                 <label class="block text-xs font-bold text-gray-600" for="farmerName">Farmer name
@@ -360,17 +407,17 @@ html, body {
                 <label class="block text-xs font-bold text-gray-600" for="facebook_page_url">Facebook page link
                     <input type="url" id="facebook_page_url" name="facebook_page_url" placeholder="https://www.facebook.com/..." class="mt-1.5 h-10 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
                 </label>
-                <label class="block text-xs font-bold text-gray-600" for="notice_images">Notice of loss / claim photos <span class="font-medium text-gray-400">(optional)</span>
+                <label class="channel-add-record-form__attachments block text-xs font-bold text-gray-600" for="notice_images">Notice of loss / claim photos <span class="font-medium text-gray-400">(optional)</span>
                     <input type="file" id="notice_images" name="notice_images[]" accept="image/jpeg,image/png,image/webp" multiple class="mt-1.5 block w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 file:mr-3 file:rounded-md file:border-0 file:bg-pcic-50 file:px-3 file:py-1.5 file:text-xs file:font-bold file:text-pcic-700 hover:file:bg-pcic-100">
                     <span class="mt-1 block text-xs font-medium text-gray-500">JPG, PNG, or WebP. Maximum 30 MB per photo.</span>
                 </label>
-                <button type="button" class="clear-add-notice-image-selection w-fit rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50" hidden>Clear selected image</button>
-                <label class="block text-xs font-bold text-gray-600" for="notice_pdfs">Supporting documents <span class="font-medium text-gray-400">(PDF, optional)</span>
+                <button type="button" class="channel-add-record-form__clear clear-add-notice-image-selection w-fit rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50" hidden>Clear selected image</button>
+                <label class="channel-add-record-form__attachments block text-xs font-bold text-gray-600" for="notice_pdfs">Supporting documents <span class="font-medium text-gray-400">(PDF, optional)</span>
                     <input type="file" id="notice_pdfs" name="notice_pdfs[]" accept="application/pdf,.pdf" multiple class="mt-1.5 block w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 file:mr-3 file:rounded-md file:border-0 file:bg-pcic-50 file:px-3 file:py-1.5 file:text-xs file:font-bold file:text-pcic-700 hover:file:bg-pcic-100">
                     <span class="mt-1 block text-xs font-medium text-gray-500">PDF only. Maximum 30 MB per file.</span>
                 </label>
-                <button type="button" class="clear-add-notice-pdf-selection w-fit rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50" hidden>Clear selected PDF</button>
-                <div class="pt-2">
+                <button type="button" class="channel-add-record-form__clear clear-add-notice-pdf-selection w-fit rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50" hidden>Clear selected PDF</button>
+                <div class="channel-add-record-form__actions pt-2">
                     <button type="submit" class="h-11 w-full rounded-xl bg-pcic-700 text-sm font-bold text-white hover:bg-pcic-800 focus:outline-none focus:ring-2 focus:ring-pcic-500 focus:ring-offset-2 transition-colors cursor-pointer">Save Facebook record</button>
                 </div>
             </form>

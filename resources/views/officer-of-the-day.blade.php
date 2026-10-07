@@ -64,6 +64,36 @@ body {
     overflow-y: auto;
 }
 
+.channel-add-record-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem 0.75rem;
+    padding: 0.75rem;
+}
+
+.channel-add-record-form > label {
+    display: block;
+    min-width: 0;
+    color: #4b5563;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1rem;
+}
+
+.channel-add-record-form > label > input,
+.channel-add-record-form > label > select {
+    box-sizing: border-box;
+    width: 100%;
+    height: 2.125rem;
+    margin-top: 0.25rem;
+    padding: 0 0.625rem;
+    font-size: 0.75rem;
+}
+
+.channel-add-record-form > div {
+    grid-column: 1 / -1;
+}
+
 .channel-records > .p-4 {
     display: flex;
     flex-direction: column;
@@ -236,71 +266,82 @@ body {
                             </div>
                             <button type="button" id="returnToControlsButton" class="shrink-0 h-9 px-3 rounded-lg border border-gray-200 bg-white text-xs font-bold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer">Back to controls</button>
                         </div>
-                        <form action="{{ route('records') }}" method="POST" enctype="multipart/form-data" class="grid grid-cols-[minmax(100px,auto)_minmax(0,1fr)] gap-x-3 gap-y-3 px-5 py-4 items-center" id="addRecordForm">
+                        <form action="{{ route('records') }}" method="POST" enctype="multipart/form-data" class="channel-add-record-form" id="addRecordForm">
                             @csrf
                             <input type="hidden" name="source" value="OD">
-                            <label for="farmerName" class="text-xs font-bold text-gray-600 text-right">Farmer Name:</label>
-                            <input type="text" id="farmerName" name="farmerName" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
-                            <label for="province" class="text-xs font-bold text-gray-600 text-right">Province:</label>
-                            <select name="province" id="province" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
-                                <option value="">Select Province</option>
-                                <option value="Aurora">Aurora</option>
-                                <option value="Nueva Ecija">Nueva Ecija</option>
-                                <option value="Tarlac">Tarlac</option>
-                            </select>
-                            <label for="municipality" class="text-xs font-bold text-gray-600 text-right">Municipality:</label>
-                            <select name="municipality" id="municipality" required disabled class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-gray-50 uppercase">
-                                <option value="">Select Municipality</option>
-                            </select>
-                            <label for="barangay" class="text-xs font-bold text-gray-600 text-right">Barangay:</label>
-                            <select name="barangay" id="barangay" required disabled class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-gray-50 uppercase">
-                                <option value="">Select Barangay</option>
-                            </select>
+                            <label for="farmerName">Farmer name
+                                <input type="text" id="farmerName" name="farmerName" required autocomplete="name" placeholder="Farmer name" class="rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none">
+                            </label>
+                            <label for="province">Province
+                                <select name="province" id="province" required class="rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none bg-white uppercase">
+                                    <option value="">Select province</option>
+                                    <option value="Aurora">Aurora</option>
+                                    <option value="Nueva Ecija">Nueva Ecija</option>
+                                    <option value="Tarlac">Tarlac</option>
+                                </select>
+                            </label>
+                            <label for="municipality">Municipality
+                                <select name="municipality" id="municipality" required disabled class="rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none bg-gray-50 uppercase">
+                                    <option value="">Select municipality</option>
+                                </select>
+                            </label>
+                            <label for="barangay">Barangay
+                                <select name="barangay" id="barangay" required disabled class="rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none bg-gray-50 uppercase">
+                                    <option value="">Select barangay</option>
+                                </select>
+                            </label>
                             <input type="hidden" name="address" id="addRecordAddress">
-                            <label for="line" class="text-xs font-bold text-gray-600 text-right">Line:</label>
-                            <select name="line" id="line" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
-                                <option value="">Select Line</option>
-                                <option value="rice">rice</option>
-                                <option value="corn">corn</option>
-                                <option value="high-value">High-Value Crops</option>
-                                <option value="clti">CLTI</option>
-                                <option value="livestock">Livestock</option>
-                                <option value="non-crop">Non-Crop</option>
-                                <option value="fisheries">Fisheries</option>
-                            </select>
-                            <label for="program" class="text-xs font-bold text-gray-600 text-right">Program:</label>
-                            <select name="program" id="program" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
-                                <option value="">Select Program</option>
-                                <option value="RSBSA">RSBSA</option>
-                                <option value="AGRI-SENSO">AGRI-SENSO</option>
-                                <option value="ACEF">ACEF</option>
-                                <option value="ANYO">ANYO</option>
-                                <option value="OTHER-LI LC">OTHER-LI LC</option>
-                                <option value="OTHER-LBP ACP">OTHER-LBP ACP</option>
-                                <option value="REGULAR">REGULAR</option>
-                                <option value="SELF-FINANCED">SELF-FINANCED</option>
-                                <option value="CFITF">CFITF</option>
-                                <option value="CFITF-CIP">CFITF-CIP</option>
-                            </select>
-                            <label for="date_occurrence" class="text-xs font-bold text-gray-600 text-right">Date occurrence:</label>
-                            <input type="text" id="date_occurrence" name="date_occurrence" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
-                            <label for="date_received" class="text-xs font-bold text-gray-600 text-right">Date received:</label>
-                            <input type="date" id="date_received" name="date_received" value="{{ now()->format('Y-m-d') }}" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
-                            <label for="causeOfDamage" class="text-xs font-bold text-gray-600 text-right">Cause of Damage:</label>
-                            <input type="text" id="causeOfDamage" name="causeOfDamage" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
-                            <label for="modeOfPayment" class="text-xs font-bold text-gray-600 text-right">Mode of payment:</label>
-                            <select name="modeOfPayment" id="modeOfPayment" required class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full bg-white uppercase">
-                                <option value="">Select Mode of payment</option>
-                                <option value="check">Check</option>
-                                <option value="palawan">Palawan Pay</option>
-                                <option value="gcash">GCash</option>
-                                <option value="not_indicated">Not indicated</option>
-                            </select>
-                            <label for="remarks" class="text-xs font-bold text-gray-600 text-right">Remarks - Care of:</label>
-                            <input type="text" id="remarks" name="remarks" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
-                            <label for="controlNumber" class="text-xs font-bold text-gray-600 text-right">Control Number:</label>
-                            <input type="text" id="controlNumber" name="control_number" class="h-9 px-3 rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none text-sm w-full">
-                            <div></div>
+                            <label for="line">Line
+                                <select name="line" id="line" required class="rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none bg-white uppercase">
+                                    <option value="">Select line</option>
+                                    <option value="rice">Rice</option>
+                                    <option value="corn">Corn</option>
+                                    <option value="high-value">High-Value Crops</option>
+                                    <option value="clti">CLTI</option>
+                                    <option value="livestock">Livestock</option>
+                                    <option value="non-crop">Non-Crop</option>
+                                    <option value="fisheries">Fisheries</option>
+                                </select>
+                            </label>
+                            <label for="program">Program
+                                <select name="program" id="program" required class="rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none bg-white uppercase">
+                                    <option value="">Select program</option>
+                                    <option value="RSBSA">RSBSA</option>
+                                    <option value="AGRI-SENSO">AGRI-SENSO</option>
+                                    <option value="ACEF">ACEF</option>
+                                    <option value="ANYO">ANYO</option>
+                                    <option value="OTHER-LI LC">OTHER-LI LC</option>
+                                    <option value="OTHER-LBP ACP">OTHER-LBP ACP</option>
+                                    <option value="REGULAR">REGULAR</option>
+                                    <option value="SELF-FINANCED">SELF-FINANCED</option>
+                                    <option value="CFITF">CFITF</option>
+                                    <option value="CFITF-CIP">CFITF-CIP</option>
+                                </select>
+                            </label>
+                            <label for="date_occurrence">Date of occurrence
+                                <input type="text" id="date_occurrence" name="date_occurrence" placeholder="Date of occurrence" class="rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none">
+                            </label>
+                            <label for="date_received">Date received
+                                <input type="date" id="date_received" name="date_received" value="{{ now()->format('Y-m-d') }}" class="rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none">
+                            </label>
+                            <label for="causeOfDamage">Cause of damage
+                                <input type="text" id="causeOfDamage" name="causeOfDamage" required placeholder="Cause of damage" class="rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none">
+                            </label>
+                            <label for="modeOfPayment">Mode of payment
+                                <select name="modeOfPayment" id="modeOfPayment" required class="rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none bg-white uppercase">
+                                    <option value="">Select payment mode</option>
+                                    <option value="check">Check</option>
+                                    <option value="palawan">Palawan Pay</option>
+                                    <option value="gcash">GCash</option>
+                                    <option value="not_indicated">Not indicated</option>
+                                </select>
+                            </label>
+                            <label for="remarks">Remarks / care of
+                                <input type="text" id="remarks" name="remarks" placeholder="Remarks / care of" class="rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none">
+                            </label>
+                            <label for="controlNumber">Control number
+                                <input type="text" id="controlNumber" name="control_number" placeholder="Control number" class="rounded-lg border border-gray-200 focus:border-pcic-500 focus:ring-2 focus:ring-pcic-100 outline-none">
+                            </label>
                             <div class="flex gap-2 pt-1">
                                 <button type="submit" class="h-9 px-4 rounded-lg bg-pcic-700 text-white text-xs font-bold hover:bg-pcic-800 transition-colors cursor-pointer">Add record</button>
                                 <button type="button" id="cancelAddRecordButton" class="h-9 px-4 rounded-lg border border-gray-200 text-xs font-bold text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer">Cancel</button>
