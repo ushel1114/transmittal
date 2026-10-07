@@ -1052,19 +1052,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </script>
 
-<script>
-window.addEventListener('beforeunload', function(e) {
-    navigator.sendBeacon('{{ route('email.logout') }}', new FormData());
-});
-
-document.addEventListener('visibilitychange', function() {
-    if (document.visibilityState === 'hidden') {
-        setTimeout(function() {
-            if (document.visibilityState === 'hidden') {
-                navigator.sendBeacon('{{ route('email.logout') }}', new FormData());
-            }
-        }, 30000);
-    }
-});
-</script>
 @endpush

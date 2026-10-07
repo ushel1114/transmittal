@@ -291,38 +291,8 @@
             };
         })();
 
-        // Auto-logout on window close/tab close
+        // Keep the inactivity deadline aligned with actual user activity.
         (function() {
-            let logoutSent = false;
-            
-            // Send logout request when user leaves the page
-            function sendLogoutRequest() {
-                if (logoutSent) return; // Prevent multiple requests
-                
-                logoutSent = true;
-                
-                // Use navigator.sendBeacon for reliable delivery during page unload
-                const logoutData = new FormData();
-                logoutData.append('auto_logout', 'true');
-                logoutData.append('channel', getCurrentChannel());
-                logoutData.append('_token', document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '');
-                
-                try {
-                    navigator.sendBeacon('/auto-logout', logoutData);
-                } catch (e) {
-                    // Fallback to fetch if sendBeacon fails
-                    fetch('/auto-logout', {
-                        method: 'POST',
-                        body: logoutData,
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
-                        },
-                        keepalive: true
-                    }).catch(() => {}); // Ignore errors during unload
-                }
-            }
-            
-            // Get current user channel
             function getCurrentChannel() {
                 const path = window.location.pathname;
                 if (path.includes('officer-of-the-day')) return 'OD';
@@ -331,26 +301,59 @@
                 if (path.includes('admin')) return 'admin';
                 return 'unknown';
             }
-            
-            // Add event listeners for page unload
-            window.addEventListener('beforeunload', sendLogoutRequest);
-            window.addEventListener('pagehide', sendLogoutRequest);
-            
-            // Also handle visibility change (when user switches tabs)
+
+            const channel = getCurrentChannel();
+            if (channel === 'unknown') return;
+
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+            let lastActivitySentAt = 0;
+
+            function updateActivity(isAway = false) {
+                const body = new URLSearchParams({
+                    channel,
+                    away: isAway ? 'true' : 'false',
+                    _token: csrfToken
+                });
+
+                fetch('{{ route('update.activity') }}', {
+                    method: 'POST',
+                    body,
+                    credentials: 'same-origin',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    keepalive: isAway
+                }).then(async function(response) {
+                    if (response.status === 401) {
+                        const result = await response.json();
+                        window.location.assign(result.redirect || '{{ route('welcome') }}');
+                    } else if (!response.ok) {
+                        throw new Error(`Activity update failed with status ${response.status}`);
+                    }
+                }).catch(function(error) {
+                    console.error('Unable to update session activity.', error);
+                });
+            }
+
+            function recordActivity() {
+                const now = Date.now();
+                if (now - lastActivitySentAt < 60000) return;
+                lastActivitySentAt = now;
+                updateActivity();
+            }
+
+            ['pointerdown', 'keydown', 'input', 'touchstart', 'wheel'].forEach(function(eventName) {
+                document.addEventListener(eventName, recordActivity, { passive: true });
+            });
+
             document.addEventListener('visibilitychange', function() {
                 if (document.visibilityState === 'hidden') {
-                    // User switched to another tab or minimized window
-                    // Mark as potentially away, but don't logout immediately
-                    const awayData = new FormData();
-                    awayData.append('away', 'true');
-                    awayData.append('channel', getCurrentChannel());
-                    awayData.append('_token', document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '');
-                    
-                    try {
-                        navigator.sendBeacon('/update-activity', awayData);
-                    } catch (e) {
-                        // Ignore errors
-                    }
+                    updateActivity(true);
+                } else {
+                    lastActivitySentAt = 0;
+                    recordActivity();
                 }
             });
         })();

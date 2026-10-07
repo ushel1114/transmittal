@@ -5523,12 +5523,6 @@ Villa Rosario,Victoria,Tarlac`;
             form?.submit();
         });
 
-    window.addEventListener('beforeunload', function(e) {
-        const logoutData = new FormData();
-        logoutData.append('auto_logout', 'true');
-        logoutData.append('channel', 'admin');
-        navigator.sendBeacon('/auto-logout', logoutData);
-    });
 </script>
 
 

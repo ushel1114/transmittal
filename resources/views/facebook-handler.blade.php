@@ -507,20 +507,6 @@ html, body {
 
 @push('scripts')
 <script>
-window.addEventListener('beforeunload', function(e) {
-    navigator.sendBeacon('{{ route('facebook.logout') }}', new FormData());
-});
-
-document.addEventListener('visibilitychange', function() {
-    if (document.visibilityState === 'hidden') {
-        setTimeout(function() {
-            if (document.visibilityState === 'hidden') {
-                navigator.sendBeacon('{{ route('facebook.logout') }}', new FormData());
-            }
-        }, 30000);
-    }
-});
-
 document.addEventListener('DOMContentLoaded', function() {
     var editRecordDialog = document.getElementById('recordEditDialog');
     var closeEditRecordModal = document.querySelector('.closeEditRecordDialog');

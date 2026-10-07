@@ -630,20 +630,6 @@ body {
 
 @push('scripts')
 <script>
-window.addEventListener('beforeunload', function(e) {
-    navigator.sendBeacon('{{ route('officer.logout') }}', new FormData());
-});
-
-document.addEventListener('visibilitychange', function() {
-    if (document.visibilityState === 'hidden') {
-        setTimeout(function() {
-            if (document.visibilityState === 'hidden') {
-                navigator.sendBeacon('{{ route('officer.logout') }}', new FormData());
-            }
-        }, 30000);
-    }
-});
-
 (function() {
     const addRecordButton = document.getElementById('addRecordButton');
     const controlActions = document.getElementById('controlActions');
