@@ -679,9 +679,9 @@
     <div class="no-print nl-unassigned-card" style="margin-bottom: 12px; padding: 16px 20px; border-radius: 12px; background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);">
         <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; margin: 0;">
             <div style="position: relative; width: 48px; height: 24px;">
-                <input type="checkbox" id="unassigned-toggle" {{ request('unassigned_only') ? 'checked' : '' }} style="opacity: 0; width: 0; height: 0;">
-                <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: 0.3s; border-radius: 24px;" id="unassigned-toggle-bg"></span>
-                <span style="position: absolute; cursor: pointer; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: 0.3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);" id="unassigned-toggle-dot"></span>
+                <input type="checkbox" id="unassigned-toggle" {{ request()->boolean('unassigned_only') ? 'checked' : '' }} style="opacity: 0; width: 0; height: 0;" onchange="window.applyUnassignedRecordsFilter(this)">
+                <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: {{ request()->boolean('unassigned_only') ? '#006c35' : '#cbd5e1' }}; transition: 0.3s; border-radius: 24px;" id="unassigned-toggle-bg"></span>
+                <span style="position: absolute; cursor: pointer; content: ''; height: 18px; width: 18px; left: {{ request()->boolean('unassigned_only') ? '27px' : '3px' }}; bottom: 3px; background-color: white; transition: 0.3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);" id="unassigned-toggle-dot"></span>
             </div>
             <span class="nl-unassigned-copy">
                 <strong>Show records awaiting an admin transmittal</strong>
@@ -689,6 +689,22 @@
             </span>
         </label>
     </div>
+
+    <script>
+        window.applyUnassignedRecordsFilter = function (toggle) {
+            const url = new URL(window.location.href);
+
+            if (toggle.checked) {
+                url.searchParams.set('unassigned_only', '1');
+            } else {
+                url.searchParams.delete('unassigned_only');
+            }
+
+            url.searchParams.set('tab', 'nl-records');
+            url.searchParams.set('page', '1');
+            window.location.assign(url.toString());
+        };
+    </script>
 
     @vite('resources/js/pages/admin-unassigned-toggle.js')
 
@@ -3037,6 +3053,72 @@ Villa Rosario,Victoria,Tarlac`;
                 <x-table :records="$records" :showEncoder="true" :showFilters="false" :showAdminTransmittal="true" :showNoticeImage="true" :allPrograms="$allPrograms" :allLines="$allLines" :allSources="$allSources" :allModes="$allModes" :showCheckbox="true" />
             </div>
         </div>
+        <script>
+            (function () {
+                const tableHost = document.getElementById('table-wrapper');
+                if (!tableHost || tableHost.dataset.adminScrollFallbackInitialized === 'true') {
+                    return;
+                }
+
+                tableHost.dataset.adminScrollFallbackInitialized = 'true';
+
+                function syncAdminScrollbars() {
+                    tableHost.querySelectorAll('.table-scroll-sync-top').forEach(function (topBar) {
+                        const tableViewport = topBar.nextElementSibling;
+                        const bottomBar = tableViewport?.nextElementSibling;
+                        const table = tableViewport?.querySelector('.records-table');
+                        const topSpacer = topBar.querySelector('.table-scroll-spacer');
+                        const bottomSpacer = bottomBar?.querySelector('.table-scroll-spacer');
+
+                        if (!tableViewport || !bottomBar || !table || !topSpacer || !bottomSpacer) {
+                            return;
+                        }
+
+                        table.style.width = 'max-content';
+                        table.style.minWidth = '100%';
+                        tableViewport.style.overflowX = 'hidden';
+                        tableViewport.style.overflowY = 'hidden';
+                        tableViewport.style.scrollbarWidth = 'none';
+
+                        const contentWidth = Math.max(table.scrollWidth, tableViewport.clientWidth);
+                        topSpacer.style.width = `${contentWidth}px`;
+                        bottomSpacer.style.width = `${contentWidth}px`;
+
+                        if (tableViewport.dataset.adminScrollSyncInitialized === 'true') {
+                            return;
+                        }
+
+                        function syncFrom(source) {
+                            [topBar, tableViewport, bottomBar].forEach(function (target) {
+                                if (target !== source && target.scrollLeft !== source.scrollLeft) {
+                                    target.scrollLeft = source.scrollLeft;
+                                }
+                            });
+                        }
+
+                        [topBar, tableViewport, bottomBar].forEach(function (scroller) {
+                            scroller.addEventListener('scroll', function () {
+                                syncFrom(scroller);
+                            }, { passive: true });
+                        });
+
+                        tableViewport.dataset.adminScrollSyncInitialized = 'true';
+                    });
+                }
+
+                window.syncAdminRecordScrollbars = syncAdminScrollbars;
+                syncAdminScrollbars();
+                window.addEventListener('resize', syncAdminScrollbars);
+
+                if (typeof ResizeObserver !== 'undefined') {
+                    const resizeObserver = new ResizeObserver(syncAdminScrollbars);
+                    resizeObserver.observe(tableHost);
+                }
+
+                const mutationObserver = new MutationObserver(syncAdminScrollbars);
+                mutationObserver.observe(tableHost, { childList: true, subtree: true });
+            })();
+        </script>
         @if($records->isEmpty())
             <div class="nl-empty-records" style="padding: 16px; margin-bottom: 12px; border: 1px solid #e0e0e0; background: #fafafa; color: #555;">
                 No records found for the current filters.
@@ -3323,6 +3405,7 @@ Villa Rosario,Victoria,Tarlac`;
             if (showNlRecords) {
                 requestAnimationFrame(function () {
                     window.syncTableScrollbars?.();
+                    window.syncAdminRecordScrollbars?.();
                 });
             }
 
@@ -4098,115 +4181,6 @@ Villa Rosario,Victoria,Tarlac`;
             url.searchParams.set('reprint_transmittal', transmittalNumber);
             window.open(url.toString(), '_blank');
             reprintTransmittalDialog?.close();
-        });
-
-        unassignedToggle?.addEventListener('change', function () {
-            const params = new URLSearchParams(window.location.search);
-            if (this.checked) {
-                params.set('unassigned_only', '1');
-            } else {
-                params.delete('unassigned_only');
-            }
-            params.set('tab', 'nl-records');
-
-            const selectedTransmitIds = getSelectedIdsFromUrl();
-            const selectedDeleteIds = getSelectedDeleteIdsFromUrl();
-            if (selectedTransmitIds.length > 0) {
-                params.set('selected_transmit_ids', selectedTransmitIds.join(','));
-            }
-            if (selectedDeleteIds.length > 0) {
-                params.set('selected_delete_ids', selectedDeleteIds.join(','));
-            }
-
-            const url = `${window.location.pathname}?${params.toString()}`;
-            showLoadingIndicator();
-
-            fetch(url, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.text())
-            .then(html => {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-
-                const newTableWrapper = doc.querySelector('#table-wrapper');
-                const currentTableWrapper = document.getElementById('table-wrapper');
-                if (newTableWrapper && currentTableWrapper) {
-                    currentTableWrapper.innerHTML = newTableWrapper.innerHTML;
-
-                    setTimeout(function() {
-                        initializeRowClickHighlighting();
-                    }, 100);
-                }
-
-                const newPagination = doc.querySelector('#pagination-container');
-                const currentPagination = document.getElementById('pagination-container');
-                if (newPagination && currentPagination) {
-                    currentPagination.innerHTML = newPagination.innerHTML;
-                }
-
-                window.history.pushState({}, '', url);
-
-                reinitializeTableElements();
-                loadSelectedTransmitIds();
-                loadSelectedDeleteIds();
-
-                updateTransmitButtonState();
-                updateDeleteButtonState();
-
-                setTimeout(function() {
-                    if (window.syncTableScrollbars) {
-                        window.syncTableScrollbars();
-                    }
-                }, 100);
-
-                const toggleBtn = document.getElementById('select-records-transmit');
-                const isCancelSelection = toggleBtn && toggleBtn.textContent.includes('Cancel');
-
-                if (isCancelSelection) {
-                    const colCheckboxes = document.querySelectorAll('.col-checkbox-transmit');
-                    const recordCheckboxes = document.querySelectorAll('.record-checkbox-transmit');
-                    const selectAllBoxes = document.querySelectorAll('#select-all-transmit');
-
-                    colCheckboxes.forEach(el => {
-                        el.style.display = 'table-cell';
-                    });
-                    recordCheckboxes.forEach(cb => {
-                        cb.style.display = 'block';
-                    });
-                    selectAllBoxes.forEach(box => {
-                        box.style.display = 'block';
-                    });
-                }
-
-                const deleteToggleBtn = document.getElementById('delete-multiple');
-                const isCancelDelete = deleteToggleBtn && deleteToggleBtn.textContent.includes('Cancel');
-
-                if (isCancelDelete) {
-                    const colDeleteCheckboxes = document.querySelectorAll('.col-checkbox');
-                    const deleteRecordCheckboxes = document.querySelectorAll('.record-checkbox');
-                    const selectAllDeleteBoxes = document.querySelectorAll('#select-all');
-
-                    colDeleteCheckboxes.forEach(el => {
-                        el.style.display = 'table-cell';
-                    });
-                    deleteRecordCheckboxes.forEach(cb => {
-                        cb.style.display = 'block';
-                    });
-                    selectAllDeleteBoxes.forEach(box => {
-                        box.style.display = 'block';
-                    });
-                }
-
-                document.querySelectorAll('.pagination-link').forEach(link => {
-                    link.addEventListener('click', arguments.callee);
-                });
-            })
-            .catch(error => {
-                window.location.href = url;
-            });
         });
 
         deleteMultipleBtn?.addEventListener('click', function() {

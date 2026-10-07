@@ -879,10 +879,10 @@ class RoutesController extends Controller
         if ($request->filled('admin_transmittal_number')) {
             $query->where('admin_transmittal_number', 'like', '%'.$request->admin_transmittal_number.'%');
         }
-        if ($request->filled('unassigned_only')) {
+        if ($request->boolean('unassigned_only')) {
             $query->where(function ($query) {
                 $query->whereNull('admin_transmittal_number')
-                    ->orWhere('admin_transmittal_number', '');
+                    ->orWhereRaw("TRIM(COALESCE(admin_transmittal_number, '')) = ''");
             });
         }
         if ($request->filled('date_encoded')) {
@@ -1630,10 +1630,10 @@ class RoutesController extends Controller
         if ($request->filled('admin_transmittal_number')) {
             $query->where('admin_transmittal_number', 'like', '%'.$request->admin_transmittal_number.'%');
         }
-        if ($request->filled('unassigned_only')) {
+        if ($request->boolean('unassigned_only')) {
             $query->where(function ($query) {
                 $query->whereNull('admin_transmittal_number')
-                    ->orWhere('admin_transmittal_number', '');
+                    ->orWhereRaw("TRIM(COALESCE(admin_transmittal_number, '')) = ''");
             });
         }
         if ($request->filled('date_encoded')) {

@@ -704,8 +704,8 @@ if (! function_exists('getSortIndicator')) {
 @endif
 
 
-<div class="table-scroll-sync-top" id="table-scroll-top-{{ $showCheckbox ? '1' : '0' }}-{{ $showAdminTransmittal ? '1' : '0' }}">
-    <div class="table-scroll-spacer" id="table-scroll-spacer-{{ $showCheckbox ? '1' : '0' }}-{{ $showAdminTransmittal ? '1' : '0' }}"></div>
+<div class="table-scroll-sync-top" id="table-scroll-top-{{ $showCheckbox ? '1' : '0' }}-{{ $showAdminTransmittal ? '1' : '0' }}" style="display:block; width:100%; height:18px; min-height:18px; overflow-x:scroll; overflow-y:hidden;">
+    <div class="table-scroll-spacer" id="table-scroll-spacer-{{ $showCheckbox ? '1' : '0' }}-{{ $showAdminTransmittal ? '1' : '0' }}" style="height:1px;"></div>
 </div>
 
 <div class="table-wrapper" id="table-wrapper-{{ $showCheckbox ? '1' : '0' }}-{{ $showAdminTransmittal ? '1' : '0' }}">
@@ -1077,8 +1077,8 @@ if (! function_exists('getSortIndicator')) {
 </div>
 
 
-<div class="table-scroll-sync-bottom" id="table-scroll-bottom-{{ $showCheckbox ? '1' : '0' }}-{{ $showAdminTransmittal ? '1' : '0' }}">
-    <div class="table-scroll-spacer" id="table-scroll-spacer-bottom-{{ $showCheckbox ? '1' : '0' }}-{{ $showAdminTransmittal ? '1' : '0' }}"></div>
+<div class="table-scroll-sync-bottom" id="table-scroll-bottom-{{ $showCheckbox ? '1' : '0' }}-{{ $showAdminTransmittal ? '1' : '0' }}" style="display:block; width:100%; height:18px; min-height:18px; overflow-x:scroll; overflow-y:hidden;">
+    <div class="table-scroll-spacer" id="table-scroll-spacer-bottom-{{ $showCheckbox ? '1' : '0' }}-{{ $showAdminTransmittal ? '1' : '0' }}" style="height:1px;"></div>
 </div>
 
     @if($records->isEmpty())
