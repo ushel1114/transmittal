@@ -15,26 +15,23 @@
 
 <script data-public-content-script>
 window.initializeNoticeImagePrintDialog = function () {
-    const dialog = document.getElementById('noticeImagePrintDialog');
-    const gallery = document.getElementById('noticeImagePreviewGallery');
-    const previewError = document.getElementById('noticeImagePreviewError');
-    const title = document.getElementById('noticeImageDialogTitle');
-    const printButton = document.getElementById('printNoticeImageButton');
-
-    if (!dialog || !gallery || !previewError || !title || !printButton || dialog.dataset.initialized) {
+    if (document.documentElement.dataset.noticeImagePrintHandlerInitialized === 'true') {
         return;
     }
-    dialog.dataset.initialized = 'true';
-
-    let previewImages = [];
-
-    function updatePrintButton() {
-        const allImagesReady = previewImages.length > 0 && previewImages.every(image => image.complete && image.naturalWidth > 0);
-        printButton.disabled = !allImagesReady;
-        previewError.hidden = !previewImages.some(image => image.dataset.failed === 'true');
-    }
+    document.documentElement.dataset.noticeImagePrintHandlerInitialized = 'true';
 
     function openGallery(button) {
+        const dialog = document.getElementById('noticeImagePrintDialog');
+        const gallery = document.getElementById('noticeImagePreviewGallery');
+        const previewError = document.getElementById('noticeImagePreviewError');
+        const title = document.getElementById('noticeImageDialogTitle');
+        const printButton = document.getElementById('printNoticeImageButton');
+
+        if (!dialog || !gallery || !previewError || !title || !printButton) {
+            console.error('Unable to open notice photos: the preview dialog is unavailable.');
+            return;
+        }
+
         let imageUrls = [];
         try {
             imageUrls = JSON.parse(button.dataset.imageUrls || '[]');
@@ -53,8 +50,15 @@ window.initializeNoticeImagePrintDialog = function () {
             return;
         }
 
+        const previewImages = [];
+        function updatePrintButton() {
+            const allImagesReady = previewImages.length > 0 && previewImages.every(image => image.complete && image.naturalWidth > 0);
+            printButton.disabled = !allImagesReady;
+            previewError.hidden = !previewImages.some(image => image.dataset.failed === 'true');
+        }
+
         gallery.replaceChildren();
-        previewImages = imageUrls.map((url, index) => {
+        imageUrls.forEach((url, index) => {
             const image = document.createElement('img');
             image.alt = `Uploaded notice of loss or claim, photo ${index + 1} of ${imageUrls.length}`;
             image.addEventListener('load', updatePrintButton);
@@ -64,32 +68,29 @@ window.initializeNoticeImagePrintDialog = function () {
             });
             gallery.append(image);
             image.src = url;
-            return image;
+            previewImages.push(image);
         });
 
         previewError.hidden = true;
         title.textContent = `Notice of loss / claim — ${button.dataset.farmerName || ''}`;
         printButton.disabled = true;
-        dialog.showModal();
+        if (typeof dialog.showModal !== 'function') {
+            console.error('Unable to open notice photos: this browser does not support modal dialogs.');
+            return;
+        }
+        if (!dialog.open) {
+            dialog.showModal();
+        }
         updatePrintButton();
     }
 
-    printButton.addEventListener('click', function () {
-        if (printButton.disabled) {
+    document.addEventListener('click', function (event) {
+        const target = event.target instanceof Element ? event.target : null;
+        if (!target) {
             return;
         }
-        window.print();
-    });
 
-    dialog.addEventListener('close', function () {
-        gallery.replaceChildren();
-        previewImages = [];
-        previewError.hidden = true;
-        printButton.disabled = true;
-    });
-
-    document.addEventListener('click', function (event) {
-        const viewButton = event.target.closest('.notice-image-view-btn');
+        const viewButton = target.closest('.notice-image-view-btn');
         if (viewButton) {
             event.preventDefault();
             event.stopPropagation();
@@ -97,11 +98,39 @@ window.initializeNoticeImagePrintDialog = function () {
             return;
         }
 
-        const closeButton = event.target.closest('.notice-image-dialog-close');
-        if ((closeButton || event.target === dialog) && dialog.open) {
+        const dialog = document.getElementById('noticeImagePrintDialog');
+        const closeButton = target.closest('.notice-image-dialog-close');
+        if ((closeButton || target === dialog) && dialog?.open) {
+            event.preventDefault();
             dialog.close();
+            return;
+        }
+
+        if (target.closest('#printNoticeImageButton')) {
+            const printButton = document.getElementById('printNoticeImageButton');
+            if (printButton && !printButton.disabled) {
+                window.print();
+            }
         }
     });
+
+    document.addEventListener('close', function (event) {
+        if (event.target?.id !== 'noticeImagePrintDialog') {
+            return;
+        }
+
+        const gallery = event.target.querySelector('#noticeImagePreviewGallery');
+        const previewError = event.target.querySelector('#noticeImagePreviewError');
+        const printButton = event.target.querySelector('#printNoticeImageButton');
+
+        gallery?.replaceChildren();
+        if (previewError) {
+            previewError.hidden = true;
+        }
+        if (printButton) {
+            printButton.disabled = true;
+        }
+    }, true);
 };
 window.initializeNoticeImagePrintDialog();
 </script>

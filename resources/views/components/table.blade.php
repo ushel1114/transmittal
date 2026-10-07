@@ -1236,24 +1236,33 @@ if (! function_exists('getSortIndicator')) {
     };
 
     (function () {
-        const modal = document.getElementById('viewRecordModal');
-        const closeButtons = [
-            document.getElementById('closeModalBtn'),
-            document.getElementById('closeModalFooterBtn')
-        ];
+        function closeModal() {
+            const modal = document.getElementById('viewRecordModal');
+            if (!modal) {
+                console.error('Unable to close record details: the modal element is missing.');
+                return;
+            }
 
-        const closeModal = function () {
             modal.style.display = 'none';
             document.body.style.overflow = '';
-        };
+        }
 
-        closeButtons.forEach(button => button?.addEventListener('click', closeModal));
-        modal?.addEventListener('click', function (event) {
-            if (event.target === modal) {
+        document.addEventListener('click', function (event) {
+            if (!(event.target instanceof Element)) {
+                return;
+            }
+
+            const closeButton = event.target.closest('#closeModalBtn, #closeModalFooterBtn');
+            const modal = document.getElementById('viewRecordModal');
+
+            if (closeButton || event.target === modal) {
+                event.preventDefault();
                 closeModal();
             }
         });
+
         document.addEventListener('keydown', function (event) {
+            const modal = document.getElementById('viewRecordModal');
             if (event.key === 'Escape' && modal?.style.display === 'block') {
                 closeModal();
             }

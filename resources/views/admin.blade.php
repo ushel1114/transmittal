@@ -681,7 +681,7 @@
             <div style="position: relative; width: 48px; height: 24px;">
                 <input type="checkbox" id="unassigned-toggle" {{ request()->boolean('unassigned_only') ? 'checked' : '' }} style="opacity: 0; width: 0; height: 0;" onchange="window.applyUnassignedRecordsFilter(this)">
                 <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: {{ request()->boolean('unassigned_only') ? '#006c35' : '#cbd5e1' }}; transition: 0.3s; border-radius: 24px;" id="unassigned-toggle-bg"></span>
-                <span style="position: absolute; cursor: pointer; content: ''; height: 18px; width: 18px; left: {{ request()->boolean('unassigned_only') ? '27px' : '3px' }}; bottom: 3px; background-color: white; transition: 0.3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);" id="unassigned-toggle-dot"></span>
+                <span style="position: absolute; cursor: pointer; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transform: translateX({{ request()->boolean('unassigned_only') ? '24px' : '0' }}); transition: 0.3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);" id="unassigned-toggle-dot"></span>
             </div>
             <span class="nl-unassigned-copy">
                 <strong>Show records awaiting an admin transmittal</strong>
@@ -3055,6 +3055,28 @@ Villa Rosario,Victoria,Tarlac`;
         </div>
         <script>
             (function () {
+                if (!window.adminViewButtonHandlerBound) {
+                    document.addEventListener('click', function (event) {
+                        const target = event.target instanceof Element ? event.target : null;
+                        const viewButton = target?.closest('#nl-records-section .view-record-btn');
+                        if (!viewButton) {
+                            return;
+                        }
+
+                        event.preventDefault();
+                        event.stopImmediatePropagation();
+
+                        if (typeof window.openRecordViewModal !== 'function') {
+                            console.error('Unable to open Admin record details: the view modal handler is unavailable.');
+                            return;
+                        }
+
+                        window.openRecordViewModal(viewButton, event);
+                    }, true);
+
+                    window.adminViewButtonHandlerBound = true;
+                }
+
                 const tableHost = document.getElementById('table-wrapper');
                 if (!tableHost || tableHost.dataset.adminScrollFallbackInitialized === 'true') {
                     return;
