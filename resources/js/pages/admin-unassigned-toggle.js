@@ -17,10 +17,6 @@
                 updateToggle();
                 toggle.addEventListener('change', function() {
                     updateToggle();
-                    var filterForm = document.getElementById('filter-form');
-                    if (filterForm && typeof submitFilterForm === 'function') {
-                        submitFilterForm();
-                    }
                 });
             }
         })();

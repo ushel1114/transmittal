@@ -4073,7 +4073,6 @@ Villa Rosario,Victoria,Tarlac`;
         const reprintTransmittalMessage = document.getElementById('reprintTransmittalMessage');
         const checkboxElements = document.querySelectorAll('.col-checkbox');
         const unassignedToggle = document.getElementById('unassigned-toggle');
-        const transmitCheckboxElements = document.querySelectorAll('.col-checkbox-transmit');
         const selectedRecordIdsInput = document.getElementById('selected-record-ids');
 
         function showLoadingIndicator() {
@@ -4241,15 +4240,13 @@ Villa Rosario,Victoria,Tarlac`;
         });
 
         transmitToggleBtn?.addEventListener('click', function() {
-            let firstElement = transmitCheckboxElements[0];
-            let firstCheckbox = transmitCheckboxes[0];
-            let isHidden = (firstElement && firstElement.style.display === 'none') ||
-                           (firstCheckbox && firstCheckbox.style.display === 'none');
+            const currentCheckboxElements = document.querySelectorAll('.col-checkbox-transmit');
+            const currentCheckboxes = document.querySelectorAll('.record-checkbox-transmit');
+            const isHidden = !this.textContent.includes('Cancel');
 
-            transmitCheckboxElements.forEach(el => {
+            currentCheckboxElements.forEach(el => {
                 el.style.display = isHidden ? 'table-cell' : 'none';
             });
-            const currentCheckboxes = document.querySelectorAll('.record-checkbox-transmit');
             currentCheckboxes.forEach(cb => {
                 cb.style.display = isHidden ? 'block' : 'none';
             });
@@ -4277,9 +4274,10 @@ Villa Rosario,Victoria,Tarlac`;
                 this.textContent = 'Select Records for Transmit';
                 this.style.backgroundColor = '';
 
-                const currentCheckboxes = document.querySelectorAll('.record-checkbox-transmit');
-                currentCheckboxes.forEach(cb => cb.checked = false);
-                if(transmitAllBox) transmitAllBox.checked = false;
+                clearSelectedTransmitIds();
+                document.querySelectorAll('#select-all-transmit').forEach(box => {
+                    box.checked = false;
+                });
                 if(transmitActionBtn) transmitActionBtn.disabled = true;
                 if (bulkSelectedCount) bulkSelectedCount.textContent = '';
             }
@@ -5026,15 +5024,9 @@ Villa Rosario,Victoria,Tarlac`;
 
         function reinitializeTableElements() {
             const newTransmitCheckboxes = document.querySelectorAll('.record-checkbox-transmit');
-            const newTransmitCheckboxElements = document.querySelectorAll('.col-checkbox-transmit');
             const newTransmitAllBox = document.getElementById('select-all-transmit');
-            const newTransmitActionBtn = document.getElementById('transmit-selected-records');
-            const newBulkSelectedCount = document.getElementById('bulk-selected-count');
-            const newTransmitToggleBtn = document.getElementById('select-records-transmit');
             const newDeleteCheckboxes = document.querySelectorAll('.record-checkbox');
-            const newDeleteCheckboxElements = document.querySelectorAll('.col-checkbox');
             const newSelectAllBox = document.getElementById('select-all');
-            const newDeleteSelectedBtn = document.getElementById('delete-selected');
 
             newTransmitCheckboxes.forEach(cb => {
                 cb.addEventListener('change', function() {
@@ -5150,37 +5142,6 @@ Villa Rosario,Victoria,Tarlac`;
                 }
                 updateUrlWithSelectedDeleteIds(selectedIds);
                 updateDeleteButtonState();
-            });
-
-            newTransmitToggleBtn?.addEventListener('click', function() {
-                let firstElement = newTransmitCheckboxElements[0];
-                let firstCheckbox = newTransmitCheckboxes[0];
-                let isHidden = (firstElement && firstElement.style.display === 'none') ||
-                               (firstCheckbox && firstCheckbox.style.display === 'none');
-
-                newTransmitCheckboxElements.forEach(el => {
-                    el.style.display = isHidden ? 'table-cell' : 'none';
-                });
-                newTransmitCheckboxes.forEach(cb => {
-                    cb.style.display = isHidden ? 'block' : 'none';
-                });
-
-                const selectAllTransmitBoxes = document.querySelectorAll('#select-all-transmit');
-                selectAllTransmitBoxes.forEach(box => {
-                    box.style.display = isHidden ? 'block' : 'none';
-                });
-
-                if (isHidden) {
-                    this.textContent = 'Cancel Selection';
-                    this.style.backgroundColor = '#6c757d';
-                } else {
-                    this.textContent = 'Select Records for Transmit';
-                    this.style.backgroundColor = '';
-                    newTransmitCheckboxes.forEach(cb => cb.checked = false);
-                    if(newTransmitAllBox) newTransmitAllBox.checked = false;
-                    if(newTransmitActionBtn) newTransmitActionBtn.disabled = true;
-                    if (newBulkSelectedCount) newBulkSelectedCount.textContent = '';
-                }
             });
 
             updateFilterFormHiddenInputs();
@@ -5301,15 +5262,6 @@ Villa Rosario,Victoria,Tarlac`;
                 });
             });
         }
-
-        transmitToggleBtn?.addEventListener('click', function() {
-            const currentCheckboxElements = document.querySelectorAll('.col-checkbox-transmit');
-            const isHidden = (currentCheckboxElements[0]?.style.display === 'none') ||
-                           (transmitCheckboxes[0]?.style.display === 'none');
-            if (!isHidden) {
-                clearSelectedTransmitIds();
-            }
-        });
 
         transmitActionBtn?.addEventListener('click', function(e) {
             e.preventDefault();
