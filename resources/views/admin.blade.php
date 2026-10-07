@@ -692,17 +692,17 @@
 
     <script>
         window.applyUnassignedRecordsFilter = function (toggle) {
-            const url = new URL(window.location.href);
+            const background = document.getElementById('unassigned-toggle-bg');
+            const dot = document.getElementById('unassigned-toggle-dot');
 
-            if (toggle.checked) {
-                url.searchParams.set('unassigned_only', '1');
-            } else {
-                url.searchParams.delete('unassigned_only');
+            if (background && dot) {
+                background.style.backgroundColor = toggle.checked ? '#006c35' : '#cbd5e1';
+                dot.style.transform = toggle.checked ? 'translateX(24px)' : 'translateX(0)';
             }
 
-            url.searchParams.set('tab', 'nl-records');
-            url.searchParams.set('page', '1');
-            window.location.assign(url.toString());
+            if (typeof window.submitAdminRecordFilters === 'function') {
+                window.submitAdminRecordFilters();
+            }
         };
     </script>
 
@@ -4632,20 +4632,33 @@ Villa Rosario,Victoria,Tarlac`;
                     'X-Requested-With': 'XMLHttpRequest'
                 }
             })
-            .then(response => response.text())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Admin filter request failed with status ${response.status}.`);
+                }
+
+                return response.text();
+            })
             .then(html => {
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, 'text/html');
 
                 const newTableWrapper = doc.querySelector('#table-wrapper');
                 const currentTableWrapper = document.getElementById('table-wrapper');
-                if (newTableWrapper && currentTableWrapper) {
-                    currentTableWrapper.innerHTML = newTableWrapper.innerHTML;
+                const newPagination = doc.querySelector('#pagination-container');
+                const currentPagination = document.getElementById('pagination-container');
 
-                    setTimeout(function() {
-                        initializeRowClickHighlighting();
-                    }, 100);
+                if (!newTableWrapper || !currentTableWrapper || !newPagination || !currentPagination) {
+                    throw new Error('The Admin filter response did not contain the expected records table.');
                 }
+
+                currentTableWrapper.innerHTML = newTableWrapper.innerHTML;
+                currentPagination.innerHTML = newPagination.innerHTML;
+                updateActiveFiltersDisplay();
+
+                setTimeout(function() {
+                    initializeRowClickHighlighting();
+                }, 100);
 
                 const newDash3Summary = doc.querySelector('.dash3-summary');
                 const currentDash3Summary = document.querySelector('.dash3-summary');
@@ -4663,12 +4676,6 @@ Villa Rosario,Victoria,Tarlac`;
                 const currentDash3Grid = document.getElementById('dash3-grid');
                 if (newDash3Grid && currentDash3Grid) {
                     currentDash3Grid.innerHTML = newDash3Grid.innerHTML;
-                }
-
-                const newPagination = doc.querySelector('#pagination-container');
-                const currentPagination = document.getElementById('pagination-container');
-                if (newPagination && currentPagination) {
-                    currentPagination.innerHTML = newPagination.innerHTML;
                 }
 
                 window.history.pushState({}, '', url);
@@ -4729,9 +4736,12 @@ Villa Rosario,Victoria,Tarlac`;
                 });
             })
             .catch(error => {
-                window.location.href = url;
+                console.error('Unable to apply Admin record filters.', error);
+                window.alert('Unable to update the records without reloading. Please try again.');
             });
         }
+
+        window.submitAdminRecordFilters = submitFilterForm;
 
         if (filterForm) {
             const filterInputs = filterForm.querySelectorAll('input, select');

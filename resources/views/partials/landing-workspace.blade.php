@@ -58,6 +58,8 @@
                 </a>
             </div>
 
+            <p data-landing-filter-error role="alert" hidden style="margin: 12px 0; color: #b42318;"></p>
+
             <form class="landing-record-filters" method="GET" action="{{ route('welcome') }}">
                 <label>Farmer name
                     <input type="search" name="name" value="{{ $landingFilters['name'] ?? '' }}" placeholder="Search farmer">
@@ -151,3 +153,91 @@
         </section>
     </main>
 </div>
+
+<script>
+    (function () {
+        let requestSequence = 0;
+
+        async function updateLandingRecords(url, updateHistory) {
+            const requestId = ++requestSequence;
+
+            try {
+                const response = await fetch(url, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Landing records request failed with status ${response.status}.`);
+                }
+
+                const html = await response.text();
+                const documentFromResponse = new DOMParser().parseFromString(html, 'text/html');
+                const updatedPanel = documentFromResponse.querySelector('.landing-records-panel');
+                const currentPanel = document.querySelector('.landing-records-panel');
+
+                if (!updatedPanel || !currentPanel) {
+                    throw new Error('The landing records response did not contain the expected records panel.');
+                }
+
+                if (requestId !== requestSequence) {
+                    return;
+                }
+
+                currentPanel.replaceWith(updatedPanel);
+
+                if (updateHistory) {
+                    window.history.pushState({}, '', url);
+                }
+            } catch (error) {
+                if (requestId !== requestSequence) {
+                    return;
+                }
+
+                console.error('Unable to update landing records.', error);
+                const errorMessage = document.querySelector('[data-landing-filter-error]');
+                if (errorMessage) {
+                    errorMessage.textContent = 'Unable to update records without reloading. Please try again.';
+                    errorMessage.hidden = false;
+                }
+            }
+        }
+
+        document.addEventListener('submit', function (event) {
+            const form = event.target;
+            if (!(form instanceof HTMLFormElement) || !form.matches('.landing-record-filters')) {
+                return;
+            }
+
+            event.preventDefault();
+
+            const url = new URL(form.action, window.location.href);
+            for (const [key, value] of new FormData(form)) {
+                if (String(value).trim() !== '') {
+                    url.searchParams.append(key, String(value));
+                }
+            }
+
+            updateLandingRecords(url.toString(), true);
+        });
+
+        document.addEventListener('click', function (event) {
+            if (!(event.target instanceof Element)) {
+                return;
+            }
+
+            const link = event.target.closest('.landing-records-footer nav a, .landing-filter-actions a');
+            if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+                return;
+            }
+
+            event.preventDefault();
+            updateLandingRecords(link.href, true);
+        });
+
+        window.addEventListener('popstate', function () {
+            updateLandingRecords(window.location.href, false);
+        });
+    })();
+</script>
