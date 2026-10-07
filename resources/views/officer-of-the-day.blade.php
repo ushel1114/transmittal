@@ -643,6 +643,47 @@ document.addEventListener('visibilitychange', function() {
         }, 30000);
     }
 });
+
+(function() {
+    const addRecordButton = document.getElementById('addRecordButton');
+    const controlActions = document.getElementById('controlActions');
+    const addRecordPanel = document.getElementById('addRecordPanel');
+    const returnToControlsButton = document.getElementById('returnToControlsButton');
+    const cancelAddRecordButton = document.getElementById('cancelAddRecordButton');
+
+    function showAddRecordPanel() {
+        if (!controlActions || !addRecordPanel) {
+            console.error('Officer of the Day add-record panel is unavailable.');
+            return;
+        }
+
+        controlActions.hidden = true;
+        controlActions.classList.add('hidden');
+        addRecordPanel.hidden = false;
+        addRecordPanel.classList.remove('hidden');
+        addRecordButton?.setAttribute('aria-expanded', 'true');
+        window.restoreOfficerLocationValues?.();
+        addRecordPanel.querySelector('#farmerName')?.focus();
+    }
+
+    function showControlActions() {
+        if (!controlActions || !addRecordPanel) {
+            console.error('Officer of the Day controls panel is unavailable.');
+            return;
+        }
+
+        addRecordPanel.hidden = true;
+        addRecordPanel.classList.add('hidden');
+        controlActions.hidden = false;
+        controlActions.classList.remove('hidden');
+        addRecordButton?.setAttribute('aria-expanded', 'false');
+        addRecordButton?.focus();
+    }
+
+    addRecordButton?.addEventListener('click', showAddRecordPanel);
+    returnToControlsButton?.addEventListener('click', showControlActions);
+    cancelAddRecordButton?.addEventListener('click', showControlActions);
+})();
 </script>
 
 @vite('resources/js/pages/officer-records.js')

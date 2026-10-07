@@ -172,39 +172,6 @@ if (editRecordForm) {
 }
 
 (function() {
-    var addRecordPanel = document.getElementById('addRecordPanel');
-    var controlActions = document.getElementById('controlActions');
-    var addRecordButton = document.getElementById('addRecordButton');
-    var returnToControlsButton = document.getElementById('returnToControlsButton');
-    var cancelAddRecordButton = document.getElementById('cancelAddRecordButton');
-
-    function showAddRecordForm() {
-        if (!addRecordPanel || !controlActions) {
-            return;
-        }
-
-        controlActions.hidden = true;
-        controlActions.classList.add('hidden');
-        addRecordPanel.hidden = false;
-        addRecordPanel.classList.remove('hidden');
-        addRecordButton?.setAttribute('aria-expanded', 'true');
-        restoreLocationValues();
-        addRecordPanel.querySelector('#farmerName')?.focus();
-    }
-
-    function showControls() {
-        if (!addRecordPanel || !controlActions) {
-            return;
-        }
-
-        addRecordPanel.hidden = true;
-        addRecordPanel.classList.add('hidden');
-        controlActions.hidden = false;
-        controlActions.classList.remove('hidden');
-        addRecordButton?.setAttribute('aria-expanded', 'false');
-        addRecordButton?.focus();
-    }
-
     function restoreLocationValues() {
         var province = document.getElementById('province');
         var municipality = document.getElementById('municipality');
@@ -245,7 +212,6 @@ if (editRecordForm) {
         }
     }
 
-    addRecordButton?.addEventListener('click', showAddRecordForm);
-    returnToControlsButton?.addEventListener('click', showControls);
+    window.restoreOfficerLocationValues = restoreLocationValues;
     cancelAddRecordButton?.addEventListener('click', showControls);
 })();
