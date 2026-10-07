@@ -943,7 +943,23 @@ body.dark-mode.public-records-page .table-wrapper table tbody tr:hover {
                             <button
                                 type="button"
                                 class="view-btn"
-                                data-record-url="{{ route('api.records.show', $record->id) }}"
+                                data-record='@json([
+                                    "id" => $record->id,
+                                    "farmerName" => $record->farmerName,
+                                    "encoderName" => $record->encoderName,
+                                    "source" => $record->source,
+                                    "municipality" => $record->municipality,
+                                    "barangay" => $record->barangay,
+                                    "date_received" => $record->date_received ? \Illuminate\Support\Carbon::parse($record->date_received)->format("M d, Y") : null,
+                                    "created_at" => $record->created_at?->format("M d, Y h:i A"),
+                                    "admin_transmittal_number" => $record->admin_transmittal_number,
+                                    "remarks" => $record->remarks,
+                                    "causeOfDamage" => $record->causeOfDamage,
+                                    "line" => $record->line,
+                                    "modeOfPayment" => $record->modeOfPayment,
+                                    "accounts" => $record->accounts,
+                                    "facebook_page_url" => $record->facebook_page_url,
+                                ])'
                                 onclick="viewRecord(this)"
                             >View</button>
                             @if ($record->attachments->where('type', 'image')->isNotEmpty() && $canViewNoticeImage)
@@ -1089,68 +1105,74 @@ window.initializeAllRecordsPage = function() {
 window.initializeAllRecordsPage();
 
 function viewRecord(button) {
-    fetch(button.dataset.recordUrl)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Request failed with status ${response.status}`);
-            }
+    try {
+        const data = JSON.parse(button.dataset.record);
+        const escapeHtml = value => String(value ?? 'N/A').replace(/[&<>"']/g, character => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        })[character]);
+        const accountValue = data.accounts
+            ? data.facebook_page_url && /^https?:\/\//i.test(data.facebook_page_url)
+                ? `<a href="${escapeHtml(data.facebook_page_url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(data.accounts)}</a>`
+                : escapeHtml(data.accounts)
+            : 'N/A';
 
-            return response.json();
-        })
-        .then(data => {
             const modalBody = document.getElementById('modalBody');
             modalBody.innerHTML = `
                 <div class="record-detail">
                     <div class="detail-label">Farmer Name:</div>
-                    <div class="detail-value">${data.farmerName}</div>
+                    <div class="detail-value">${escapeHtml(data.farmerName)}</div>
                 </div>
                 <div class="record-detail">
                     <div class="detail-label">Encoder Name:</div>
-                    <div class="detail-value">${data.encoderName}</div>
+                    <div class="detail-value">${escapeHtml(data.encoderName)}</div>
                 </div>
                 <div class="record-detail">
                     <div class="detail-label">Source:</div>
-                    <div class="detail-value">${data.source}</div>
+                    <div class="detail-value">${escapeHtml(data.source)}</div>
                 </div>
                 <div class="record-detail">
                     <div class="detail-label">Municipality:</div>
-                    <div class="detail-value">${data.municipality}</div>
+                    <div class="detail-value">${escapeHtml(data.municipality)}</div>
                 </div>
                 <div class="record-detail">
                     <div class="detail-label">Barangay:</div>
-                    <div class="detail-value">${data.barangay || 'N/A'}</div>
+                    <div class="detail-value">${escapeHtml(data.barangay)}</div>
                 </div>
                 <div class="record-detail">
                     <div class="detail-label">Date Received:</div>
-                    <div class="detail-value">${data.date_received || 'N/A'}</div>
+                    <div class="detail-value">${escapeHtml(data.date_received)}</div>
                 </div>
                 <div class="record-detail">
                     <div class="detail-label">Date Encoded:</div>
-                    <div class="detail-value">${data.created_at}</div>
+                    <div class="detail-value">${escapeHtml(data.created_at)}</div>
                 </div>
                 <div class="record-detail">
                     <div class="detail-label">Transmittal #:</div>
-                    <div class="detail-value">${data.admin_transmittal_number || 'N/A'}</div>
+                    <div class="detail-value">${escapeHtml(data.admin_transmittal_number)}</div>
                 </div>
                 <div class="record-detail">
                     <div class="detail-label">Remarks:</div>
-                    <div class="detail-value">${data.remarks || 'N/A'}</div>
+                    <div class="detail-value">${escapeHtml(data.remarks)}</div>
                 </div>
                 <div class="record-detail">
                     <div class="detail-label">Cause of Loss:</div>
-                    <div class="detail-value">${data.causeOfDamage || 'N/A'}</div>
+                    <div class="detail-value">${escapeHtml(data.causeOfDamage)}</div>
                 </div>
                 <div class="record-detail">
                     <div class="detail-label">Line:</div>
-                    <div class="detail-value">${data.line || 'N/A'}</div>
+                    <div class="detail-value">${escapeHtml(data.line)}</div>
                 </div>
                 <div class="record-detail">
                     <div class="detail-label">Payment Method:</div>
-                    <div class="detail-value">${data.modeOfPayment || 'N/A'}</div>
+                    <div class="detail-value">${escapeHtml(data.modeOfPayment)}</div>
                 </div>
                 <div class="record-detail">
                     <div class="detail-label">Account:</div>
-                    <div class="detail-value" style="font-weight: bold; color: blue; cursor: pointer;">${data.accounts ? (data.facebook_page_url ? `<a href="${data.facebook_page_url}" target="_blank" rel="noopener noreferrer">${data.accounts}</a>` : data.accounts) : 'N/A'}</div>
+                    <div class="detail-value" style="font-weight: bold; color: blue; cursor: pointer;">${accountValue}</div>
                 </div>
              `;
             
@@ -1160,11 +1182,10 @@ function viewRecord(button) {
             } else {
                 modal.setAttribute('open', 'open');
             }
-        })
-        .catch(error => {
-            console.error('Error fetching record:', error);
-            showModalMessage('Error loading record details', 'error');
-        });
+    } catch (error) {
+        console.error('Error loading record details:', error);
+        showModalMessage('Unable to display this record. Please reload the page and try again.', 'error');
+    }
 }
 
 function closeModal() {
