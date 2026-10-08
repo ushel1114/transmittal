@@ -182,6 +182,7 @@ window.initializeNoticeImagePrintDialog = function () {
 
             const paper = document.createElement('div');
             paper.className = 'notice-image-editor-paper is-portrait';
+            const panState = { x: 0, y: 0, pointerId: null, startX: 0, startY: 0, originX: 0, originY: 0 };
 
             const image = document.createElement('img');
             image.alt = `Uploaded notice of loss or claim, photo ${index + 1} of ${imageUrls.length}`;
@@ -198,6 +199,21 @@ window.initializeNoticeImagePrintDialog = function () {
             gallery.append(editor);
             image.src = url;
             previewImages.push(image);
+
+            function updatePanBounds(dimensions) {
+                const rotated = dimensions.degrees % 180 !== 0;
+                const renderedWidth = rotated ? dimensions.height : dimensions.width;
+                const renderedHeight = rotated ? dimensions.width : dimensions.height;
+                const maxX = Math.max(0, (renderedWidth - paper.clientWidth) / 2);
+                const maxY = Math.max(0, (renderedHeight - paper.clientHeight) / 2);
+
+                panState.x = Math.max(-maxX, Math.min(maxX, panState.x));
+                panState.y = Math.max(-maxY, Math.min(maxY, panState.y));
+            }
+
+            function applyImageTransform(degrees) {
+                image.style.transform = `translate(calc(-50% + ${panState.x}px), calc(-50% + ${panState.y}px)) rotate(${degrees}deg)`;
+            }
 
             function updateEditor() {
                 const orientation = orientationSelect.value;
@@ -224,8 +240,53 @@ window.initializeNoticeImagePrintDialog = function () {
                 );
                 image.style.width = `${dimensions.width}px`;
                 image.style.height = `${dimensions.height}px`;
-                image.style.transform = `translate(-50%, -50%) rotate(${dimensions.degrees}deg)`;
+                updatePanBounds(dimensions);
+                applyImageTransform(dimensions.degrees);
+                paper.classList.toggle('is-zoomed', Number(zoomInput.value) > 100);
             }
+
+            editor.addEventListener('notice-image-editor-resize', updateEditor);
+
+            paper.addEventListener('pointerdown', function (event) {
+                if (Number(zoomInput.value) <= 100 || event.button !== 0) {
+                    return;
+                }
+
+                panState.pointerId = event.pointerId;
+                panState.startX = event.clientX;
+                panState.startY = event.clientY;
+                panState.originX = panState.x;
+                panState.originY = panState.y;
+                paper.setPointerCapture(event.pointerId);
+                paper.classList.add('is-panning');
+                event.preventDefault();
+            });
+
+            paper.addEventListener('pointermove', function (event) {
+                if (panState.pointerId !== event.pointerId) {
+                    return;
+                }
+
+                panState.x = panState.originX + event.clientX - panState.startX;
+                panState.y = panState.originY + event.clientY - panState.startY;
+                updateEditor();
+            });
+
+            function endPan(event) {
+                if (panState.pointerId !== event.pointerId) {
+                    return;
+                }
+
+                panState.pointerId = null;
+                paper.classList.remove('is-panning');
+                if (paper.hasPointerCapture(event.pointerId)) {
+                    paper.releasePointerCapture(event.pointerId);
+                }
+            }
+
+            paper.addEventListener('pointerup', endPan);
+            paper.addEventListener('pointercancel', endPan);
+            paper.addEventListener('lostpointercapture', endPan);
 
             [paperSizeSelect, orientationSelect, rotationSelect, sizeInput, zoomInput].forEach(control => {
                 control.addEventListener('input', updateEditor);
@@ -426,25 +487,7 @@ window.initializeNoticeImagePrintDialog = function () {
 
     window.addEventListener('resize', function () {
         document.querySelectorAll('#noticeImagePrintDialog .notice-image-editor').forEach(editor => {
-            const paperSize = editor.querySelector('[aria-label$="paper size"]');
-            const orientation = editor.querySelector('[aria-label$="paper orientation"]');
-            const rotation = editor.querySelector('[aria-label$="rotation"]');
-            const size = editor.querySelector('input[type="range"]');
-            const zoom = editor.querySelector('[aria-label$="preview zoom"]');
-            const paper = editor.querySelector('.notice-image-editor-paper');
-            const image = editor.querySelector('img');
-
-            if (!paperSize || !orientation || !rotation || !size || !zoom || !paper || !image || !image.naturalWidth || !paper.clientWidth || !paper.clientHeight) {
-                return;
-            }
-
-            const dimensionsInches = paperDimensions(paperSize.value, orientation.value);
-            paper.style.aspectRatio = `${dimensionsInches.width} / ${dimensionsInches.height}`;
-            paper.dataset.paperSize = paperSize.value;
-            const dimensions = imageDimensions(image, orientation.value, rotation.value, Number(size.value) * Number(zoom.value) / 100, paper.clientWidth, paper.clientHeight);
-            image.style.width = `${dimensions.width}px`;
-            image.style.height = `${dimensions.height}px`;
-            image.style.transform = `translate(-50%, -50%) rotate(${dimensions.degrees}deg)`;
+            editor.dispatchEvent(new Event('notice-image-editor-resize'));
         });
     });
 };
@@ -584,6 +627,17 @@ window.initializeNoticeImagePrintDialog();
     max-width: none;
     max-height: none;
     transform-origin: center;
+    pointer-events: none;
+    user-select: none;
+}
+
+.notice-image-editor-paper.is-zoomed {
+    cursor: grab;
+    touch-action: none;
+}
+
+.notice-image-editor-paper.is-panning {
+    cursor: grabbing;
 }
 
 .notice-image-dialog-actions {
