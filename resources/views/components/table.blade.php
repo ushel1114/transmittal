@@ -728,7 +728,7 @@ if (! function_exists('getSortIndicator')) {
             <th class="no-print col-view">View</th>
             @endif
             @if($showNoticeImage)
-            <th class="no-print col-notice-image">Notice Image</th>
+            <th class="no-print col-notice-image">Attachments</th>
             @endif
 
             @if(!$hideDateReceivedColumn)
@@ -968,7 +968,17 @@ if (! function_exists('getSortIndicator')) {
                         data-image-urls="{{ $record->attachments->where('type', 'image')->map(fn ($attachment) => route('records.attachments.show', [$record, $attachment]))->values()->toJson() }}"
                         data-farmer-name="{{ $record->farmerName }}"
                     >View / Print photos</button>
-                @else
+                @endif
+                @foreach($record->attachments->where('type', 'pdf') as $pdfAttachment)
+                    <a
+                        class="notice-pdf-view-btn"
+                        href="{{ route('records.attachments.show', [$record, $pdfAttachment]) }}"
+                        title="View {{ $pdfAttachment->original_name }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >View PDF</a>
+                @endforeach
+                @if($record->attachments->whereIn('type', ['image', 'pdf'])->isEmpty())
                     <span class="notice-image-unavailable">—</span>
                 @endif
             </td>

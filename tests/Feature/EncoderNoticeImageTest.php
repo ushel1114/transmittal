@@ -235,6 +235,12 @@ test('all-records viewers can view photo and PDF attachments inline', function (
 
     $this->get(route('records.attachments.show', [$record, $photo]))
         ->assertForbidden();
+
+    $this->withSession(['admin_logged_in' => true])
+        ->get(route('records.attachments.show', [$record, $pdf]))
+        ->assertOk()
+        ->assertHeader('Content-Type', 'application/pdf')
+        ->assertHeader('Content-Disposition', 'inline; filename=claim.pdf');
 });
 
 test('email record accepts an image larger than five megabytes within the thirty megabyte limit', function () {

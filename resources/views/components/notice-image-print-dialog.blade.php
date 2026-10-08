@@ -183,6 +183,9 @@ window.initializeNoticeImagePrintDialog = function () {
             const paper = document.createElement('div');
             paper.className = 'notice-image-editor-paper is-portrait';
             const panState = { x: 0, y: 0, pointerId: null, startX: 0, startY: 0, originX: 0, originY: 0 };
+            const previewHint = document.createElement('p');
+            previewHint.className = 'notice-image-editor-hint';
+            previewHint.textContent = 'Scroll over the photo to zoom; drag to pan when zoomed in.';
 
             const image = document.createElement('img');
             image.alt = `Uploaded notice of loss or claim, photo ${index + 1} of ${imageUrls.length}`;
@@ -195,7 +198,7 @@ window.initializeNoticeImagePrintDialog = function () {
                 updatePrintButton();
             });
             paper.append(image);
-            editor.append(controls, paper);
+            editor.append(controls, paper, previewHint);
             gallery.append(editor);
             image.src = url;
             previewImages.push(image);
@@ -287,6 +290,19 @@ window.initializeNoticeImagePrintDialog = function () {
             paper.addEventListener('pointerup', endPan);
             paper.addEventListener('pointercancel', endPan);
             paper.addEventListener('lostpointercapture', endPan);
+            paper.addEventListener('wheel', function (event) {
+                event.preventDefault();
+                const direction = event.deltaY < 0 ? 1 : -1;
+                const nextZoom = Math.max(
+                    Number(zoomInput.min),
+                    Math.min(Number(zoomInput.max), Number(zoomInput.value) + direction * Number(zoomInput.step))
+                );
+
+                if (nextZoom !== Number(zoomInput.value)) {
+                    zoomInput.value = String(nextZoom);
+                    zoomInput.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+            }, { passive: false });
 
             [paperSizeSelect, orientationSelect, rotationSelect, sizeInput, zoomInput].forEach(control => {
                 control.addEventListener('input', updateEditor);
@@ -496,8 +512,8 @@ window.initializeNoticeImagePrintDialog();
 
 <style>
 .notice-image-dialog {
-    width: min(900px, calc(100vw - 2rem));
-    max-height: calc(100vh - 2rem);
+    width: min(1400px, calc(100vw - 1rem));
+    max-height: calc(100vh - 1rem);
     padding: 0;
     border: 1px solid #cbd5e1;
     border-radius: 16px;
@@ -530,7 +546,7 @@ window.initializeNoticeImagePrintDialog();
 
 .notice-image-dialog-content {
     display: block;
-    max-height: 72vh;
+    max-height: 82vh;
     overflow: auto;
     padding: 16px;
     background: #f8fafc;
@@ -538,8 +554,8 @@ window.initializeNoticeImagePrintDialog();
 
 .notice-image-gallery {
     display: grid;
-    gap: 20px;
-    width: min(100%, 760px);
+    gap: 24px;
+    width: min(100%, 1200px);
     margin: 0 auto;
 }
 
@@ -601,7 +617,7 @@ window.initializeNoticeImagePrintDialog();
 .notice-image-editor-paper {
     position: relative;
     display: grid;
-    width: min(100%, 340px);
+    width: min(100%, 680px, calc(65vh * 8.5 / 11));
     margin: 0 auto;
     place-items: center;
     overflow: hidden;
@@ -615,7 +631,7 @@ window.initializeNoticeImagePrintDialog();
 }
 
 .notice-image-editor-paper.is-landscape {
-    width: min(100%, 520px);
+    width: min(100%, 1050px, calc(65vh * 11 / 8.5));
     aspect-ratio: 11 / 8.5;
 }
 
@@ -638,6 +654,13 @@ window.initializeNoticeImagePrintDialog();
 
 .notice-image-editor-paper.is-panning {
     cursor: grabbing;
+}
+
+.notice-image-editor-hint {
+    margin: -4px 0 0;
+    color: #64748b;
+    font-size: 12px;
+    text-align: center;
 }
 
 .notice-image-dialog-actions {
@@ -685,6 +708,26 @@ window.initializeNoticeImagePrintDialog();
 .notice-image-view-btn:hover {
     border-color: #16a34a;
     background: #dcfce7;
+}
+
+.notice-pdf-view-btn {
+    display: inline-flex;
+    align-items: center;
+    margin: 2px;
+    padding: 6px 10px;
+    border: 1px solid #bfdbfe;
+    border-radius: 7px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.notice-pdf-view-btn:hover {
+    border-color: #60a5fa;
+    background: #dbeafe;
 }
 
 .notice-image-unavailable {
