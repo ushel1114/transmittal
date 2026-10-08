@@ -615,6 +615,18 @@ class RecordsController extends Controller
 
         abort_unless($isAdmin || $isEmailEncoder || $isFacebookEncoder || $isOfficerEncoder, 403);
 
+        return $this->attachmentResponse($record, $attachment);
+    }
+
+    public function showAllRecordsAttachment(Record $record, RecordAttachment $attachment)
+    {
+        return $this->attachmentResponse($record, $attachment);
+    }
+
+    private function attachmentResponse(Record $record, RecordAttachment $attachment)
+    {
+        abort_unless((int) $attachment->record_id === (int) $record->id, 404);
+
         $directory = $attachment->type === 'image' ? 'claim-notices' : 'claim-pdfs';
         abort_unless(
             in_array($attachment->type, ['image', 'pdf'], true)

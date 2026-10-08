@@ -65,6 +65,7 @@ Route::put('/admin/officers/{id}', [RoutesController::class, 'updateOfficer'])->
 Route::delete('/admin/officers/{id}', [RoutesController::class, 'deleteOfficer'])->name('admin.officers.destroy');
 
 Route::post('/records', [RecordsController::class, 'storeRecord'])->name('records');
+Route::get('/all-records/{record}/attachments/{attachment}', [RecordsController::class, 'showAllRecordsAttachment'])->name('all-records.attachments.show');
 Route::get('/admin/records/{record}/notice-image', [RecordsController::class, 'showNoticeImage'])->name('admin.records.notice-image');
 Route::get('/records/{record}/attachments/{attachment}', [RecordsController::class, 'showAttachment'])->name('records.attachments.show');
 Route::post('/records/submit-transmittal', [RoutesController::class, 'submitTransmittal'])->name('records.submit-transmittal');

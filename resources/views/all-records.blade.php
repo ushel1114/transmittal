@@ -921,22 +921,6 @@ body.dark-mode.public-records-page .table-wrapper table tbody tr:hover {
             <tbody>
                 @forelse($records as $record)
                     @php
-                        $canViewNoticeImage = (bool) session('admin_logged_in', false)
-                            || (
-                                $record->source === 'Email'
-                                && (bool) session('email_logged_in', false)
-                                && (string) session('email_user_id') === (string) $record->encoder_id
-                            )
-                            || (
-                                $record->source === 'Facebook'
-                                && (bool) session('facebook_logged_in', false)
-                                && (string) session('facebook_user_id') === (string) $record->encoder_id
-                            )
-                            || (
-                                $record->source === 'OD'
-                                && filled(session('officer_name'))
-                                && (string) session('officer_id') === (string) $record->encoder_id
-                            );
                         $viewRecordData = [
                             'id' => $record->id,
                             'farmerName' => $record->farmerName,
@@ -963,14 +947,23 @@ body.dark-mode.public-records-page .table-wrapper table tbody tr:hover {
                                 data-record="{{ json_encode($viewRecordData, JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_HEX_TAG) }}"
                                 onclick="viewRecord(this)"
                             >View</button>
-                            @if ($record->attachments->where('type', 'image')->isNotEmpty() && $canViewNoticeImage)
+                            @if ($record->attachments->where('type', 'image')->isNotEmpty())
                                 <button
                                     type="button"
                                     class="notice-image-view-btn"
-                                    data-image-urls="{{ $record->attachments->where('type', 'image')->map(fn ($attachment) => route('records.attachments.show', [$record, $attachment]))->values()->toJson() }}"
+                                    data-image-urls="{{ $record->attachments->where('type', 'image')->map(fn ($attachment) => route('all-records.attachments.show', [$record, $attachment]))->values()->toJson() }}"
                                     data-farmer-name="{{ $record->farmerName }}"
                                 >View / Print photos</button>
                             @endif
+                            @foreach ($record->attachments->where('type', 'pdf') as $pdfAttachment)
+                                <a
+                                    class="view-btn notice-pdf-view-btn"
+                                    href="{{ route('all-records.attachments.show', [$record, $pdfAttachment]) }}"
+                                    title="View {{ $pdfAttachment->original_name }}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >View PDF</a>
+                            @endforeach
                         </td>
                         <td><span class="farmer-name-copy cursor-pointer" style="user-select: none; transition: color 0.2s;" data-farmer-name="{{ e($record->farmerName) }}" title="Click to copy farmer name">{{ $record->farmerName }}</span></td>
                         <td>{{ $record->admin_transmittal_number ?? 'N/A' }}</td>

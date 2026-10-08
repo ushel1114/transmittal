@@ -163,7 +163,22 @@ window.initializeNoticeImagePrintDialog = function () {
             const sizeValue = document.createElement('output');
             sizeValue.textContent = '100%';
             sizeLabel.append(sizeText, sizeInput, sizeValue);
-            controls.append(paperSizeLabel, orientationLabel, rotationLabel, sizeLabel);
+
+            const zoomLabel = document.createElement('label');
+            zoomLabel.className = 'notice-image-editor-control notice-image-size-control';
+            const zoomText = document.createElement('span');
+            zoomText.textContent = 'Preview zoom';
+            const zoomInput = document.createElement('input');
+            zoomInput.type = 'range';
+            zoomInput.min = '100';
+            zoomInput.max = '300';
+            zoomInput.step = '10';
+            zoomInput.value = '100';
+            zoomInput.setAttribute('aria-label', `Photo ${index + 1} preview zoom`);
+            const zoomValue = document.createElement('output');
+            zoomValue.textContent = '100%';
+            zoomLabel.append(zoomText, zoomInput, zoomValue);
+            controls.append(paperSizeLabel, orientationLabel, rotationLabel, sizeLabel, zoomLabel);
 
             const paper = document.createElement('div');
             paper.className = 'notice-image-editor-paper is-portrait';
@@ -193,6 +208,7 @@ window.initializeNoticeImagePrintDialog = function () {
                 paper.style.aspectRatio = `${pageDimensions.width} / ${pageDimensions.height}`;
                 paper.dataset.paperSize = paperSize;
                 sizeValue.textContent = `${sizeInput.value}%`;
+                zoomValue.textContent = `${zoomInput.value}%`;
 
                 if (!image.naturalWidth || !image.naturalHeight || !paper.clientWidth || !paper.clientHeight) {
                     return;
@@ -202,7 +218,7 @@ window.initializeNoticeImagePrintDialog = function () {
                     image,
                     orientation,
                     rotationSelect.value,
-                    Number(sizeInput.value),
+                    Number(sizeInput.value) * Number(zoomInput.value) / 100,
                     paper.clientWidth,
                     paper.clientHeight
                 );
@@ -211,7 +227,7 @@ window.initializeNoticeImagePrintDialog = function () {
                 image.style.transform = `translate(-50%, -50%) rotate(${dimensions.degrees}deg)`;
             }
 
-            [orientationSelect, rotationSelect, sizeInput].forEach(control => {
+            [paperSizeSelect, orientationSelect, rotationSelect, sizeInput, zoomInput].forEach(control => {
                 control.addEventListener('input', updateEditor);
                 control.addEventListener('change', updateEditor);
             });
@@ -414,17 +430,18 @@ window.initializeNoticeImagePrintDialog = function () {
             const orientation = editor.querySelector('[aria-label$="paper orientation"]');
             const rotation = editor.querySelector('[aria-label$="rotation"]');
             const size = editor.querySelector('input[type="range"]');
+            const zoom = editor.querySelector('[aria-label$="preview zoom"]');
             const paper = editor.querySelector('.notice-image-editor-paper');
             const image = editor.querySelector('img');
 
-            if (!paperSize || !orientation || !rotation || !size || !paper || !image || !image.naturalWidth || !paper.clientWidth || !paper.clientHeight) {
+            if (!paperSize || !orientation || !rotation || !size || !zoom || !paper || !image || !image.naturalWidth || !paper.clientWidth || !paper.clientHeight) {
                 return;
             }
 
             const dimensionsInches = paperDimensions(paperSize.value, orientation.value);
             paper.style.aspectRatio = `${dimensionsInches.width} / ${dimensionsInches.height}`;
             paper.dataset.paperSize = paperSize.value;
-            const dimensions = imageDimensions(image, orientation.value, rotation.value, Number(size.value), paper.clientWidth, paper.clientHeight);
+            const dimensions = imageDimensions(image, orientation.value, rotation.value, Number(size.value) * Number(zoom.value) / 100, paper.clientWidth, paper.clientHeight);
             image.style.width = `${dimensions.width}px`;
             image.style.height = `${dimensions.height}px`;
             image.style.transform = `translate(-50%, -50%) rotate(${dimensions.degrees}deg)`;
@@ -494,7 +511,7 @@ window.initializeNoticeImagePrintDialog();
 
 .notice-image-editor-controls {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     align-items: end;
     gap: 12px;
 }

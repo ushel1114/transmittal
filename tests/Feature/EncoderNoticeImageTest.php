@@ -198,6 +198,45 @@ test('facebook encoder can remove their uploaded notice image', function () {
     Storage::disk('local')->assertMissing('claim-notices/claim.jpg');
 });
 
+test('all-records viewers can view photo and PDF attachments inline', function () {
+    Storage::fake('local');
+    Storage::disk('local')->put(
+        'claim-notices/claim.jpg',
+        file_get_contents(public_path('images/PCIC_RO3A_LOGO.jpg'))
+    );
+    Storage::disk('local')->put('claim-pdfs/claim.pdf', "%PDF-1.4\nTest PDF\n%%EOF");
+
+    $record = Record::create([
+        ...encoderNoticeImageUpdateData(),
+        'address' => 'San Vicente, Gapan, Nueva Ecija',
+        'encoderName' => 'Email Encoder',
+        'encoder_id' => 42,
+    ]);
+    $photo = $record->attachments()->create([
+        'type' => 'image',
+        'path' => 'claim-notices/claim.jpg',
+        'original_name' => 'claim.jpg',
+    ]);
+    $pdf = $record->attachments()->create([
+        'type' => 'pdf',
+        'path' => 'claim-pdfs/claim.pdf',
+        'original_name' => 'claim.pdf',
+    ]);
+
+    $this->get(route('all-records.attachments.show', [$record, $photo]))
+        ->assertOk()
+        ->assertHeader('Content-Type', 'image/jpeg')
+        ->assertHeader('Content-Disposition', 'inline; filename=claim.jpg');
+
+    $this->get(route('all-records.attachments.show', [$record, $pdf]))
+        ->assertOk()
+        ->assertHeader('Content-Type', 'application/pdf')
+        ->assertHeader('Content-Disposition', 'inline; filename=claim.pdf');
+
+    $this->get(route('records.attachments.show', [$record, $photo]))
+        ->assertForbidden();
+});
+
 test('email record accepts an image larger than five megabytes within the thirty megabyte limit', function () {
     Storage::fake('local');
 
