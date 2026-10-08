@@ -9,7 +9,7 @@
             <img src="{{ asset('images/PCIC_RO3A_LOGO.jpg') }}" alt="">
             <span>
                 <strong>PCIC RO III-A</strong>
-                <small>NL/CI Records Monitoring</small>
+                <small>CI/NL Monitoring</small>
             </span>
         </div>
     </div>

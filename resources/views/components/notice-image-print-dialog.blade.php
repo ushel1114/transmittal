@@ -20,6 +20,45 @@ window.initializeNoticeImagePrintDialog = function () {
     }
     document.documentElement.dataset.noticeImagePrintHandlerInitialized = 'true';
 
+    function imageRotation(image, orientation, rotation) {
+        if (rotation !== 'auto') {
+            return Number(rotation);
+        }
+
+        const imageIsLandscape = image.naturalWidth > image.naturalHeight;
+        const paperIsLandscape = orientation === 'landscape';
+
+        return imageIsLandscape !== paperIsLandscape ? 90 : 0;
+    }
+
+    function imageDimensions(image, orientation, rotation, size, areaWidth, areaHeight) {
+        const degrees = imageRotation(image, orientation, rotation);
+        const rotated = degrees % 180 !== 0;
+        const scale = size / 100;
+        const displayWidth = rotated ? image.naturalHeight : image.naturalWidth;
+        const displayHeight = rotated ? image.naturalWidth : image.naturalHeight;
+        const coverScale = Math.max(areaWidth / displayWidth, areaHeight / displayHeight) * scale;
+
+        return {
+            width: image.naturalWidth * coverScale,
+            height: image.naturalHeight * coverScale,
+            degrees,
+        };
+    }
+
+    function paperDimensions(paperSize, orientation) {
+        const sizes = {
+            a4: { width: 210 / 25.4, height: 297 / 25.4 },
+            short: { width: 8.5, height: 11 },
+            long: { width: 8.5, height: 13 },
+        };
+        const dimensions = sizes[paperSize] || sizes.short;
+
+        return orientation === 'landscape'
+            ? { width: dimensions.height, height: dimensions.width }
+            : dimensions;
+    }
+
     function openGallery(button) {
         const dialog = document.getElementById('noticeImagePrintDialog');
         const gallery = document.getElementById('noticeImagePreviewGallery');
@@ -51,24 +90,132 @@ window.initializeNoticeImagePrintDialog = function () {
         }
 
         const previewImages = [];
+        const editors = [];
         function updatePrintButton() {
             const allImagesReady = previewImages.length > 0 && previewImages.every(image => image.complete && image.naturalWidth > 0);
             printButton.disabled = !allImagesReady;
             previewError.hidden = !previewImages.some(image => image.dataset.failed === 'true');
         }
 
+        function appendOptions(select, options) {
+            options.forEach(([value, label]) => {
+                const option = document.createElement('option');
+                option.value = value;
+                option.textContent = label;
+                select.append(option);
+            });
+        }
+
         gallery.replaceChildren();
         imageUrls.forEach((url, index) => {
+            const editor = document.createElement('article');
+            editor.className = 'notice-image-editor';
+
+            const controls = document.createElement('div');
+            controls.className = 'notice-image-editor-controls';
+
+            const paperSizeLabel = document.createElement('label');
+            paperSizeLabel.className = 'notice-image-editor-control';
+            paperSizeLabel.textContent = `Paper size ${index + 1}`;
+            const paperSizeSelect = document.createElement('select');
+            paperSizeSelect.setAttribute('aria-label', `Photo ${index + 1} paper size`);
+            appendOptions(paperSizeSelect, [
+                ['a4', 'A4 (8.27 × 11.69 in)'],
+                ['short', 'Short (8.5 × 11 in)'],
+                ['long', 'Long (8.5 × 13 in)'],
+            ]);
+            paperSizeSelect.value = 'short';
+            paperSizeLabel.append(paperSizeSelect);
+
+            const orientationLabel = document.createElement('label');
+            orientationLabel.className = 'notice-image-editor-control';
+            orientationLabel.textContent = `Paper ${index + 1}`;
+            const orientationSelect = document.createElement('select');
+            orientationSelect.setAttribute('aria-label', `Photo ${index + 1} paper orientation`);
+            appendOptions(orientationSelect, [['portrait', 'Portrait'], ['landscape', 'Landscape']]);
+            orientationLabel.append(orientationSelect);
+
+            const rotationLabel = document.createElement('label');
+            rotationLabel.className = 'notice-image-editor-control';
+            rotationLabel.textContent = 'Image rotation';
+            const rotationSelect = document.createElement('select');
+            rotationSelect.setAttribute('aria-label', `Photo ${index + 1} rotation`);
+            appendOptions(rotationSelect, [
+                ['auto', 'Auto-fit'],
+                ['0', '0°'],
+                ['90', '90°'],
+                ['180', '180°'],
+                ['270', '270°'],
+            ]);
+            rotationLabel.append(rotationSelect);
+
+            const sizeLabel = document.createElement('label');
+            sizeLabel.className = 'notice-image-editor-control notice-image-size-control';
+            const sizeText = document.createElement('span');
+            sizeText.textContent = 'Image size';
+            const sizeInput = document.createElement('input');
+            sizeInput.type = 'range';
+            sizeInput.min = '25';
+            sizeInput.max = '100';
+            sizeInput.step = '5';
+            sizeInput.value = '100';
+            sizeInput.setAttribute('aria-label', `Photo ${index + 1} image size`);
+            const sizeValue = document.createElement('output');
+            sizeValue.textContent = '100%';
+            sizeLabel.append(sizeText, sizeInput, sizeValue);
+            controls.append(paperSizeLabel, orientationLabel, rotationLabel, sizeLabel);
+
+            const paper = document.createElement('div');
+            paper.className = 'notice-image-editor-paper is-portrait';
+
             const image = document.createElement('img');
             image.alt = `Uploaded notice of loss or claim, photo ${index + 1} of ${imageUrls.length}`;
-            image.addEventListener('load', updatePrintButton);
+            image.addEventListener('load', function () {
+                updateEditor();
+                updatePrintButton();
+            });
             image.addEventListener('error', function () {
                 image.dataset.failed = 'true';
                 updatePrintButton();
             });
-            gallery.append(image);
+            paper.append(image);
+            editor.append(controls, paper);
+            gallery.append(editor);
             image.src = url;
             previewImages.push(image);
+
+            function updateEditor() {
+                const orientation = orientationSelect.value;
+                const paperSize = paperSizeSelect.value;
+                const pageDimensions = paperDimensions(paperSize, orientation);
+                paper.classList.toggle('is-portrait', orientation === 'portrait');
+                paper.classList.toggle('is-landscape', orientation === 'landscape');
+                paper.style.aspectRatio = `${pageDimensions.width} / ${pageDimensions.height}`;
+                paper.dataset.paperSize = paperSize;
+                sizeValue.textContent = `${sizeInput.value}%`;
+
+                if (!image.naturalWidth || !image.naturalHeight || !paper.clientWidth || !paper.clientHeight) {
+                    return;
+                }
+
+                const dimensions = imageDimensions(
+                    image,
+                    orientation,
+                    rotationSelect.value,
+                    Number(sizeInput.value),
+                    paper.clientWidth,
+                    paper.clientHeight
+                );
+                image.style.width = `${dimensions.width}px`;
+                image.style.height = `${dimensions.height}px`;
+                image.style.transform = `translate(-50%, -50%) rotate(${dimensions.degrees}deg)`;
+            }
+
+            [orientationSelect, rotationSelect, sizeInput].forEach(control => {
+                control.addEventListener('input', updateEditor);
+                control.addEventListener('change', updateEditor);
+            });
+            editors.push(updateEditor);
         });
 
         previewError.hidden = true;
@@ -81,7 +228,136 @@ window.initializeNoticeImagePrintDialog = function () {
         if (!dialog.open) {
             dialog.showModal();
         }
+        requestAnimationFrame(() => editors.forEach(update => update()));
         updatePrintButton();
+    }
+
+    function printGallery() {
+        const gallery = document.getElementById('noticeImagePreviewGallery');
+        const printButton = document.getElementById('printNoticeImageButton');
+        if (!gallery || !printButton || printButton.disabled) {
+            return;
+        }
+
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) {
+            const message = 'Allow pop-ups for this site to open the print editor.';
+            console.error(message);
+            if (typeof window.showModalMessage === 'function') {
+                window.showModalMessage(message, 'error');
+            }
+            return;
+        }
+
+        const printDocument = printWindow.document;
+        printDocument.open();
+        printDocument.close();
+
+        printDocument.title = 'Print photos';
+        const style = printDocument.createElement('style');
+        style.textContent = `
+            @page { size: letter portrait; margin: 0.2in; }
+            @page a4-portrait { size: 210mm 297mm; margin: 0.2in; }
+            @page a4-landscape { size: 297mm 210mm; margin: 0.2in; }
+            @page short-portrait { size: 8.5in 11in; margin: 0.2in; }
+            @page short-landscape { size: 11in 8.5in; margin: 0.2in; }
+            @page long-portrait { size: 8.5in 13in; margin: 0.2in; }
+            @page long-landscape { size: 13in 8.5in; margin: 0.2in; }
+            html, body { margin: 0; padding: 0; }
+            body { color: #000; }
+            .print-photo-page {
+                position: relative;
+                display: block;
+                box-sizing: border-box;
+                width: 8.5in;
+                height: 11in;
+                margin: 0;
+                overflow: hidden;
+                page: portrait;
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+            .print-photo-page.paper-a4.is-portrait { page: a4-portrait; }
+            .print-photo-page.paper-a4.is-landscape { page: a4-landscape; }
+            .print-photo-page.paper-short.is-portrait { page: short-portrait; }
+            .print-photo-page.paper-short.is-landscape { page: short-landscape; }
+            .print-photo-page.paper-long.is-portrait { page: long-portrait; }
+            .print-photo-page.paper-long.is-landscape { page: long-landscape; }
+            .print-photo-page + .print-photo-page {
+                break-before: page;
+                page-break-before: always;
+            }
+            .print-photo-page img {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                display: block;
+                max-width: none;
+                max-height: none;
+                transform-origin: center;
+            }
+            @media print {
+                html, body { margin: 0; padding: 0; }
+            }
+        `;
+        printDocument.head.append(style);
+
+        const printImages = [];
+        let printStarted = false;
+        function startPrintWhenReady() {
+            if (printStarted || printImages.some(image => !image.complete || image.naturalWidth === 0)) {
+                return;
+            }
+
+            printStarted = true;
+            printWindow.focus();
+            printWindow.onafterprint = () => printWindow.close();
+            printWindow.print();
+        }
+
+        gallery.querySelectorAll('.notice-image-editor').forEach(editor => {
+            const sourceImage = editor.querySelector('img');
+            const paperSize = editor.querySelector('[aria-label$="paper size"]').value;
+            const orientation = editor.querySelector('[aria-label$="paper orientation"]').value;
+            const rotation = editor.querySelector('[aria-label$="rotation"]').value;
+            const size = Number(editor.querySelector('input[type="range"]').value);
+            const paper = paperDimensions(paperSize, orientation);
+            const printableWidth = paper.width - 0.4;
+            const printableHeight = paper.height - 0.4;
+            const page = printDocument.createElement('section');
+            page.className = `print-photo-page paper-${paperSize} is-${orientation}`;
+            page.style.width = `${printableWidth}in`;
+            page.style.height = `${printableHeight}in`;
+
+            const image = printDocument.createElement('img');
+            const dimensions = imageDimensions(
+                sourceImage,
+                orientation,
+                rotation,
+                size,
+                printableWidth * 96,
+                printableHeight * 96
+            );
+            image.src = sourceImage.currentSrc || sourceImage.src;
+            image.alt = sourceImage.alt;
+            image.style.width = `${dimensions.width / 96}in`;
+            image.style.height = `${dimensions.height / 96}in`;
+            image.style.transform = `translate(-50%, -50%) rotate(${dimensions.degrees}deg)`;
+            image.addEventListener('load', startPrintWhenReady, { once: true });
+            image.addEventListener('error', function () {
+                printWindow.close();
+                const message = 'A photo could not be loaded for printing. Reopen the photo editor and try again.';
+                console.error(message);
+                if (typeof window.showModalMessage === 'function') {
+                    window.showModalMessage(message, 'error');
+                }
+            }, { once: true });
+            page.append(image);
+            printDocument.body.append(page);
+            printImages.push(image);
+        });
+
+        startPrintWhenReady();
     }
 
     document.addEventListener('click', function (event) {
@@ -109,7 +385,7 @@ window.initializeNoticeImagePrintDialog = function () {
         if (target.closest('#printNoticeImageButton')) {
             const printButton = document.getElementById('printNoticeImageButton');
             if (printButton && !printButton.disabled) {
-                window.print();
+                printGallery();
             }
         }
     });
@@ -131,6 +407,29 @@ window.initializeNoticeImagePrintDialog = function () {
             printButton.disabled = true;
         }
     }, true);
+
+    window.addEventListener('resize', function () {
+        document.querySelectorAll('#noticeImagePrintDialog .notice-image-editor').forEach(editor => {
+            const paperSize = editor.querySelector('[aria-label$="paper size"]');
+            const orientation = editor.querySelector('[aria-label$="paper orientation"]');
+            const rotation = editor.querySelector('[aria-label$="rotation"]');
+            const size = editor.querySelector('input[type="range"]');
+            const paper = editor.querySelector('.notice-image-editor-paper');
+            const image = editor.querySelector('img');
+
+            if (!paperSize || !orientation || !rotation || !size || !paper || !image || !image.naturalWidth || !paper.clientWidth || !paper.clientHeight) {
+                return;
+            }
+
+            const dimensionsInches = paperDimensions(paperSize.value, orientation.value);
+            paper.style.aspectRatio = `${dimensionsInches.width} / ${dimensionsInches.height}`;
+            paper.dataset.paperSize = paperSize.value;
+            const dimensions = imageDimensions(image, orientation.value, rotation.value, Number(size.value), paper.clientWidth, paper.clientHeight);
+            image.style.width = `${dimensions.width}px`;
+            image.style.height = `${dimensions.height}px`;
+            image.style.transform = `translate(-50%, -50%) rotate(${dimensions.degrees}deg)`;
+        });
+    });
 };
 window.initializeNoticeImagePrintDialog();
 </script>
@@ -170,10 +469,8 @@ window.initializeNoticeImagePrintDialog();
 }
 
 .notice-image-dialog-content {
-    display: grid;
-    min-height: 180px;
-    max-height: 70vh;
-    place-items: center;
+    display: block;
+    max-height: 72vh;
     overflow: auto;
     padding: 16px;
     background: #f8fafc;
@@ -181,16 +478,95 @@ window.initializeNoticeImagePrintDialog();
 
 .notice-image-gallery {
     display: grid;
-    width: 100%;
-    gap: 16px;
+    gap: 20px;
+    width: min(100%, 760px);
+    margin: 0 auto;
 }
 
-.notice-image-gallery img {
-    display: block;
-    max-width: 100%;
-    max-height: 66vh;
+.notice-image-editor {
+    display: grid;
+    gap: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    padding: 14px;
+    background: white;
+}
+
+.notice-image-editor-controls {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: end;
+    gap: 12px;
+}
+
+.notice-image-editor-control {
+    display: grid;
+    min-width: 0;
+    gap: 6px;
+    color: #334155;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.notice-image-editor-control select,
+.notice-image-editor-control input[type="range"] {
+    width: 100%;
+}
+
+.notice-image-editor-control select {
+    min-height: 36px;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    padding: 6px 8px;
+    background: white;
+    color: #0f172a;
+    font: inherit;
+}
+
+.notice-image-size-control {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+}
+
+.notice-image-size-control > span {
+    grid-column: 1 / -1;
+}
+
+.notice-image-size-control output {
+    min-width: 38px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.notice-image-editor-paper {
+    position: relative;
+    display: grid;
+    width: min(100%, 340px);
     margin: 0 auto;
-    object-fit: contain;
+    place-items: center;
+    overflow: hidden;
+    border: 1px solid #cbd5e1;
+    background: white;
+    box-shadow: 0 2px 8px rgb(15 23 42 / 12%);
+}
+
+.notice-image-editor-paper.is-portrait {
+    aspect-ratio: 8.5 / 11;
+}
+
+.notice-image-editor-paper.is-landscape {
+    width: min(100%, 520px);
+    aspect-ratio: 11 / 8.5;
+}
+
+.notice-image-editor-paper img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: block;
+    max-width: none;
+    max-height: none;
+    transform-origin: center;
 }
 
 .notice-image-dialog-actions {
@@ -244,71 +620,15 @@ window.initializeNoticeImagePrintDialog();
     color: #94a3b8;
 }
 
-@media print {
-    @page {
-        size: portrait;
-        margin: 0.25in;
+@media (max-width: 760px) {
+    .notice-image-editor-controls {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+}
 
-    body * {
-        visibility: hidden !important;
-    }
-
-    #noticeImagePrintDialog[open],
-    #noticeImagePrintDialog[open] * {
-        visibility: visible !important;
-    }
-
-    #noticeImagePrintDialog[open] {
-        position: fixed;
-        inset: 0;
-        display: block !important;
-        width: 100% !important;
-        height: 100% !important;
-        max-width: none;
-        max-height: none;
-        overflow: visible;
-        margin: 0;
-        padding: 0;
-        border: 0;
-        border-radius: 0;
-        box-shadow: none;
-    }
-
-    #noticeImagePrintDialog .notice-image-dialog-header,
-    #noticeImagePrintDialog .notice-image-dialog-actions {
-        display: none !important;
-    }
-
-    #noticeImagePrintDialog .notice-image-dialog-content {
-        display: block;
-        width: 100%;
-        height: 100%;
-        max-height: none;
-        overflow: visible;
-        padding: 0;
-        background: white;
-    }
-
-    #noticeImagePrintDialog .notice-image-gallery {
-        display: block;
-    }
-
-    #noticeImagePrintDialog .notice-image-gallery img {
-        display: block;
-        width: 100%;
-        height: calc(100vh - 0.5in);
-        max-width: none;
-        max-height: none;
-        margin: 0;
-        object-fit: contain;
-        break-after: page;
-        page-break-after: always;
-    }
-
-    #noticeImagePrintDialog .notice-image-gallery img:last-child {
-        break-after: auto;
-        page-break-after: auto;
+@media (max-width: 440px) {
+    .notice-image-editor-controls {
+        grid-template-columns: 1fr;
     }
 }
 </style>
