@@ -223,6 +223,13 @@ test('all-records viewers can view photo and PDF attachments inline', function (
         'original_name' => 'claim.pdf',
     ]);
 
+    $this->get(route('all-records'))
+        ->assertOk()
+        ->assertSee(route('all-records.attachments.show', [$record, $photo], false), false)
+        ->assertSee(route('all-records.attachments.show', [$record, $pdf], false), false)
+        ->assertDontSee(route('all-records.attachments.show', [$record, $photo]), false)
+        ->assertDontSee(route('all-records.attachments.show', [$record, $pdf]), false);
+
     $this->get(route('all-records.attachments.show', [$record, $photo]))
         ->assertOk()
         ->assertHeader('Content-Type', 'image/jpeg')

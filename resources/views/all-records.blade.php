@@ -951,14 +951,14 @@ body.dark-mode.public-records-page .table-wrapper table tbody tr:hover {
                                 <button
                                     type="button"
                                     class="notice-image-view-btn"
-                                    data-image-urls="{{ $record->attachments->where('type', 'image')->map(fn ($attachment) => route('all-records.attachments.show', [$record, $attachment]))->values()->toJson() }}"
+                                    data-image-urls="{{ $record->attachments->where('type', 'image')->map(fn ($attachment) => route('all-records.attachments.show', [$record, $attachment], false))->values()->toJson() }}"
                                     data-farmer-name="{{ $record->farmerName }}"
                                 >View / Print photos</button>
                             @endif
                             @foreach ($record->attachments->where('type', 'pdf') as $pdfAttachment)
                                 <a
                                     class="view-btn notice-pdf-view-btn"
-                                    href="{{ route('all-records.attachments.show', [$record, $pdfAttachment]) }}"
+                                    href="{{ route('all-records.attachments.show', [$record, $pdfAttachment], false) }}"
                                     title="View {{ $pdfAttachment->original_name }}"
                                     target="_blank"
                                     rel="noopener noreferrer"

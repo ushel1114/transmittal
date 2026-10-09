@@ -2152,8 +2152,12 @@ Santa Lucia,Victoria,Tarlac`;
         if (v === '') {
             return;
         }
-        selectEl.value = v;
-        if (selectEl.value !== v) {
+        const matchingOption = Array.from(selectEl.options).find(
+            option => option.value.trim().toLocaleLowerCase() === v.toLocaleLowerCase()
+        );
+        if (matchingOption) {
+            selectEl.value = matchingOption.value;
+        } else {
             const opt = document.createElement('option');
             opt.value = v;
             opt.textContent = v;
