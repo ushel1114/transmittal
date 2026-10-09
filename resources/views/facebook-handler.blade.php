@@ -1559,6 +1559,7 @@ Poblacion,Baler,Aurora
 Simbahan,Baler,Aurora
 Umiray,Baler,Aurora
 Yapara,Baler,Aurora
+Matawe,Dingalan,Aurora
 Baguindoc,Anao,Tarlac
 Bantog,Anao,Tarlac
 Campos,Anao,Tarlac

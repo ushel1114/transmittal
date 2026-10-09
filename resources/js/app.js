@@ -1303,6 +1303,7 @@ Davildavilan,Dingalan,Aurora
 Dikapanikian,Dingalan,Aurora
 Ibona,Dingalan,Aurora
 Paltic,Dingalan,Aurora
+Matawe,Dingalan,Aurora
 Poblacion,Dingalan,Aurora
 Tanawan,Dingalan,Aurora
 Umiray,Dingalan,Aurora

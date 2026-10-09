@@ -2025,6 +2025,7 @@ Ditumabo,Dingalan,Aurora
 Duongan,Dingalan,Aurora
 Fulgador,Dingalan,Aurora
 Gumabat,Dingalan,Aurora
+Matawe,Dingalan,Aurora
 Poblacion,Dingalan,Aurora
 Simbahan,Dingalan,Aurora
 Umiray,Dingalan,Aurora
