@@ -1935,59 +1935,6 @@ class RoutesController extends Controller
     }
 
     /**
-     * Handle auto-logout request from JavaScript
-     */
-    public function autoLogout(Request $request)
-    {
-        try {
-            $channel = $request->input('channel', 'unknown');
-            $sessionId = $request->session()->getId();
-
-            // Perform logout based on channel
-            switch ($channel) {
-                case 'OD':
-                    $officerName = $request->session()->get('officer_name');
-                    if ($officerName) {
-                        Officer::where('name', $officerName)->update(['active' => false]);
-                    }
-                    $request->session()->forget(['officer_name', 'officer_id', 'officer_logged_in', 'officer_last_activity']);
-                    // Remove from active_sessions
-                    ActiveSession::where('session_id', $sessionId)->where('channel', 'OD')->delete();
-                    break;
-                case 'Email':
-                    $emailUserName = $request->session()->get('email_user_name');
-                    if ($emailUserName) {
-                        Officer::where('name', $emailUserName)->update(['active' => false]);
-                    }
-                    $request->session()->forget(['email_user_name', 'email_logged_in', 'email_last_activity']);
-                    // Remove from active_sessions
-                    ActiveSession::where('session_id', $sessionId)->where('channel', 'Email')->delete();
-                    break;
-                case 'Facebook':
-                    $request->session()->forget(['facebook_logged_in', 'facebook_user', 'facebook_last_activity']);
-                    // Remove from active_sessions
-                    ActiveSession::where('session_id', $sessionId)->where('channel', 'Facebook')->delete();
-                    break;
-                case 'admin':
-                    $adminUsername = $request->session()->get('admin_username');
-                    if ($adminUsername) {
-                        Admin::where('username', $adminUsername)->update(['active' => false]);
-                    }
-                    $request->session()->forget(['admin_logged_in', 'admin_username', 'admin_last_activity']);
-                    // Remove from active_sessions
-                    ActiveSession::where('session_id', $sessionId)->where('channel', 'Admin')->delete();
-                    break;
-            }
-
-            return response()->json(['success' => true]);
-        } catch (\Exception $e) {
-            \Log::error('Error in autoLogout: '.$e->getMessage());
-
-            return response()->json(['success' => false]);
-        }
-    }
-
-    /**
      * Update user activity status (away/active)
      */
     public function updateActivity(Request $request)

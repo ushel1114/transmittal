@@ -402,6 +402,16 @@ body {
     </dialog>
 
     <script>
+        function selectLatestLocation(select, value) {
+            const option = Array.from(select.options).find(option =>
+                option.value.trim().toLocaleUpperCase() === String(value).trim().toLocaleUpperCase()
+            );
+
+            if (option) {
+                select.value = option.value;
+            }
+        }
+
         function populateFormWithLatestRecord() {
             fetch('{{ route('records.latest') }}?source=OD')
                 .then(response => response.json())
@@ -418,8 +428,9 @@ body {
                             if (form.querySelector('#controlNumber')) form.querySelector('#controlNumber').value = '';
 
                             if (form.querySelector('#province')) {
-                                form.querySelector('#province').value = data.record.province || '';
-                                form.querySelector('#province').dispatchEvent(new Event('change'));
+                                const provinceField = form.querySelector('#province');
+                                selectLatestLocation(provinceField, data.record.province || '');
+                                provinceField.dispatchEvent(new Event('change'));
                             }
                             if (form.querySelector('#modeOfPayment')) form.querySelector('#modeOfPayment').value = data.record.modeOfPayment || '';
                             if (form.querySelector('#date_received')) form.querySelector('#date_received').value = data.record.date_received || '';
@@ -427,12 +438,13 @@ body {
 
                             setTimeout(() => {
                                 if (form.querySelector('#municipality') && data.record.municipality) {
-                                    form.querySelector('#municipality').value = data.record.municipality;
-                                    form.querySelector('#municipality').dispatchEvent(new Event('change'));
+                                    const municipalityField = form.querySelector('#municipality');
+                                    selectLatestLocation(municipalityField, data.record.municipality);
+                                    municipalityField.dispatchEvent(new Event('change'));
                                 }
                                 setTimeout(() => {
                                     if (form.querySelector('#barangay') && data.record.barangay) {
-                                        form.querySelector('#barangay').value = data.record.barangay;
+                                        selectLatestLocation(form.querySelector('#barangay'), data.record.barangay);
                                     }
                                 }, 100);
                             }, 100);
@@ -470,12 +482,6 @@ body {
                         addressField.value = [barangayField?.value, municipalityField?.value, provinceField?.value]
                             .filter(Boolean)
                             .join(', ');
-                    }
-
-                    if (provinceField && municipalityField && barangayField) {
-                        localStorage.setItem('od_province', provinceField.value);
-                        localStorage.setItem('od_municipality', municipalityField.value);
-                        localStorage.setItem('od_barangay', barangayField.value);
                     }
 
                     const dateReceivedValue = addRecordForm.querySelector('#date_received') ? addRecordForm.querySelector('#date_received').value : '';
@@ -689,7 +695,6 @@ body {
         addRecordPanel.hidden = false;
         addRecordPanel.classList.remove('hidden');
         addRecordButton?.setAttribute('aria-expanded', 'true');
-        window.restoreOfficerLocationValues?.();
         addRecordPanel.querySelector('#farmerName')?.focus();
     }
 

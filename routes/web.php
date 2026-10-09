@@ -53,8 +53,7 @@ Route::get('/admin/api/pending-approvals', [RoutesController::class, 'pendingApp
 Route::get('/admin/encoder-report', [RoutesController::class, 'encoderReport'])->name('admin.encoder-report');
 Route::get('/admin/transmittal-report', [RoutesController::class, 'transmittalReport'])->name('admin.transmittal-report');
 
-// Auto-logout and activity tracking routes
-Route::post('/auto-logout', [RoutesController::class, 'autoLogout'])->name('auto.logout');
+// Activity tracking route
 Route::post('/update-activity', [RoutesController::class, 'updateActivity'])->name('update.activity');
 
 // Admin Officer Management Routes

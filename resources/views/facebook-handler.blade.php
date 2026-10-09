@@ -2525,48 +2525,6 @@ Villa Rosario,Victoria,Tarlac`;
         });
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        var province = document.getElementById('province');
-        var municipality = document.getElementById('municipality');
-        var barangay = document.getElementById('barangay');
-
-        if (province && municipality && barangay) {
-            var savedProvince = localStorage.getItem('facebook_province');
-            var savedMunicipality = localStorage.getItem('facebook_municipality');
-            var savedBarangay = localStorage.getItem('facebook_barangay');
-
-            console.log('Restoring location values:', savedProvince, savedMunicipality, savedBarangay);
-
-            if (savedProvince) {
-                province.value = savedProvince;
-                municipality.disabled = false;
-                municipality.classList.remove('bg-gray-50');
-                municipality.classList.add('bg-white');
-
-                var event = new Event('change');
-                province.dispatchEvent(event);
-
-                setTimeout(function() {
-                    if (savedMunicipality) {
-                        municipality.value = savedMunicipality;
-                        barangay.disabled = false;
-                        barangay.classList.remove('bg-gray-50');
-                        barangay.classList.add('bg-white');
-
-                        var municipalityEvent = new Event('change');
-                        municipality.dispatchEvent(municipalityEvent);
-
-                        setTimeout(function() {
-                            if (savedBarangay) {
-                                barangay.value = savedBarangay;
-                            }
-                        }, 100);
-                    }
-                }, 100);
-            }
-        }
-    });
-
     var editProvince = document.getElementById('editProvince');
     var editMunicipality = document.getElementById('editMunicipality');
     var editBarangay = document.getElementById('editBarangay');
@@ -2634,8 +2592,21 @@ Villa Rosario,Victoria,Tarlac`;
         addRecordButton?.focus();
     }
 
-    addRecordButton?.addEventListener('click', showAddRecordForm);
+    addRecordButton?.addEventListener('click', function() {
+        showAddRecordForm();
+        populateFormWithLatestRecord();
+    });
     returnToControlsButton?.addEventListener('click', showControls);
+
+    function selectLatestLocation(select, value) {
+        const option = Array.from(select.options).find(option =>
+            option.value.trim().toLocaleUpperCase() === String(value).trim().toLocaleUpperCase()
+        );
+
+        if (option) {
+            select.value = option.value;
+        }
+    }
 
     function populateFormWithLatestRecord() {
         fetch('{{ route('records.latest') }}?source=Facebook')
@@ -2645,9 +2616,9 @@ Villa Rosario,Victoria,Tarlac`;
                     const form = addRecordPanel ? addRecordPanel.querySelector('form') : null;
                     if (form) {
                         const provinceField = form.querySelector('#province');
-                        const shouldPrefillLocation = provinceField && !provinceField.value && data.record.province;
+                        const shouldPrefillLocation = provinceField && data.record.province;
                         if (shouldPrefillLocation) {
-                            provinceField.value = data.record.province;
+                            selectLatestLocation(provinceField, data.record.province);
                             provinceField.dispatchEvent(new Event('change'));
                         }
                         if (form.querySelector('#modeOfPayment') && !form.querySelector('#modeOfPayment').value) form.querySelector('#modeOfPayment').value = data.record.modeOfPayment || '';
@@ -2657,12 +2628,13 @@ Villa Rosario,Victoria,Tarlac`;
 
                         setTimeout(() => {
                             if (shouldPrefillLocation && form.querySelector('#municipality') && data.record.municipality) {
-                                form.querySelector('#municipality').value = data.record.municipality;
-                                form.querySelector('#municipality').dispatchEvent(new Event('change'));
+                                const municipalityField = form.querySelector('#municipality');
+                                selectLatestLocation(municipalityField, data.record.municipality);
+                                municipalityField.dispatchEvent(new Event('change'));
                             }
                             setTimeout(() => {
                                 if (shouldPrefillLocation && form.querySelector('#barangay') && data.record.barangay) {
-                                    form.querySelector('#barangay').value = data.record.barangay;
+                                    selectLatestLocation(form.querySelector('#barangay'), data.record.barangay);
                                 }
                             }, 100);
                         }, 100);
@@ -2673,25 +2645,6 @@ Villa Rosario,Victoria,Tarlac`;
     }
 
     populateFormWithLatestRecord();
-
-    function saveLocationValues() {
-        var province = document.getElementById('province');
-        var municipality = document.getElementById('municipality');
-        var barangay = document.getElementById('barangay');
-
-        if (province && municipality && barangay) {
-            console.log('Saving location values:', province.value, municipality.value, barangay.value);
-            localStorage.setItem('facebook_province', province.value);
-            localStorage.setItem('facebook_municipality', municipality.value);
-            localStorage.setItem('facebook_barangay', barangay.value);
-        }
-    }
-
-    function clearLocationValues() {
-        localStorage.removeItem('facebook_province');
-        localStorage.removeItem('facebook_municipality');
-        localStorage.removeItem('facebook_barangay');
-    }
 
     var addRecordForm = document.getElementById('addRecordForm');
     if (addRecordForm) {
@@ -2707,8 +2660,6 @@ Villa Rosario,Victoria,Tarlac`;
                     .filter(Boolean)
                     .join(', ');
             }
-            saveLocationValues();
-
             var dateReceivedValue = addRecordForm.querySelector('#date_received') ? addRecordForm.querySelector('#date_received').value : '';
             var modeOfPaymentValue = addRecordForm.querySelector('#modeOfPayment') ? addRecordForm.querySelector('#modeOfPayment').value : '';
             var provinceValue = addRecordForm.querySelector('#province') ? addRecordForm.querySelector('#province').value : '';

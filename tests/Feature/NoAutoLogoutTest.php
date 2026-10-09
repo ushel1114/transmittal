@@ -1,39 +1,23 @@
 <?php
 
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Route;
 
-it('returns an inactive user to the landing page with a timeout notice', function () {
+it('keeps a signed-in user logged in after more than 30 minutes of inactivity', function () {
     Carbon::setTestNow('2026-10-07 12:00:00');
+    Route::middleware('web')->get('/test-inactivity', function () {
+        return response()->noContent();
+    });
 
     try {
         $response = $this->withSession([
             'facebook_logged_in' => true,
             'facebook_last_activity' => Carbon::now()->subMinutes(31)->toDateTimeString(),
-        ])->get(route('welcome'));
+        ])->get('/test-inactivity');
 
-        $response->assertRedirect(route('welcome'));
-        $response->assertSessionHas('warning', 'Due to inactivity, your account was logged out. Please log in again.');
-        $response->assertSessionMissing('facebook_logged_in');
-    } finally {
-        Carbon::setTestNow();
-    }
-});
-
-it('returns an inactivity redirect for expired background activity requests', function () {
-    Carbon::setTestNow('2026-10-07 12:00:00');
-
-    try {
-        $response = $this->withSession([
-            'facebook_logged_in' => true,
-            'facebook_last_activity' => Carbon::now()->subMinutes(31)->toDateTimeString(),
-        ])->postJson(route('update.activity'), [
-            'channel' => 'Facebook',
-            'away' => false,
-        ]);
-
-        $response->assertUnauthorized();
-        $response->assertJsonPath('redirect', route('welcome'));
-        $response->assertSessionHas('warning', 'Due to inactivity, your account was logged out. Please log in again.');
+        $response->assertNoContent();
+        $response->assertSessionHas('facebook_logged_in', true);
+        $response->assertSessionMissing('warning');
     } finally {
         Carbon::setTestNow();
     }

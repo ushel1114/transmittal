@@ -291,7 +291,7 @@
             };
         })();
 
-        // Keep the inactivity deadline aligned with actual user activity.
+        // Keep active-user presence and away status current.
         (function() {
             function getCurrentChannel() {
                 const path = window.location.pathname;
@@ -325,11 +325,8 @@
                         'X-Requested-With': 'XMLHttpRequest'
                     },
                     keepalive: isAway
-                }).then(async function(response) {
-                    if (response.status === 401) {
-                        const result = await response.json();
-                        window.location.assign(result.redirect || '{{ route('welcome') }}');
-                    } else if (!response.ok) {
+                }).then(function(response) {
+                    if (!response.ok) {
                         throw new Error(`Activity update failed with status ${response.status}`);
                     }
                 }).catch(function(error) {

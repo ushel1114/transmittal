@@ -772,24 +772,40 @@ class RecordsController extends Controller
     {
         $source = $request->input('source');
         $encoderName = null;
+        $encoderId = null;
 
         // Get encoder name based on source
         if ($source === 'OD') {
             $encoderName = $request->session()->get('officer_name');
+            $encoderId = $request->session()->get('officer_id');
         } elseif ($source === 'Email') {
             $encoderName = $request->session()->get('email_user_name');
+            $encoderId = $request->session()->get('email_user_id');
         } elseif ($source === 'Facebook') {
             $encoderName = $request->session()->get('facebook_user');
+            $encoderId = $request->session()->get('facebook_user_id');
         }
 
         if (! $encoderName) {
             return response()->json(['success' => false, 'message' => 'Not logged in'], 401);
         }
 
-        // Get the most recent record for this user and source
-        $latestRecord = Record::where('source', $source)
-            ->where('encoderName', $encoderName)
-            ->orderBy('created_at', 'desc')
+        // Prefer the authenticated encoder ID, retaining name matching for legacy records.
+        $latestRecord = Record::query()
+            ->where('source', $source)
+            ->when($encoderId, function ($query) use ($encoderId, $encoderName) {
+                $query->where(function ($query) use ($encoderId, $encoderName) {
+                    $query->where('encoder_id', $encoderId)
+                        ->orWhere(function ($query) use ($encoderName) {
+                            $query->whereNull('encoder_id')
+                                ->where('encoderName', $encoderName);
+                        });
+                });
+            }, function ($query) use ($encoderName) {
+                $query->where('encoderName', $encoderName);
+            })
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
             ->first();
 
         if (! $latestRecord) {
