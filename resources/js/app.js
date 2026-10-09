@@ -2166,6 +2166,22 @@ Santa Lucia,Victoria,Tarlac`;
         }
     }
 
+    window.setRecordEditLocations = function (provinceSelect, municipalitySelect, barangaySelect, province, municipality, barangay) {
+        if (!provinceSelect || !municipalitySelect || !barangaySelect) {
+            console.error('Unable to initialize record location fields.');
+            return;
+        }
+
+        setSelectValueOrAddOption(provinceSelect, province);
+        updateMunicipalities(provinceSelect, municipalitySelect, barangaySelect);
+        setSelectValueOrAddOption(municipalitySelect, municipality);
+        updateBarangays(provinceSelect, municipalitySelect, barangaySelect);
+        setSelectValueOrAddOption(barangaySelect, barangay);
+
+        municipalitySelect.disabled = !provinceSelect.value;
+        barangaySelect.disabled = !provinceSelect.value || !municipalitySelect.value;
+    };
+
     function openRecordEditDialog(button) {
         // Find the closest dialog/parent with the edit form
         const dialog = button.closest('dialog');
@@ -2219,31 +2235,24 @@ Santa Lucia,Victoria,Tarlac`;
         if (editProvince && editMunicipality && editBarangay) {
             if (!province && address) {
                 const addressParts = address.split(',').map((part) => part.trim());
-                setSelectValueOrAddOption(editProvince, addressParts[2] || '');
-                updateMunicipalities(editProvince, editMunicipality, editBarangay);
-                setSelectValueOrAddOption(editMunicipality, addressParts[1] || '');
-                updateBarangays(editProvince, editMunicipality, editBarangay);
-                setSelectValueOrAddOption(editBarangay, addressParts[0] || '');
+                window.setRecordEditLocations(
+                    editProvince,
+                    editMunicipality,
+                    editBarangay,
+                    addressParts[2] || '',
+                    addressParts[1] || '',
+                    addressParts[0] || ''
+                );
             } else {
-                if (province) {
-                    setSelectValueOrAddOption(editProvince, province);
-                } else {
-                    editProvince.value = '';
-                }
-                updateMunicipalities(editProvince, editMunicipality, editBarangay);
-                if (municipality) {
-                    setSelectValueOrAddOption(editMunicipality, municipality);
-                } else {
-                    editMunicipality.value = '';
-                }
-                updateBarangays(editProvince, editMunicipality, editBarangay);
-                if (barangay) {
-                    setSelectValueOrAddOption(editBarangay, barangay);
-                }
+                window.setRecordEditLocations(
+                    editProvince,
+                    editMunicipality,
+                    editBarangay,
+                    province,
+                    municipality,
+                    barangay
+                );
             }
-
-            editMunicipality.disabled = !editProvince.value;
-            editBarangay.disabled = !editProvince.value || !editMunicipality.value;
         }
 
         const addressInput = formRoot.querySelector('input[name="address"]');

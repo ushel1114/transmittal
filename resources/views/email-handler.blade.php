@@ -672,9 +672,16 @@ document.addEventListener('click', function(e) {
             const sourceField = editRecordForm.querySelector('#source');
 
             if (farmerNameField) farmerNameField.value = farmerName || '';
-            if (editProvinceField) editProvinceField.value = province || '';
-            if (editMunicipalityField) editMunicipalityField.value = municipality || '';
-            if (editBarangayField) editBarangayField.value = barangay || '';
+            if (editProvinceField && editMunicipalityField && editBarangayField) {
+                window.setRecordEditLocations(
+                    editProvinceField,
+                    editMunicipalityField,
+                    editBarangayField,
+                    province,
+                    municipality,
+                    barangay
+                );
+            }
             if (addressField) addressField.value = address || '';
             if (programField) programField.value = program || '';
             if (lineField) lineField.value = line || '';
@@ -690,20 +697,6 @@ document.addEventListener('click', function(e) {
             if (sourceField) sourceField.value = source || '';
 
             editRecordForm.action = '/records/' + recordId;
-
-            if (editProvinceField && editMunicipalityField && editBarangayField) {
-                if (editProvinceField.value) {
-                    editMunicipalityField.disabled = false;
-                    const event = new Event('change');
-                    editProvinceField.dispatchEvent(event);
-
-                    if (editMunicipalityField.value) {
-                        editBarangayField.disabled = false;
-                        const municipalityEvent = new Event('change');
-                        editMunicipalityField.dispatchEvent(municipalityEvent);
-                    }
-                }
-            }
 
             editRecordDialog.showModal();
         } catch (error) {
