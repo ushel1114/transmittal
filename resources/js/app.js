@@ -1958,6 +1958,35 @@ Santa Lucia,Victoria,Tarlac`;
     }
 
     const locationData = parseLocationData(locationCsv);
+    Object.entries(window.transmittalLocationData || {}).forEach(([province, municipalities]) => {
+        if (!locationData[province]) {
+            locationData[province] = municipalities;
+        }
+    });
+
+    function resolveLocationKey(locationMap, rawValue) {
+        if (!locationMap || rawValue === undefined || rawValue === null || rawValue === '') {
+            return rawValue;
+        }
+
+        const cleanedValue = String(rawValue).trim();
+        if (cleanedValue === '') {
+            return rawValue;
+        }
+
+        if (Object.prototype.hasOwnProperty.call(locationMap, cleanedValue)) {
+            return cleanedValue;
+        }
+
+        const lookup = cleanedValue.toLocaleLowerCase();
+        for (const key of Object.keys(locationMap)) {
+            if (String(key).trim().toLocaleLowerCase() === lookup) {
+                return key;
+            }
+        }
+
+        return cleanedValue;
+    }
 
     function populateSelect(selectElement, options, placeholder) {
         selectElement.innerHTML = '';
@@ -1983,7 +2012,12 @@ Santa Lucia,Victoria,Tarlac`;
             return;
         }
 
-        const municipalities = Object.keys(locationData[provinceSelect.value] || {});
+        const provinceKey = resolveLocationKey(locationData, provinceSelect.value);
+        if (provinceSelect.value !== provinceKey) {
+            provinceSelect.value = provinceKey;
+        }
+
+        const municipalities = Object.keys(locationData[provinceKey] || {});
         populateSelect(municipalitySelect, municipalities, 'Select Municipality');
         municipalitySelect.disabled = false;
         populateSelect(barangaySelect, [], 'Select Barangay');
@@ -1997,7 +2031,17 @@ Santa Lucia,Victoria,Tarlac`;
             return;
         }
 
-        const barangays = locationData[provinceSelect.value]?.[municipalitySelect.value] || [];
+        const provinceKey = resolveLocationKey(locationData, provinceSelect.value);
+        if (provinceSelect.value !== provinceKey) {
+            provinceSelect.value = provinceKey;
+        }
+
+        const municipalityKey = resolveLocationKey(locationData[provinceKey] || {}, municipalitySelect.value);
+        if (municipalitySelect.value !== municipalityKey) {
+            municipalitySelect.value = municipalityKey;
+        }
+
+        const barangays = locationData[provinceKey]?.[municipalityKey] || [];
         populateSelect(barangaySelect, barangays, 'Select Barangay');
         barangaySelect.disabled = false;
     }

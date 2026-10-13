@@ -220,7 +220,7 @@
                 <div class="card-header">
                     <div>
                         <h3 class="card-title">NL Dashboard</h3>
-                        <p class="card-subtitle">Aurora, Nueva Ecija and Tarlac municipality summary. Click a municipality for barangays.</p>
+                        <p class="card-subtitle">Aurora, Nueva Ecija, Nueva Vizcaya and Tarlac municipality summary. Click a municipality for barangays.</p>
                     </div>
                 </div>
                 <div class="card-body">
@@ -818,6 +818,7 @@
                             <option value="">All Provinces</option>
                             <option value="Aurora" {{ request('province') == 'Aurora' ? 'selected' : '' }}>Aurora</option>
                             <option value="Nueva Ecija" {{ request('province') == 'Nueva Ecija' ? 'selected' : '' }}>Nueva Ecija</option>
+                            <option value="Nueva Vizcaya" {{ request('province') == 'Nueva Vizcaya' ? 'selected' : '' }}>Nueva Vizcaya</option>
                             <option value="Tarlac" {{ request('province') == 'Tarlac' ? 'selected' : '' }}>Tarlac</option>
                         </select>
                         <svg style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; pointer-events: none; color: #64748b;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -1839,6 +1840,281 @@ Santa Lucia Young,Zaragoza,Nueva Ecija
 Santo Rosario Old,Zaragoza,Nueva Ecija
 Santo Rosario Young,Zaragoza,Nueva Ecija
 Valeriana,Zaragoza,Nueva Ecija
+BARANGAY,MUNICIPALITY,PROVINCE
+Abuyo,Alfonso Castañeda,Nueva Vizcaya
+Cawayan,Alfonso Castañeda,Nueva Vizcaya
+Galintuja,Alfonso Castañeda,Nueva Vizcaya
+Lipuga,Alfonso Castañeda,Nueva Vizcaya
+Lublub (Poblacion),Alfonso Castañeda,Nueva Vizcaya
+Pelaway,Alfonso Castañeda,Nueva Vizcaya
+Ammueg,Ambaguio,Nueva Vizcaya
+Camandag,Ambaguio,Nueva Vizcaya
+Dulli,Ambaguio,Nueva Vizcaya
+La Torre North,Ambaguio,Nueva Vizcaya
+La Torre South,Ambaguio,Nueva Vizcaya
+Labang,Ambaguio,Nueva Vizcaya
+Napo,Ambaguio,Nueva Vizcaya
+Poblacion,Ambaguio,Nueva Vizcaya
+Salingsingan,Ambaguio,Nueva Vizcaya
+Tiblac,Ambaguio,Nueva Vizcaya
+Anayo,Aritao,Nueva Vizcaya
+Baan,Aritao,Nueva Vizcaya
+Balite,Aritao,Nueva Vizcaya
+Banganan,Aritao,Nueva Vizcaya
+Beti,Aritao,Nueva Vizcaya
+Bone North,Aritao,Nueva Vizcaya
+Bone South,Aritao,Nueva Vizcaya
+Calitlitan,Aritao,Nueva Vizcaya
+Canabuan,Aritao,Nueva Vizcaya
+Canarem,Aritao,Nueva Vizcaya
+Comon,Aritao,Nueva Vizcaya
+Cutar,Aritao,Nueva Vizcaya
+Darapidap,Aritao,Nueva Vizcaya
+Kirang,Aritao,Nueva Vizcaya
+Latar-Nocnoc-San Francisco,Aritao,Nueva Vizcaya
+Nagcuartelan,Aritao,Nueva Vizcaya
+Ocao-Capiniaan,Aritao,Nueva Vizcaya
+Poblacion,Aritao,Nueva Vizcaya
+Santa Clara,Aritao,Nueva Vizcaya
+Tabueng,Aritao,Nueva Vizcaya
+Tucanon,Aritao,Nueva Vizcaya
+Yaway,Aritao,Nueva Vizcaya
+Bakir,Bagabag,Nueva Vizcaya
+Baretbet,Bagabag,Nueva Vizcaya
+Careb,Bagabag,Nueva Vizcaya
+Lantap,Bagabag,Nueva Vizcaya
+Murong,Bagabag,Nueva Vizcaya
+Nangalisan,Bagabag,Nueva Vizcaya
+Paniki,Bagabag,Nueva Vizcaya
+Pogonsino,Bagabag,Nueva Vizcaya
+Quirino (Poblacion),Bagabag,Nueva Vizcaya
+San Geronimo (Poblacion),Bagabag,Nueva Vizcaya
+San Pedro (Poblacion),Bagabag,Nueva Vizcaya
+Santa Cruz,Bagabag,Nueva Vizcaya
+Santa Lucia,Bagabag,Nueva Vizcaya
+Tuao North,Bagabag,Nueva Vizcaya
+Tuao South,Bagabag,Nueva Vizcaya
+Villa Coloma (Poblacion),Bagabag,Nueva Vizcaya
+Villaros,Bagabag,Nueva Vizcaya
+Abian,Bambang,Nueva Vizcaya
+Abinganan,Bambang,Nueva Vizcaya
+Aliaga,Bambang,Nueva Vizcaya
+Almaguer North,Bambang,Nueva Vizcaya
+Almaguer South,Bambang,Nueva Vizcaya
+Banggot (Poblacion),Bambang,Nueva Vizcaya
+Barat,Bambang,Nueva Vizcaya
+Buag (Poblacion),Bambang,Nueva Vizcaya
+Calaocan (Poblacion),Bambang,Nueva Vizcaya
+Dullao,Bambang,Nueva Vizcaya
+Homestead,Bambang,Nueva Vizcaya
+Indiana,Bambang,Nueva Vizcaya
+Mabuslo,Bambang,Nueva Vizcaya
+Macate,Bambang,Nueva Vizcaya
+Magsaysay Hills,Bambang,Nueva Vizcaya
+Manamtam,Bambang,Nueva Vizcaya
+Mauan,Bambang,Nueva Vizcaya
+Pallas,Bambang,Nueva Vizcaya
+Salinas,Bambang,Nueva Vizcaya
+San Antonio North,Bambang,Nueva Vizcaya
+San Antonio South,Bambang,Nueva Vizcaya
+San Fernando,Bambang,Nueva Vizcaya
+San Leonardo,Bambang,Nueva Vizcaya
+Santo Domingo (Tabangan),Bambang,Nueva Vizcaya
+Santo Domingo West,Bambang,Nueva Vizcaya
+Bansing,Bayombong,Nueva Vizcaya
+Bonfal East,Bayombong,Nueva Vizcaya
+Bonfal Proper,Bayombong,Nueva Vizcaya
+Bonfal West,Bayombong,Nueva Vizcaya
+Buenavista (Vista Hills),Bayombong,Nueva Vizcaya
+Busilac,Bayombong,Nueva Vizcaya
+Cabuaan,Bayombong,Nueva Vizcaya
+Casat,Bayombong,Nueva Vizcaya
+District III Poblacion (Don M. Perez),Bayombong,Nueva Vizcaya
+District IV (Poblacion),Bayombong,Nueva Vizcaya
+Don Domingo Maddela Poblacion (District I),Bayombong,Nueva Vizcaya
+Don Mariano Marcos,Bayombong,Nueva Vizcaya
+Don Tomas Maddela Poblacion (District II),Bayombong,Nueva Vizcaya
+Ipil-Cuneg,Bayombong,Nueva Vizcaya
+Luyang,Bayombong,Nueva Vizcaya
+Magapuy,Bayombong,Nueva Vizcaya
+Magsaysay,Bayombong,Nueva Vizcaya
+Masoc,Bayombong,Nueva Vizcaya
+Paitan,Bayombong,Nueva Vizcaya
+Salvacion,Bayombong,Nueva Vizcaya
+San Nicolas North (Luyang),Bayombong,Nueva Vizcaya
+Santa Rosa,Bayombong,Nueva Vizcaya
+Vista Alegre (B. Baringin),Bayombong,Nueva Vizcaya
+Ampakling,Diadi,Nueva Vizcaya
+Arwas,Diadi,Nueva Vizcaya
+Balete,Diadi,Nueva Vizcaya
+Bugnay,Diadi,Nueva Vizcaya
+Butao,Diadi,Nueva Vizcaya
+Decabacan,Diadi,Nueva Vizcaya
+Duruarog,Diadi,Nueva Vizcaya
+Escoting,Diadi,Nueva Vizcaya
+Langca,Diadi,Nueva Vizcaya
+Lurad,Diadi,Nueva Vizcaya
+Nagsabaran,Diadi,Nueva Vizcaya
+Namamparan,Diadi,Nueva Vizcaya
+Pinya,Diadi,Nueva Vizcaya
+Poblacion,Diadi,Nueva Vizcaya
+Rosario,Diadi,Nueva Vizcaya
+San Luis,Diadi,Nueva Vizcaya
+San Pablo,Diadi,Nueva Vizcaya
+Villa Aurora,Diadi,Nueva Vizcaya
+Villa Florentino,Diadi,Nueva Vizcaya
+Belance,Dupax del Norte,Nueva Vizcaya
+Binnuangan,Dupax del Norte,Nueva Vizcaya
+Bitnong,Dupax del Norte,Nueva Vizcaya
+Bulala,Dupax del Norte,Nueva Vizcaya
+Inaban,Dupax del Norte,Nueva Vizcaya
+Ineangan,Dupax del Norte,Nueva Vizcaya
+Lamo,Dupax del Norte,Nueva Vizcaya
+Mabasa,Dupax del Norte,Nueva Vizcaya
+Macabenga,Dupax del Norte,Nueva Vizcaya
+Malasin (Poblacion),Dupax del Norte,Nueva Vizcaya
+Munguia,Dupax del Norte,Nueva Vizcaya
+New Gumiad,Dupax del Norte,Nueva Vizcaya
+Oyao,Dupax del Norte,Nueva Vizcaya
+Parai,Dupax del Norte,Nueva Vizcaya
+Yabbi,Dupax del Norte,Nueva Vizcaya
+Abaca,Dupax del Sur,Nueva Vizcaya
+Bagumbayan,Dupax del Sur,Nueva Vizcaya
+Balsain,Dupax del Sur,Nueva Vizcaya
+Banila,Dupax del Sur,Nueva Vizcaya
+Biruk,Dupax del Sur,Nueva Vizcaya
+Canabay,Dupax del Sur,Nueva Vizcaya
+Carolotan,Dupax del Sur,Nueva Vizcaya
+Domang,Dupax del Sur,Nueva Vizcaya
+Dopaj,Dupax del Sur,Nueva Vizcaya
+Gabut,Dupax del Sur,Nueva Vizcaya
+Ganao (Lingad),Dupax del Sur,Nueva Vizcaya
+Kimbutan,Dupax del Sur,Nueva Vizcaya
+Kinabuan,Dupax del Sur,Nueva Vizcaya
+Lukidnon,Dupax del Sur,Nueva Vizcaya
+Mangayang,Dupax del Sur,Nueva Vizcaya
+Palabotan,Dupax del Sur,Nueva Vizcaya
+Sanguit,Dupax del Sur,Nueva Vizcaya
+Santa Maria,Dupax del Sur,Nueva Vizcaya
+Talbek,Dupax del Sur,Nueva Vizcaya
+Alimit,Kasibu,Nueva Vizcaya
+Alloy,Kasibu,Nueva Vizcaya
+Antutot,Kasibu,Nueva Vizcaya
+Bilet,Kasibu,Nueva Vizcaya
+Binogawan,Kasibu,Nueva Vizcaya
+Biyoy,Kasibu,Nueva Vizcaya
+Bua,Kasibu,Nueva Vizcaya
+Camamasi,Kasibu,Nueva Vizcaya
+Capisaan,Kasibu,Nueva Vizcaya
+Catarawan,Kasibu,Nueva Vizcaya
+Cordon,Kasibu,Nueva Vizcaya
+Didipio,Kasibu,Nueva Vizcaya
+Dine,Kasibu,Nueva Vizcaya
+Kakiduguen,Kasibu,Nueva Vizcaya
+Kongkong,Kasibu,Nueva Vizcaya
+Lupa,Kasibu,Nueva Vizcaya
+Macalong,Kasibu,Nueva Vizcaya
+Malabing,Kasibu,Nueva Vizcaya
+Muta,Kasibu,Nueva Vizcaya
+Nantawacan,Kasibu,Nueva Vizcaya
+Pacquet (Ilongot Res.),Kasibu,Nueva Vizcaya
+Pao,Kasibu,Nueva Vizcaya
+Papaya,Kasibu,Nueva Vizcaya
+Poblacion (Alloy),Kasibu,Nueva Vizcaya
+Pudi,Kasibu,Nueva Vizcaya
+Seguem,Kasibu,Nueva Vizcaya
+Tadji,Kasibu,Nueva Vizcaya
+Tokod,Kasibu,Nueva Vizcaya
+Wangal,Kasibu,Nueva Vizcaya
+Watwat,Kasibu,Nueva Vizcaya
+Acacia,Kayapa,Nueva Vizcaya
+Alang-Salacsac,Kayapa,Nueva Vizcaya
+Amilong-Labeng,Kayapa,Nueva Vizcaya
+Ansipsip,Kayapa,Nueva Vizcaya
+Baan,Kayapa,Nueva Vizcaya
+Babadi,Kayapa,Nueva Vizcaya
+Balangabang,Kayapa,Nueva Vizcaya
+Balete,Kayapa,Nueva Vizcaya
+Banao,Kayapa,Nueva Vizcaya
+Besong,Kayapa,Nueva Vizcaya
+Binalian,Kayapa,Nueva Vizcaya
+Buyasyas,Kayapa,Nueva Vizcaya
+Cabalatan-Alang,Kayapa,Nueva Vizcaya
+Cabanglasan,Kayapa,Nueva Vizcaya
+Cabayo,Kayapa,Nueva Vizcaya
+Castillo Village,Kayapa,Nueva Vizcaya
+Kayapa Proper East,Kayapa,Nueva Vizcaya
+Kayapa Proper West,Kayapa,Nueva Vizcaya
+Latbang,Kayapa,Nueva Vizcaya
+Lawigan,Kayapa,Nueva Vizcaya
+Mapayao,Kayapa,Nueva Vizcaya
+Nansiakan,Kayapa,Nueva Vizcaya
+Pampang (Poblacion),Kayapa,Nueva Vizcaya
+Pangawan,Kayapa,Nueva Vizcaya
+Pinayag,Kayapa,Nueva Vizcaya
+Pingkian,Kayapa,Nueva Vizcaya
+San Fabian,Kayapa,Nueva Vizcaya
+Talecabcab,Kayapa,Nueva Vizcaya
+Tidang Village,Kayapa,Nueva Vizcaya
+Tubongan,Kayapa,Nueva Vizcaya
+Aurora,Quezon,Nueva Vizcaya
+Baresbes,Quezon,Nueva Vizcaya
+Bonifacio,Quezon,Nueva Vizcaya
+Buliwao,Quezon,Nueva Vizcaya
+Calaocan,Quezon,Nueva Vizcaya
+Caliat (Poblacion),Quezon,Nueva Vizcaya
+Dagupan,Quezon,Nueva Vizcaya
+Darubba,Quezon,Nueva Vizcaya
+Maasin,Quezon,Nueva Vizcaya
+Maddiangat,Quezon,Nueva Vizcaya
+Nalubbunan,Quezon,Nueva Vizcaya
+Runruno,Quezon,Nueva Vizcaya
+Atbu,Santa Fe,Nueva Vizcaya
+Bacneng,Santa Fe,Nueva Vizcaya
+Balete,Santa Fe,Nueva Vizcaya
+Baliling,Santa Fe,Nueva Vizcaya
+Bantinan,Santa Fe,Nueva Vizcaya
+Baracbac,Santa Fe,Nueva Vizcaya
+Buyasyas,Santa Fe,Nueva Vizcaya
+Canabuan,Santa Fe,Nueva Vizcaya
+Imugan,Santa Fe,Nueva Vizcaya
+Poblacion,Santa Fe,Nueva Vizcaya
+Santa Rosa,Santa Fe,Nueva Vizcaya
+Sinapaoan,Santa Fe,Nueva Vizcaya
+Tactac,Santa Fe,Nueva Vizcaya
+Unib,Santa Fe,Nueva Vizcaya
+Villa Flores,Santa Fe,Nueva Vizcaya
+Aggub,Solano,Nueva Vizcaya
+Bagahabag,Solano,Nueva Vizcaya
+Bangaan,Solano,Nueva Vizcaya
+Bangar,Solano,Nueva Vizcaya
+Bascaran,Solano,Nueva Vizcaya
+Communal,Solano,Nueva Vizcaya
+Concepcion (Calalabangan),Solano,Nueva Vizcaya
+Curifang,Solano,Nueva Vizcaya
+Dadap,Solano,Nueva Vizcaya
+Lactawan,Solano,Nueva Vizcaya
+Osmeña,Solano,Nueva Vizcaya
+Pilar D. Galima,Solano,Nueva Vizcaya
+Poblacion North,Solano,Nueva Vizcaya
+Poblacion South,Solano,Nueva Vizcaya
+Quezon,Solano,Nueva Vizcaya
+Quirino,Solano,Nueva Vizcaya
+Roxas,Solano,Nueva Vizcaya
+San Juan,Solano,Nueva Vizcaya
+San Luis,Solano,Nueva Vizcaya
+Tucal,Solano,Nueva Vizcaya
+Uddiawan,Solano,Nueva Vizcaya
+Wacal,Solano,Nueva Vizcaya
+Bintawan Norte,Villaverde,Nueva Vizcaya
+Bintawan Sur,Villaverde,Nueva Vizcaya
+Cabuluan,Villaverde,Nueva Vizcaya
+Ibung,Villaverde,Nueva Vizcaya
+Nagbitin,Villaverde,Nueva Vizcaya
+Ocapon,Villaverde,Nueva Vizcaya
+Pieza,Villaverde,Nueva Vizcaya
+Poblacion (Turod),Villaverde,Nueva Vizcaya
+Sawmill,Villaverde,Nueva Vizcaya
 Agtipalo,Baler,Aurora
 Babat,Baler,Aurora
 Bacong,Baler,Aurora
@@ -3183,6 +3459,7 @@ Villa Rosario,Victoria,Tarlac`;
                 <option value="">Select Province</option>
                 <option value="Aurora">Aurora</option>
                 <option value="Nueva Ecija">Nueva Ecija</option>
+                <option value="Nueva Vizcaya">Nueva Vizcaya</option>
                 <option value="Tarlac">Tarlac</option>
             </select>
 

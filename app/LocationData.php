@@ -13,13 +13,13 @@ class LocationData
                     'Poblacion Centro', 'Poblacion East I', 'Poblacion East II', 'Poblacion West III',
                     'Poblacion West IV', 'San Carlos', 'San Emiliano', 'San Eustacio', 'San Felipe Bata',
                     'San Felipe Matanda', 'San Juan', 'San Pablo Bata', 'San Pablo Matanda', 'Santa Monica',
-                    'Santiago', 'Santo Rosario', 'Santo Tomas', 'Sunson', 'Umangan'
+                    'Santiago', 'Santo Rosario', 'Santo Tomas', 'Sunson', 'Umangan',
                 ],
                 'Bongabon' => [
                     'Antipolo', 'Ariendo', 'Bantug', 'Calaanan', 'Commercial', 'Cruz', 'Digmala', 'Curva',
                     'Kaingin', 'Labi', 'Larcon', 'Lusok', 'Macabaclay', 'Magtanggol', 'Mantile', 'Olivete',
                     'Palo Maria', 'Pesa', 'Rizal', 'Sampalucan', 'San Roque', 'Santor', 'Sinipit',
-                    'Sisilang na Ligaya', 'Social', 'Tugatug', 'Tulay na Bato', 'Vega'
+                    'Sisilang na Ligaya', 'Social', 'Tugatug', 'Tulay na Bato', 'Vega',
                 ],
                 'City of Cabanatuan' => [
                     'Aduas Centro', 'Bagong Sikat', 'Bagong Buhay', 'Bakero', 'Bakod Bayan', 'Balite', 'Bangad',
@@ -37,18 +37,18 @@ class LocationData
                     'Vijandre District', 'Villa Ofelia-Caridad', 'Zulueta District', 'Nabao', 'Padre Burgos',
                     'Talipapa', 'Aduas Norte', 'Aduas Sur', 'Hermogenes C. Concepcion, Sr.', 'Sapang',
                     'Sumacab Este', 'Sumacab South', 'Caridad', 'Magsaysay South', 'Maria Theresa',
-                    'Sangitan East', 'Santo Niño'
+                    'Sangitan East', 'Santo Niño',
                 ],
                 'Cabiao' => [
                     'Bagong Buhay', 'Bagong Sikat', 'Bagong Silang', 'Concepcion', 'Entablado', 'Maligaya',
                     'Natividad North', 'Natividad South', 'Palasinan', 'San Antonio', 'San Fernando Norte',
                     'San Fernando Sur', 'San Gregorio', 'San Juan North', 'San Juan South', 'San Roque',
-                    'San Vicente', 'Santa Rita', 'Sinipit', 'Polilio', 'San Carlos', 'Santa Isabel', 'Santa Ines'
+                    'San Vicente', 'Santa Rita', 'Sinipit', 'Polilio', 'San Carlos', 'Santa Isabel', 'Santa Ines',
                 ],
                 'Carranglan' => [
                     'R.A.Padilla', 'Bantug', 'Bunga', 'Burgos', 'Capintalan', 'Joson', 'General Luna', 'Minuli',
                     'Piut', 'Puncan', 'Putlan', 'Salazar', 'San Agustin', 'T. L. Padilla Pob.',
-                    'F. C. Otic Pob.', 'D. L. Maglanoc Pob.', 'G. S. Rosario Pob.'
+                    'F. C. Otic Pob.', 'D. L. Maglanoc Pob.', 'G. S. Rosario Pob.',
                 ],
                 'Cuyapo' => [
                     'Baloy', 'Bambanaba', 'Bantug', 'Bentigan', 'Bibiclat', 'Bonifacio', 'Bued', 'Bulala',
@@ -58,28 +58,28 @@ class LocationData
                     'Malbeg-Patalan', 'Malineng', 'Matindeg', 'Maycaban', 'Nagcuralan', 'Nagmisahan',
                     'Paitan Norte', 'Paitan Sur', 'Piglisan', 'Pugo', 'Rizal', 'Sabit', 'Salagusog',
                     'San Antonio', 'San Jose', 'San Juan', 'Santa Clara', 'Santa Cruz', 'Simimbaan',
-                    'Tagtagumbao', 'Tutuloy', 'Ungab', 'Villaflores'
+                    'Tagtagumbao', 'Tutuloy', 'Ungab', 'Villaflores',
                 ],
                 'Gabaldon' => [
                     'Bagong Sikat', 'Bagting', 'Bantug', 'Bitulok', 'Bugnan', 'Calabasa', 'Camachile', 'Cuyapa',
                     'Ligaya', 'Macasandal', 'Malinao', 'Pantoc', 'Pinamalisan', 'South Poblacion', 'Sawmill',
-                    'Tagumpay'
+                    'Tagumpay',
                 ],
                 'City of Gapan' => [
                     'Bayanihan', 'Bulak', 'Kapalangan', 'Mahipon', 'Malimba', 'Mangino', 'Marelo', 'Pambuan',
                     'Parcutela', 'San Lorenzo', 'San Nicolas', 'San Roque', 'San Vicente', 'Santa Cruz',
                     'Santo Cristo Norte', 'Santo Cristo Sur', 'Santo Niño', 'Makabaclay', 'Balante', 'Bungo',
-                    'Mabunga', 'Maburak', 'Puting Tubig'
+                    'Mabunga', 'Maburak', 'Puting Tubig',
                 ],
                 'General Mamerto Natividad' => [
                     'Balangkare Norte', 'Balangkare Sur', 'Balaring', 'Belen', 'Bravo', 'Burol', 'Kabulihan',
                     'Mag-asawang Sampaloc', 'Manarog', 'Mataas na Kahoy', 'Panacsac', 'Picaleon', 'Pinahan',
                     'Platero', 'Poblacion', 'Pula', 'Pulong Singkamas', 'Sapang Bato', 'Talabutab Norte',
-                    'Talabutab Sur'
+                    'Talabutab Sur',
                 ],
                 'General Tinio' => [
                     'Bago', 'Concepcion', 'Nazareth', 'Padolina', 'Pias', 'San Pedro', 'Poblacion East',
-                    'Poblacion West', 'Rio Chico', 'Poblacion Central', 'Pulong Matong', 'Sampaguita', 'Palale'
+                    'Poblacion West', 'Rio Chico', 'Poblacion Central', 'Pulong Matong', 'Sampaguita', 'Palale',
                 ],
                 'Guimba' => [
                     'Agcano', 'Ayos Lomboy', 'Bacayao', 'Bagong Barrio', 'Balbalino', 'Balingog East',
@@ -92,35 +92,35 @@ class LocationData
                     'San Bernardino', 'San Marcelino', 'San Miguel', 'San Rafael', 'San Roque', 'Santa Ana',
                     'Santa Cruz', 'Santa Lucia', 'Santa Veronica District', 'Santo Cristo District',
                     'Saranay District', 'Sinulatan', 'Subol', 'Tampac I', 'Tampac II & III', 'Triala', 'Yuson',
-                    'Bunol'
+                    'Bunol',
                 ],
                 'Jaen' => [
                     'Calabasa', 'Dampulan', 'Hilera', 'Imbunia', 'Imelda Pob.', 'Lambakin', 'Langla', 'Magsalisi',
                     'Malabon-Kaingin', 'Marawa', 'Don Mariano Marcos', 'San Josef', 'Niyugan', 'Pamacpacan',
                     'Pakol', 'Pinanggaan', 'Ulanin-Pitak', 'Putlod', 'Ocampo-Rivera District', 'San Jose',
                     'San Pablo', 'San Roque', 'San Vicente', 'Santa Rita', 'Santo Tomas North', 'Santo Tomas South',
-                    'Sapang'
+                    'Sapang',
                 ],
                 'Laur' => [
                     'Barangay I', 'Barangay II', 'Barangay III', 'Barangay IV', 'Betania', 'Canantong', 'Nauzon',
                     'Pangarulong', 'Pinagbayanan', 'Sagana', 'San Fernando', 'San Isidro', 'San Josef', 'San Juan',
-                    'San Vicente', 'Siclong', 'San Felipe'
+                    'San Vicente', 'Siclong', 'San Felipe',
                 ],
                 'Licab' => [
                     'Linao', 'Poblacion Norte', 'Poblacion Sur', 'San Casimiro', 'San Cristobal', 'San Jose',
-                    'San Juan', 'Santa Maria', 'Tabing Ilog', 'Villarosa', 'Aquino'
+                    'San Juan', 'Santa Maria', 'Tabing Ilog', 'Villarosa', 'Aquino',
                 ],
                 'Llanera' => [
                     'A. Bonifacio', 'Caridad Norte', 'Caridad Sur', 'Casile', 'Florida Blanca', 'General Luna',
                     'General Ricarte', 'Gomez', 'Inanama', 'Ligaya', 'Mabini', 'Murcon', 'Plaridel', 'Bagumbayan',
                     'San Felipe', 'San Francisco', 'San Nicolas', 'San Vicente', 'Santa Barbara', 'Victoria',
-                    'Villa Viniegas', 'Bosque'
+                    'Villa Viniegas', 'Bosque',
                 ],
                 'Lupao' => [
                     'Agupalo Este', 'Agupalo Weste', 'Alalay Chica', 'Alalay Grande', 'J. U. Tienzo', 'Bagong Flores',
                     'Balbalungao', 'Burgos', 'Cordero', 'Mapangpang', 'Namulandayan', 'Parista', 'Poblacion East',
                     'Poblacion North', 'Poblacion South', 'Poblacion West', 'Salvacion I', 'Salvacion II',
-                    'San Antonio Este', 'San Antonio Weste', 'San Isidro', 'San Pedro', 'San Roque', 'Santo Domingo'
+                    'San Antonio Este', 'San Antonio Weste', 'San Isidro', 'San Pedro', 'San Roque', 'Santo Domingo',
                 ],
                 'Science City of Muñoz' => [
                     'Bagong Sikat', 'Balante', 'Bantug', 'Bical', 'Cabisuculan', 'Calabalabaan', 'Calisitan',
@@ -128,54 +128,54 @@ class LocationData
                     'Mangandingay', 'Magtanggol', 'Maligaya', 'Mapangpang', 'Maragol', 'Matingkis', 'Naglabrahan',
                     'Palusapis', 'Pandalla', 'Poblacion East', 'Poblacion North', 'Poblacion South', 'Poblacion West',
                     'Rang-ayan', 'Rizal', 'San Andres', 'San Antonio', 'San Felipe', 'Sapang Cawayan', 'Villa Isla',
-                    'Villa Nati', 'Villa Santos', 'Villa Cuizon'
+                    'Villa Nati', 'Villa Santos', 'Villa Cuizon',
                 ],
                 'Nampicuan' => [
                     'Alemania', 'Ambasador Alzate Village', 'Cabaducan East', 'Cabaducan West', 'Cabawangan',
                     'East Central Poblacion', 'Edy', 'Maeling', 'Mayantoc', 'Medico', 'Monic', 'North Poblacion',
                     'Northwest Poblacion', 'Estacion', 'West Poblacion', 'Recuerdo', 'South Central Poblacion',
-                    'Southeast Poblacion', 'Southwest Poblacion', 'Tony', 'West Central Poblacion'
+                    'Southeast Poblacion', 'Southwest Poblacion', 'Tony', 'West Central Poblacion',
                 ],
                 'City of Palayan' => [
                     'Aulo', 'Bo. Militar', 'Ganaderia', 'Maligaya', 'Manacnac', 'Mapait', 'Marcos Village', 'Malate',
                     'Sapang Buho', 'Singalat', 'Atate', 'Caballero', 'Caimito', 'Doña Josefa', 'Imelda Valley',
-                    'Langka', 'Santolan', 'Popolon Pagas', 'Bagong Buhay'
+                    'Langka', 'Santolan', 'Popolon Pagas', 'Bagong Buhay',
                 ],
                 'Pantabangan' => [
                     'Cadaclan', 'Cambitala', 'Conversion', 'Ganduz', 'Liberty', 'Malbang', 'Marikit', 'Napon-Napon',
-                    'Poblacion East', 'Poblacion West', 'Sampaloc', 'San Juan', 'Villarica', 'Fatima'
+                    'Poblacion East', 'Poblacion West', 'Sampaloc', 'San Juan', 'Villarica', 'Fatima',
                 ],
                 'Peñaranda' => [
                     'Callos', 'Las Piñas', 'Poblacion I', 'Poblacion II', 'Poblacion III', 'Poblacion IV', 'Santo Tomas',
-                    'Sinasajan', 'San Josef', 'San Mariano'
+                    'Sinasajan', 'San Josef', 'San Mariano',
                 ],
                 'Quezon' => [
                     'Bertese', 'Doña Lucia', 'Dulong Bayan', 'Ilog Baliwag', 'Barangay I', 'Barangay II', 'Pulong Bahay',
                     'San Alejandro', 'San Andres I', 'San Andres II', 'San Manuel', 'Santa Clara', 'Santa Rita',
-                    'Santo Cristo', 'Santo Tomas Feria', 'San Miguel'
+                    'Santo Cristo', 'Santo Tomas Feria', 'San Miguel',
                 ],
                 'Rizal' => [
                     'Agbannawag', 'Bicos', 'Cabucbucan', 'Calaocan District', 'Canaan East', 'Canaan West',
                     'Casilagan', 'Aglipay', 'Del Pilar', 'Estrella', 'General Luna', 'Macapsing', 'Maligaya',
                     'Paco Roman', 'Pag-asa', 'Poblacion Central', 'Poblacion East', 'Poblacion Norte', 'Poblacion Sur',
                     'Poblacion West', 'Portal', 'San Esteban', 'Santa Monica', 'Villa Labrador', 'Villa Paraiso',
-                    'San Gregorio'
+                    'San Gregorio',
                 ],
                 'San Antonio' => [
                     'Buliran', 'Cama Juan', 'Julo', 'Lawang Kupang', 'Luyos', 'Maugat', 'Panabingan', 'Papaya',
                     'Poblacion', 'San Francisco', 'San Jose', 'San Mariano', 'Santa Cruz', 'Santo Cristo',
-                    'Santa Barbara', 'Tikiw'
+                    'Santa Barbara', 'Tikiw',
                 ],
                 'San Isidro' => [
-                    'Alua', 'Calaba', 'Malapit', 'Mangga', 'Poblacion', 'Pulo', 'San Roque', 'Sto. Cristo', 'Tabon'
+                    'Alua', 'Calaba', 'Malapit', 'Mangga', 'Poblacion', 'Pulo', 'San Roque', 'Sto. Cristo', 'Tabon',
                 ],
                 'San Jose City' => [
                     'A. Pascual', 'Abar Ist', 'Abar 2nd', 'Bagong Sikat', 'Caanawan', 'Calaocan', 'Camanacsacan',
                     'Culaylay', 'Dizol', 'Kaliwanagan', 'Kita-Kita', 'Malasin', 'Manicla', 'Palestina',
                     'Parang Mangga', 'Villa Joson', 'Pinili', 'Rafael Rueda, Sr. Pob.',
                     'Ferdinand E. Marcos Pob.', 'Canuto Ramos Pob.', 'Raymundo Eugenio Pob.',
-                    'Crisanto Sanchez Pob.', 'Porais', 'San Agustin', 'San Juan', 'San Mauricio', 'Santo Niño 1st'
-                ]
+                    'Crisanto Sanchez Pob.', 'Porais', 'San Agustin', 'San Juan', 'San Mauricio', 'Santo Niño 1st',
+                ],
             ],
             'Tarlac' => [
                 'Anao' => [
@@ -183,13 +183,13 @@ class LocationData
                     'Campos', 'Carmen', 'Casili', 'Don Ramon', 'Hernando', 'Lourdes', 'Nagrebcan',
                     'Poblacion', 'Rizal', 'San Francisco East', 'San Francisco West',
                     'San Jose North', 'San Jose South', 'San Juan', 'San Juan East', 'San Juan West',
-                    'San Roque', 'Santo Domingo', 'Sibul', 'Silab', 'Timba', 'Tinang'
+                    'San Roque', 'Santo Domingo', 'Sibul', 'Silab', 'Timba', 'Tinang',
                 ],
                 'Bamban' => [
                     'Abang-Singit', 'Anupul', 'Banaba', 'Bangcu', 'Culubasa', 'Dela Cruz',
                     'Fatima', 'Invisible', 'La Paz', 'Lourdes', 'Maliwalo', 'Malonzo',
                     'Nagrambacan', 'San Nicolas', 'San Pedro', 'San Rafael', 'San Roque',
-                    'San Vicente', 'Santo Niño', 'Virgen de la Paz'
+                    'San Vicente', 'Santo Niño', 'Virgen de la Paz',
                 ],
                 'Camiling' => [
                     'Anoling 1st', 'Anoling 2nd', 'Anoling 3rd', 'Bacabac', 'Bacsay', 'Bagbag',
@@ -204,7 +204,7 @@ class LocationData
                     'Pio', 'Poblacion A', 'Poblacion B', 'Poblacion C', 'Poblacion D',
                     'Poblacion E', 'Poblacion F', 'Poblacion G', 'Poblacion H', 'Poblacion I',
                     'Pogo', 'Rang-ayan', 'San Isidro', 'San Jose', 'San Juan', 'San Miguel',
-                    'San Nicolas', 'Santo Niño', 'Sinait', 'Sinulatan', 'Subol', 'Tabacal'
+                    'San Nicolas', 'Santo Niño', 'Sinait', 'Sinulatan', 'Subol', 'Tabacal',
                 ],
                 'Capas' => [
                     'Buenavista', 'Burgos', 'Calibung', 'Cubcub', 'Cutcut 1st', 'Cutcut 2nd',
@@ -212,7 +212,7 @@ class LocationData
                     'Lawy', 'Mababanaba', 'Maruglo', 'O\'Donnell', 'Patling', 'Poblacion Center',
                     'Poblacion East', 'Poblacion North', 'Poblacion South', 'Poblacion West',
                     'San Antonio', 'San Joaquin', 'Santa Juliana', 'Santa Lucia', 'Santo Cristo',
-                    'Santo Domingo', 'Santo Niño', 'Talaga', 'Trapiche'
+                    'Santo Domingo', 'Santo Niño', 'Talaga', 'Trapiche',
                 ],
                 'City of Tarlac' => [
                     'Aguso', 'Alvindia', 'Amucao', 'Armenia', 'Asturias', 'Balete', 'Balibay I',
@@ -242,7 +242,7 @@ class LocationData
                     'Santa Cruz', 'Santa Maria', 'Santa Rita', 'Santo Cristo', 'Santo Niño',
                     'Sapang Bato', 'Sapang Tagalog', 'Sepung Bulaon', 'Sepung Gubat', 'Sinait',
                     'Sisilang', 'Solo', 'Tancate', 'Tibag', 'Toledo', 'Ugad', 'Ungot',
-                    'Villa Elena', 'Villa Esmeralda', 'Villa Lourdes', 'Villa Rosario', 'Villapaz'
+                    'Villa Elena', 'Villa Esmeralda', 'Villa Lourdes', 'Villa Rosario', 'Villapaz',
                 ],
                 'Concepcion' => [
                     'Alfonso', 'Balutu', 'Cafe', 'Calius Gueco', 'Caluluan', 'Calingcuan',
@@ -252,7 +252,7 @@ class LocationData
                     'New Santa Barbara', 'Paludpod', 'Parang', 'Parulang', 'Pinili',
                     'Plazang Toro', 'Poblacion Norte', 'Poblacion Sur', 'San Juan Bautista',
                     'San Martin', 'San Nicolas', 'San Vicente', 'Santa Lucia', 'Santa Monica',
-                    'Santa Rita', 'Santo Cristo', 'Santo Niño', 'Sipat'
+                    'Santa Rita', 'Santo Cristo', 'Santo Niño', 'Sipat',
                 ],
                 'Gerona' => [
                     'Abagon', 'Ablang Sapang', 'Aglipay', 'Amacalan', 'Amsic', 'Aplaya',
@@ -265,21 +265,21 @@ class LocationData
                     'San Pedro', 'Santo Niño', 'Sibul', 'Sibul Malaki', 'Sibul Mangga',
                     'Silang', 'Sulipa', 'Sulo', 'Tagumbao', 'Target', 'Temperancia',
                     'Toclong', 'Toledo', 'Tres Marias', 'Villa Aglipay', 'Villa Aguas',
-                    'Villa Flores', 'Villa Gavino', 'Villa Ramirez', 'Villa Rizal'
+                    'Villa Flores', 'Villa Gavino', 'Villa Ramirez', 'Villa Rizal',
                 ],
                 'La Paz' => [
                     'Balanoy', 'Bantog-Carait', 'Bantog-Saluad', 'Barangay I (Pob.)',
                     'Barangay II (Pob.)', 'Barangay III (Pob.)', 'Barangay IV (Pob.)',
                     'Barangay V (Pob.)', 'Barangay VI (Pob.)', 'Cato', 'Colibangbang',
                     'Dagao', 'Dinep', 'K. Murillo', 'Labney', 'Mabul', 'Macalong',
-                    'Mayang', 'Nagsulang', 'Paz', 'Rizal'
+                    'Mayang', 'Nagsulang', 'Paz', 'Rizal',
                 ],
                 'Mayantoc' => [
                     'Ambalingit', 'Baybayaoas', 'Bigbiga', 'Binbinaca', 'Calabmayan',
                     'Cabangiran', 'Cahabaan', 'Calipayan', 'Canabay', 'Comon',
                     'Gayonggayong', 'Guimba', 'Ibguit', 'Lalapangan', 'Lampitak',
                     'Libay', 'Mamonit', 'Mangolayon', 'Mayamat', 'Nambalan',
-                    'Poblacion Norte', 'Poblacion Sur', 'San Bartolome', 'San Isidro'
+                    'Poblacion Norte', 'Poblacion Sur', 'San Bartolome', 'San Isidro',
                 ],
                 'Moncada' => [
                     'Abaga', 'Andarayan', 'Bangar', 'Cabuluan', 'Calitlitan', 'Calma',
@@ -294,7 +294,7 @@ class LocationData
                     'San Miguel', 'San Pedro', 'San Rafael', 'San Roque', 'Santa Lucia',
                     'Santa Maria', 'Santo Niño', 'Santo Tomas', 'Sapang Maragul',
                     'Tapiat', 'Toledo', 'Tubigan', 'Villa Hermosa', 'Villa Ilang-Ilang',
-                    'Villa Rizal'
+                    'Villa Rizal',
                 ],
                 'Paniqui' => [
                     'Abogado', 'Alcalde', 'Bacnar', 'Bagong Bayan', 'Balanti',
@@ -309,23 +309,23 @@ class LocationData
                     'San Jose', 'San Miguel', 'San Pedro', 'San Roque', 'San Vicente',
                     'Santa Barbara', 'Santa Cruz', 'Santa Rita', 'Santo Niño',
                     'Santo Rosario', 'Sapa', 'Sinulatan', 'Sulib', 'Tablang',
-                    'Tagpos', 'Tibag', 'Tinang', 'Villa', 'Villaflores', 'Villanueva'
+                    'Tagpos', 'Tibag', 'Tinang', 'Villa', 'Villaflores', 'Villanueva',
                 ],
                 'Pura' => [
                     'Linao', 'Mabilog', 'Maasin', 'Naya', 'Nilasin 1st', 'Nilasin 2nd',
                     'Poblacion 1', 'Poblacion 2', 'Poblacion 3', 'Poroc', 'Rizal',
                     'Samput', 'Singat', 'Santo Niño 1st', 'Santo Niño 2nd',
-                    'Santo Rosario', 'Talimundoc'
+                    'Santo Rosario', 'Talimundoc',
                 ],
                 'Ramos' => [
                     'Calilayan', 'Comillas', 'Guevara', 'Kalang', 'Lapnit',
-                    'Poblacion Center', 'San Juan', 'San Miguel', 'San Sebastian'
+                    'Poblacion Center', 'San Juan', 'San Miguel', 'San Sebastian',
                 ],
                 'San Clemente' => [
                     'Anonang Norte', 'Anonang Sur', 'Bagbag', 'Bamban', 'Casecnan',
                     'Cuenca', 'Mangandingay', 'Masic', 'Maasin', 'Pili',
                     'Poblacion Norte', 'Poblacion Sur', 'San Isidro', 'San Marcos',
-                    'San Pablo', 'Santa Rosa', 'Santo Niño'
+                    'San Pablo', 'Santa Rosa', 'Santo Niño',
                 ],
                 'San Jose' => [
                     'Aguilar', 'Burgos', 'Burgos II', 'Burgos III', 'Calaitan',
@@ -345,7 +345,7 @@ class LocationData
                     'Tagumbao', 'Tibag', 'Tubigan', 'Unib', 'Vietnamburgos',
                     'Villa Aglipay', 'Villa Concepcion', 'Villa Estrella',
                     'Villa Gonzalez', 'Villa Maria', 'Villa Nizza',
-                    'Villa Rosario', 'Villa San Jose'
+                    'Villa Rosario', 'Villa San Jose',
                 ],
                 'San Manuel' => [
                     'Abot', 'Aguso', 'Alang-alang', 'Baluyut', 'Calbalete',
@@ -366,7 +366,7 @@ class LocationData
                     'Uyong', 'Villa Aglipay', 'Villa Cadia', 'Villa Concepcion',
                     'Villa Corazon', 'Villa Flores', 'Villa Grace', 'Villa Leonor',
                     'Villa Luz', 'Villa Paz', 'Villa Rita', 'Villa Rosario',
-                    'Villa Teresa', 'Villa Victoria'
+                    'Villa Teresa', 'Villa Victoria',
                 ],
                 'Santa Ignacia' => [
                     'Baldios', 'Botbotones', 'Caanamongan', 'Cabaruan', 'Cabugbugan',
@@ -374,7 +374,7 @@ class LocationData
                     'Poblacion East', 'Poblacion West', 'San Agustin', 'San Antonio',
                     'San Francisco', 'San Juan', 'San Lorenzo', 'San Vicente',
                     'Santa Ines', 'Santa Maria', 'Santa Rita', 'Santo Niño',
-                    'Santo Tomas', 'Sinalbagan'
+                    'Santo Tomas', 'Sinalbagan',
                 ],
                 'Victoria' => [
                     'Bacungan', 'Baluart', 'Bangar', 'Bantog', 'Bayanbayanan',
@@ -393,11 +393,58 @@ class LocationData
                     'Sapa', 'Sinait', 'Sulib', 'Tabug', 'Taguing', 'Talimundoc',
                     'Tambac', 'Tambang', 'Toledo', 'Tubuan', 'Ubando',
                     'Villa Aglipay', 'Villa Concepcion', 'Villa Marcos',
-                    'Villa Rosario'
+                    'Villa Rosario',
+                ],
+            ],
+            'Nueva Vizcaya' => [
+                'Alfonso Castañeda' => [
+                    'Abuyo', 'Cawayan', 'Galintuja', 'Lipuga', 'Lublub (Poblacion)', 'Pelaway',
+                ],
+                'Ambaguio' => [
+                    'Ammueg', 'Camandag', 'Dulli', 'La Torre North', 'La Torre South', 'Labang', 'Napo', 'Poblacion', 'Salingsingan', 'Tiblac',
+                ],
+                'Aritao' => [
+                    'Anayo', 'Baan', 'Balite', 'Banganan', 'Beti', 'Bone North', 'Bone South', 'Calitlitan', 'Canabuan', 'Canarem', 'Comon', 'Cutar', 'Darapidap', 'Kirang', 'Latar-Nocnoc-San Francisco', 'Nagcuartelan', 'Ocao-Capiniaan', 'Poblacion', 'Santa Clara', 'Tabueng', 'Tucanon', 'Yaway',
+                ],
+                'Bagabag' => [
+                    'Bakir', 'Baretbet', 'Careb', 'Lantap', 'Murong', 'Nangalisan', 'Paniki', 'Pogonsino', 'Quirino (Poblacion)', 'San Geronimo (Poblacion)', 'San Pedro (Poblacion)', 'Santa Cruz', 'Santa Lucia', 'Tuao North', 'Tuao South', 'Villa Coloma (Poblacion)', 'Villaros',
+                ],
+                'Bambang' => [
+                    'Abian', 'Abinganan', 'Aliaga', 'Almaguer North', 'Almaguer South', 'Banggot (Poblacion)', 'Barat', 'Buag (Poblacion)', 'Calaocan (Poblacion)', 'Dullao', 'Homestead', 'Indiana', 'Mabuslo', 'Macate', 'Magsaysay Hills', 'Manamtam', 'Mauan', 'Pallas', 'Salinas', 'San Antonio North', 'San Antonio South', 'San Fernando', 'San Leonardo', 'Santo Domingo (Tabangan)', 'Santo Domingo West',
+                ],
+                'Bayombong' => [
+                    'Bansing', 'Bonfal East', 'Bonfal Proper', 'Bonfal West', 'Buenavista (Vista Hills)', 'Busilac', 'Cabuaan', 'Casat', 'District III Poblacion (Don M. Perez)', 'District IV (Poblacion)', 'Don Domingo Maddela Poblacion (District I)', 'Don Mariano Marcos', 'Don Tomas Maddela Poblacion (District II)', 'Ipil-Cuneg', 'Luyang', 'Magapuy', 'Magsaysay', 'Masoc', 'Paitan', 'Salvacion', 'San Nicolas North (Luyang)', 'Santa Rosa', 'Vista Alegre (B. Baringin)',
+                ],
+                'Diadi' => [
+                    'Ampakling', 'Arwas', 'Balete', 'Bugnay', 'Butao', 'Decabacan', 'Duruarog', 'Escoting', 'Langca', 'Lurad', 'Nagsabaran', 'Namamparan', 'Pinya', 'Poblacion', 'Rosario', 'San Luis', 'San Pablo', 'Villa Aurora', 'Villa Florentino',
+                ],
+                'Dupax del Norte' => [
+                    'Belance', 'Binnuangan', 'Bitnong', 'Bulala', 'Inaban', 'Ineangan', 'Lamo', 'Mabasa', 'Macabenga', 'Malasin (Poblacion)', 'Munguia', 'New Gumiad', 'Oyao', 'Parai', 'Yabbi',
+                ],
+                'Dupax del Sur' => [
+                    'Abaca', 'Bagumbayan', 'Balsain', 'Banila', 'Biruk', 'Canabay', 'Carolotan', 'Domang', 'Dopaj', 'Gabut', 'Ganao (Lingad)', 'Kimbutan', 'Kinabuan', 'Lukidnon', 'Mangayang', 'Palabotan', 'Sanguit', 'Santa Maria', 'Talbek',
+                ],
+                'Kasibu' => [
+                    'Alimit', 'Alloy', 'Antutot', 'Bilet', 'Binogawan', 'Biyoy', 'Bua', 'Camamasi', 'Capisaan', 'Catarawan', 'Cordon', 'Didipio', 'Dine', 'Kakiduguen', 'Kongkong', 'Lupa', 'Macalong', 'Malabing', 'Muta', 'Nantawacan', 'Pacquet (Ilongot Res.)', 'Pao', 'Papaya', 'Poblacion (Alloy)', 'Pudi', 'Seguem', 'Tadji', 'Tokod', 'Wangal', 'Watwat',
+                ],
+                'Kayapa' => [
+                    'Acacia', 'Alang-Salacsac', 'Amilong-Labeng', 'Ansipsip', 'Baan', 'Babadi', 'Balangabang', 'Balete', 'Banao', 'Besong', 'Binalian', 'Buyasyas', 'Cabalatan-Alang', 'Cabanglasan', 'Cabayo', 'Castillo Village', 'Kayapa Proper East', 'Kayapa Proper West', 'Latbang', 'Lawigan', 'Mapayao', 'Nansiakan', 'Pampang (Poblacion)', 'Pangawan', 'Pinayag', 'Pingkian', 'San Fabian', 'Talecabcab', 'Tidang Village', 'Tubongan',
+                ],
+                'Quezon' => [
+                    'Aurora', 'Baresbes', 'Bonifacio', 'Buliwao', 'Calaocan', 'Caliat (Poblacion)', 'Dagupan', 'Darubba', 'Maasin', 'Maddiangat', 'Nalubbunan', 'Runruno',
+                ],
+                'Santa Fe' => [
+                    'Atbu', 'Bacneng', 'Balete', 'Baliling', 'Bantinan', 'Baracbac', 'Buyasyas', 'Canabuan', 'Imugan', 'Poblacion', 'Santa Rosa', 'Sinapaoan', 'Tactac', 'Unib', 'Villa Flores',
+                ],
+                'Solano' => [
+                    'Aggub', 'Bagahabag', 'Bangaan', 'Bangar', 'Bascaran', 'Communal', 'Concepcion (Calalabangan)', 'Curifang', 'Dadap', 'Lactawan', 'Osmeña', 'Pilar D. Galima', 'Poblacion North', 'Poblacion South', 'Quezon', 'Quirino', 'Roxas', 'San Juan', 'San Luis', 'Tucal', 'Uddiawan', 'Wacal',
+                ],
+                'Villaverde' => [
+                    'Bintawan Norte', 'Bintawan Sur', 'Cabuluan', 'Ibung', 'Nagbitin', 'Ocapon', 'Pieza', 'Poblacion (Turod)', 'Sawmill',
                 ],
             ],
             'Aurora' => [
-            ]
+            ],
         ];
     }
 }

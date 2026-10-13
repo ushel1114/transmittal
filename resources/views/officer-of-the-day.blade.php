@@ -277,6 +277,7 @@ body {
                                     <option value="">Select province</option>
                                     <option value="Aurora">Aurora</option>
                                     <option value="Nueva Ecija">Nueva Ecija</option>
+                                    <option value="Nueva Vizcaya">Nueva Vizcaya</option>
                                     <option value="Tarlac">Tarlac</option>
                                 </select>
                             </label>
@@ -610,6 +611,7 @@ body {
                 <option value="">Select Province</option>
                 <option value="Aurora">Aurora</option>
                 <option value="Nueva Ecija">Nueva Ecija</option>
+                <option value="Nueva Vizcaya">Nueva Vizcaya</option>
                 <option value="Tarlac">Tarlac</option>
             </select>
             <label for="municipality" class="text-xs font-bold text-gray-600 text-right">Municipality:</label>

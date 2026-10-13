@@ -52,9 +52,23 @@ class RecordsController extends Controller
             'source' => 'nullable|string|in:OD,Email,Facebook',
         ]);
 
-        foreach (['line', 'province', 'municipality', 'barangay'] as $locationField) {
-            $validatedData[$locationField] = mb_strtoupper(trim($validatedData[$locationField]), 'UTF-8');
-        }
+        $validatedData = $this->normalizeRecordTextFields($validatedData, [
+            'farmerName',
+            'province',
+            'municipality',
+            'barangay',
+            'line',
+            'program',
+            'causeOfDamage',
+            'modeOfPayment',
+            'accounts',
+            'remarks',
+            'control_number',
+            'transmittal_number',
+            'admin_transmittal_number',
+            'encoderName',
+            'address',
+        ]);
 
         if ($source !== 'Facebook') {
             $validatedData['facebook_page_url'] = null;
@@ -122,9 +136,9 @@ class RecordsController extends Controller
         }
 
         $address = trim(implode(', ', array_filter([
-            $validatedData['barangay'],
-            $validatedData['municipality'],
-            $validatedData['province'],
+            $validatedData['barangay'] ?? null,
+            $validatedData['municipality'] ?? null,
+            $validatedData['province'] ?? null,
         ])));
 
         $noticeImagePaths = [];
@@ -389,6 +403,22 @@ class RecordsController extends Controller
             $validatedData['remove_attachment_ids']
         );
 
+        $validatedData = $this->normalizeRecordTextFields($validatedData, [
+            'farmerName',
+            'province',
+            'municipality',
+            'barangay',
+            'line',
+            'program',
+            'causeOfDamage',
+            'modeOfPayment',
+            'accounts',
+            'remarks',
+            'control_number',
+            'transmittal_number',
+            'admin_transmittal_number',
+        ]);
+
         $noticeImages = $this->uploadedFiles($request, 'notice_images', 'notice_image');
         $noticePdfs = $this->uploadedFiles($request, 'notice_pdfs', 'notice_pdf');
         $removeNoticeImage = $request->boolean('remove_notice_image') && $noticeImages === [];
@@ -430,9 +460,9 @@ class RecordsController extends Controller
         }
 
         $address = trim(implode(', ', array_filter([
-            $request->barangay,
-            $request->municipality,
-            $request->province,
+            $validatedData['barangay'] ?? null,
+            $validatedData['municipality'] ?? null,
+            $validatedData['province'] ?? null,
         ])));
 
         $updateData = array_merge($validatedData, ['address' => $address]);
@@ -684,6 +714,20 @@ class RecordsController extends Controller
             ],
             'inline'
         );
+    }
+
+    private function normalizeRecordTextFields(array $data, array $fields): array
+    {
+        foreach ($fields as $field) {
+            if (! array_key_exists($field, $data) || ! is_string($data[$field])) {
+                continue;
+            }
+
+            $value = trim($data[$field]);
+            $data[$field] = $value === '' ? $value : mb_strtoupper($value, 'UTF-8');
+        }
+
+        return $data;
     }
 
     private function uploadedFiles(Request $request, string $multipleField, string $singleField): array

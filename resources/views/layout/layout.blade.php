@@ -7,6 +7,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title','transmittal')</title>
     <link rel="icon" type="image/svg+xml" href="/images/icon.svg">
+    <script>
+        window.transmittalLocationData = @json(\App\LocationData::getAll());
+    </script>
     @php
         $manifestPath = public_path('build/manifest.json');
         $useBuiltAssets = file_exists($manifestPath);

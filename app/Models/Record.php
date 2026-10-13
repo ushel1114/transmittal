@@ -41,6 +41,34 @@ class Record extends Model
         'date_received' => 'date',
     ];
 
+    public function setAttribute($key, $value)
+    {
+        if (is_string($value) && in_array($key, [
+            'farmerName',
+            'address',
+            'province',
+            'municipality',
+            'barangay',
+            'line',
+            'program',
+            'causeOfDamage',
+            'modeOfPayment',
+            'accounts',
+            'remarks',
+            'control_number',
+            'transmittal_number',
+            'admin_transmittal_number',
+            'encoderName',
+        ], true)) {
+            $value = trim($value);
+            if ($value !== '') {
+                $value = mb_strtoupper($value, 'UTF-8');
+            }
+        }
+
+        parent::setAttribute($key, $value);
+    }
+
     public function attachments(): HasMany
     {
         return $this->hasMany(RecordAttachment::class)->orderBy('id');
