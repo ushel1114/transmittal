@@ -971,7 +971,7 @@ body.dark-mode.public-records-page .table-wrapper table tbody tr:hover {
                         <td>{{ $record->source }}</td>
                         <td>{{ $record->municipality }}</td>
                         <td>{{ $record->date_received ? \Carbon\Carbon::parse($record->date_received)->format('M d, Y') : 'N/A' }}</td>
-                        <td>{{ $record->date_occurrence ? (function($date) { try { return \Carbon\Carbon::parse($date)->format('M d, Y'); } catch (\Exception $e) { return $date; } })($record->date_occurrence) : 'N/A' }}</td>
+                        <td>{{ $record->date_occurrence ?: 'N/A' }}</td>
                         <td>{{ $record->causeOfDamage ?? 'N/A' }}</td>
                         <td>{{ $record->remarks ?? 'N/A' }}</td>
                     </tr>
