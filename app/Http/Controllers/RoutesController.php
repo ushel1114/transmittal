@@ -36,10 +36,19 @@ class RoutesController extends Controller
             ->paginate(10)
             ->withQueryString();
 
+        $weekStart = now()->subDays(7);
+
         return view('welcome', [
             'landingRecords' => $records,
             'landingTotalRecords' => (clone $query)->count(),
             'landingRecentRecords' => (clone $query)->where('created_at', '>=', now()->subDays(7))->count(),
+            'landingTotalNlCount' => Record::query()->count(),
+            'landingWeeklyNlCount' => Record::query()->where('created_at', '>=', $weekStart)->count(),
+            'landingRecordsByLine' => Record::query()
+                ->selectRaw('line, count(*) as count')
+                ->groupBy('line')
+                ->orderByRaw('count(*) desc')
+                ->pluck('count', 'line'),
             'landingRecordsBySource' => (clone $query)
                 ->selectRaw('source, count(*) as count')
                 ->groupBy('source')

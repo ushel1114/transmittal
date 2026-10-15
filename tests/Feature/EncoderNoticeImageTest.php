@@ -485,6 +485,7 @@ test('landing page filters records by farmer name and address and displays a sum
     Record::create([
         ...encoderNoticeImageUpdateData(),
         'farmerName' => 'Maria Santos',
+        'line' => 'Corn',
         'barangay' => 'Poblacion',
         'municipality' => 'Cabanatuan',
         'address' => 'Poblacion, Cabanatuan, Nueva Ecija',
@@ -509,7 +510,15 @@ test('landing page filters records by farmer name and address and displays a sum
         ->assertSee('Juan Dela Cruz')
         ->assertSee('class="landing-record-action view-btn"', false)
         ->assertDontSee('Maria Santos')
-        ->assertViewHas('landingTotalRecords', 1);
+        ->assertSee('Total NLs')
+        ->assertSee('NLs this week')
+        ->assertSee('NLs by line')
+        ->assertSee('Rice')
+        ->assertSee('Corn')
+        ->assertViewHas('landingTotalRecords', 1)
+        ->assertViewHas('landingTotalNlCount', 2)
+        ->assertViewHas('landingWeeklyNlCount', 2)
+        ->assertViewHas('landingRecordsByLine', fn ($lineCounts) => $lineCounts->get('Rice') === 1 && $lineCounts->get('Corn') === 1);
 });
 
 test('landing page shows an empty filtered state when no records match', function () {

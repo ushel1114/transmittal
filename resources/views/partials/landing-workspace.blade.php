@@ -194,8 +194,41 @@
                 </nav>
             </div>
 
-            <section class="landing-dashboard-summary" aria-label="Dashboard update">
-                <p>TBD PA PO CURRENTLY WORKING ON IT. TY :)</p>
+            <section class="landing-dashboard-summary" aria-label="Notice of Loss summary">
+                <article>
+                    <span>Total NLs</span>
+                    <strong>{{ number_format($landingTotalNlCount) }}</strong>
+                    <small>All Notice of Loss records</small>
+                </article>
+                <article>
+                    <span>NLs this week</span>
+                    <strong>{{ number_format($landingWeeklyNlCount) }}</strong>
+                    <small>Records added in the last 7 days</small>
+                </article>
+                <div class="landing-line-breakdown">
+                    <h3>NLs by line</h3>
+                    @if ($landingRecordsByLine->isNotEmpty())
+                        @php
+                            $maxLineCount = max((int) $landingRecordsByLine->max(), 1);
+                        @endphp
+                        @foreach ($landingRecordsByLine as $line => $count)
+                            <div class="landing-line-row">
+                                <span class="landing-line-label">{{ filled($line) ? $line : 'Unspecified' }}</span>
+                                <div
+                                    class="landing-line-track"
+                                    role="progressbar"
+                                    aria-label="{{ filled($line) ? $line : 'Unspecified' }} records"
+                                    aria-valuemin="0"
+                                    aria-valuemax="{{ $maxLineCount }}"
+                                    aria-valuenow="{{ $count }}"
+                                ><i style="width: {{ ($count / $maxLineCount) * 100 }}%"></i></div>
+                                <strong>{{ number_format($count) }}</strong>
+                            </div>
+                        @endforeach
+                    @else
+                        <p class="landing-line-empty">No line data available.</p>
+                    @endif
+                </div>
             </section>
         </section>
     </main>
