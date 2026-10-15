@@ -230,6 +230,14 @@ test('all-records viewers can view photo and PDF attachments inline', function (
         ->assertDontSee(route('all-records.attachments.show', [$record, $photo]), false)
         ->assertDontSee(route('all-records.attachments.show', [$record, $pdf]), false);
 
+    $this->get(route('welcome'))
+        ->assertOk()
+        ->assertSee('class="landing-record-action view-btn"', false)
+        ->assertSee('View / Print photos')
+        ->assertSee('View PDF')
+        ->assertSee(route('all-records.attachments.show', [$record, $photo], false), false)
+        ->assertSee(route('all-records.attachments.show', [$record, $pdf], false), false);
+
     $this->get(route('all-records.attachments.show', [$record, $photo]))
         ->assertOk()
         ->assertHeader('Content-Type', 'image/jpeg')
@@ -499,6 +507,7 @@ test('landing page filters records by farmer name and address and displays a sum
         ->assertSee('View full records')
         ->assertSee('Matching records')
         ->assertSee('Juan Dela Cruz')
+        ->assertSee('class="landing-record-action view-btn"', false)
         ->assertDontSee('Maria Santos')
         ->assertViewHas('landingTotalRecords', 1);
 });

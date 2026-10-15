@@ -103,28 +103,75 @@
                 <table class="landing-records-table">
                     <thead>
                         <tr>
+                            <th>Actions</th>
                             <th>Farmer</th>
                             <th>Province</th>
                             <th>Municipality</th>
                             <th>Barangay</th>
-                            <th>Source</th>
-                            <th>Line</th>
                             <th>Date received</th>
+                            <th>Transmittal #</th>
+                            <th>Source</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($landingRecords as $record)
+                            @php
+                                $viewRecordData = [
+                                    'id' => $record->id,
+                                    'farmerName' => $record->farmerName,
+                                    'encoderName' => $record->encoderName,
+                                    'source' => $record->source,
+                                    'municipality' => $record->municipality,
+                                    'barangay' => $record->barangay,
+                                    'date_received' => $record->date_received ? \Illuminate\Support\Carbon::parse($record->date_received)->format('M d, Y') : null,
+                                    'created_at' => $record->created_at?->format('M d, Y h:i A'),
+                                    'admin_transmittal_number' => $record->admin_transmittal_number,
+                                    'remarks' => $record->remarks,
+                                    'causeOfDamage' => $record->causeOfDamage,
+                                    'line' => $record->line,
+                                    'modeOfPayment' => $record->modeOfPayment,
+                                    'accounts' => $record->accounts,
+                                    'facebook_page_url' => $record->facebook_page_url,
+                                ];
+                            @endphp
                             <tr>
+                                <td class="landing-record-actions-cell">
+                                    <div class="landing-record-actions">
+                                        <button
+                                            type="button"
+                                            class="landing-record-action view-btn"
+                                            data-record="{{ json_encode($viewRecordData, JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_HEX_TAG) }}"
+                                            onclick="viewRecord(this)"
+                                        >View</button>
+                                        @if ($record->attachments->where('type', 'image')->isNotEmpty())
+                                            <button
+                                                type="button"
+                                                class="notice-image-view-btn"
+                                                data-image-urls="{{ $record->attachments->where('type', 'image')->map(fn ($attachment) => route('all-records.attachments.show', [$record, $attachment], false))->values()->toJson() }}"
+                                                data-farmer-name="{{ $record->farmerName }}"
+                                            >View / Print photos</button>
+                                        @endif
+                                        @foreach ($record->attachments->where('type', 'pdf') as $pdfAttachment)
+                                            <a
+                                                class="notice-pdf-view-btn"
+                                                href="{{ route('all-records.attachments.show', [$record, $pdfAttachment], false) }}"
+                                                title="View {{ $pdfAttachment->original_name }}"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >View PDF</a>
+                                        @endforeach
+                                    </div>
+                                </td>
                                 <td title="{{ $record->farmerName }}">{{ $record->farmerName }}</td>
                                 <td title="{{ $record->province }}">{{ $record->province }}</td>
                                 <td title="{{ $record->municipality }}">{{ $record->municipality }}</td>
                                 <td title="{{ $record->barangay }}">{{ $record->barangay }}</td>
-                                <td><span class="landing-source">{{ $record->source ?: 'Unspecified' }}</span></td>
-                                <td title="{{ $record->line }}">{{ $record->line }}</td>
                                 <td>{{ $record->date_received ? $record->date_received->format('M d, Y') : 'N/A' }}</td>
+                                <td>{{ $record->admin_transmittal_number ?? 'N/A' }}</td>
+                                <td>{{ $record->source ?: 'Unspecified' }}</td>
                             </tr>
                         @empty
-                            <tr><td colspan="7" class="landing-empty">No records match the selected filters.</td></tr>
+                            <tr><td colspan="8" class="landing-empty">No records match the selected filters.</td></tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -152,6 +199,8 @@
             </section>
         </section>
     </main>
+    @include('components.record-view-dialog')
+    @include('components.notice-image-print-dialog')
 </div>
 
 <script>

@@ -19,7 +19,7 @@ class RoutesController extends Controller
 {
     public function showWelcome(Request $request): View
     {
-        $query = Record::query();
+        $query = Record::with('attachments');
 
         foreach (['province', 'municipality', 'barangay'] as $filter) {
             if ($request->filled($filter)) {
