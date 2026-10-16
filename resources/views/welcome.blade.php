@@ -500,54 +500,70 @@ body {
     .landing-dashboard-summary small { font-weight: 600; }
 
     .landing-line-breakdown {
+        display: flex;
+        min-height: 0;
+        flex-direction: column;
         min-width: 0;
-        padding: 8px 10px;
+        overflow: hidden;
+        padding: 10px;
         border: 1px solid #dbe4ec;
         border-top: 2px solid #2f7da0;
-        border-radius: 8px;
+        border-radius: 10px;
         background: #fff;
     }
 
     .landing-line-breakdown h3 {
-        margin: 0 0 6px;
+        flex: 0 0 auto;
+        margin: 0 0 7px;
         color: #0f172a;
-        font-size: 11px;
+        font-size: 13px;
         font-weight: 900;
     }
 
     .landing-line-row {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(24px, 1fr) 32px;
+        min-height: 0;
+        flex: 1 1 0;
+        grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
         align-items: center;
-        gap: 5px;
-        margin: 5px 0;
-        font-size: 10px;
+        gap: 8px;
+        margin: 0;
+        font-size: 11px;
     }
 
-    .landing-line-label {
+    .landing-line-breakdown .landing-line-label {
         overflow: hidden;
         color: #334155;
+        font-size: 11px;
+        font-weight: 750;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
 
     .landing-line-track {
-        height: 6px;
+        position: relative;
+        height: 20px;
         overflow: hidden;
         border-radius: 99px;
-        background: #e2e8f0;
+        background: #e8eef2;
     }
 
     .landing-line-track i {
-        display: block;
+        display: flex;
+        min-width: 48px;
         height: 100%;
+        align-items: center;
+        justify-content: flex-end;
+        box-sizing: border-box;
+        padding: 0 9px;
         border-radius: inherit;
         background: linear-gradient(90deg, #176b45, #56a678);
-    }
-
-    .landing-line-row strong {
-        color: #64748b;
-        text-align: right;
+        color: #fff;
+        font-size: 10px;
+        font-style: normal;
+        font-weight: 900;
+        line-height: 1;
+        white-space: nowrap;
     }
 
     .landing-line-empty {
@@ -652,9 +668,17 @@ body {
 
     .landing-page {
         display: flex;
-        min-height: 100vh;
+        height: 100vh;
+        height: 100dvh;
         flex-direction: column;
+        overflow: hidden;
         background: rgb(226 232 240 / 42%);
+    }
+
+    body {
+        height: 100vh;
+        height: 100dvh;
+        overflow: hidden;
     }
 
     .landing-header {
@@ -721,11 +745,13 @@ body {
         gap: 14px;
         box-sizing: border-box;
         padding: 14px;
+        overflow: hidden;
     }
 
     .landing-sidebar {
         display: flex;
         min-width: 0;
+        min-height: 0;
         flex-direction: column;
         gap: 12px;
     }
@@ -809,8 +835,8 @@ body {
 
     .landing-records-panel {
         width: 100%;
-        min-height: calc(100vh - 106px);
-        height: calc(100vh - 106px);
+        min-height: 0;
+        height: 100%;
     }
 
     .landing-table-scroll {
@@ -835,7 +861,10 @@ body {
     }
 
     .landing-sidebar > .landing-dashboard-summary {
+        min-height: 0;
+        flex: 1 1 0;
         grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-rows: auto minmax(0, 1fr);
         padding: 0;
     }
 
@@ -883,6 +912,18 @@ body {
     }
 
     @media (max-width: 760px) {
+        body {
+            height: auto;
+            min-height: 100vh;
+            overflow: auto;
+        }
+
+        .landing-page {
+            height: auto;
+            min-height: 100vh;
+            overflow: visible;
+        }
+
         .landing-header-caption {
             display: none;
         }
@@ -890,6 +931,7 @@ body {
         .landing-workspace {
             grid-template-columns: 1fr;
             padding: 9px;
+            overflow: visible;
         }
 
         .landing-sidebar {
@@ -936,6 +978,47 @@ body {
 
         .landing-dashboard-summary {
             grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (min-width: 761px) and (max-height: 760px) {
+        .landing-header {
+            min-height: 64px;
+            padding-top: 8px;
+            padding-bottom: 8px;
+        }
+
+        .landing-workspace {
+            gap: 8px;
+            padding: 8px;
+        }
+
+        .landing-sidebar {
+            gap: 8px;
+        }
+
+        .landing-module-group,
+        .landing-admin-group {
+            padding: 9px;
+        }
+
+        .landing-module-group .landing-module-link,
+        .landing-admin-group .landing-module-link {
+            min-height: 42px;
+            margin-bottom: 4px;
+            padding: 5px 8px;
+        }
+
+        .landing-line-breakdown {
+            padding: 7px;
+        }
+
+        .landing-line-breakdown h3 {
+            margin-bottom: 4px;
+        }
+
+        .landing-line-track {
+            height: 17px;
         }
     }
 

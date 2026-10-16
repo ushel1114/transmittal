@@ -66,8 +66,7 @@
                                     aria-valuemin="0"
                                     aria-valuemax="{{ $maxLineCount }}"
                                     aria-valuenow="{{ $count }}"
-                                ><i style="width: {{ ($count / $maxLineCount) * 100 }}%"></i></div>
-                                <strong>{{ number_format($count) }}</strong>
+                                ><i style="width: {{ ($count / $maxLineCount) * 100 }}%">{{ number_format($count) }}</i></div>
                             </div>
                         @endforeach
                     @else
