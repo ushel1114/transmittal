@@ -834,6 +834,15 @@ body {
         padding: 6px 10px;
     }
 
+    .landing-sidebar > .landing-dashboard-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        padding: 0;
+    }
+
+    .landing-sidebar .landing-line-breakdown {
+        grid-column: 1 / -1;
+    }
+
     .landing-dashboard-summary > p {
         grid-column: 1 / -1;
         margin: 0;
@@ -893,6 +902,10 @@ body {
             margin-top: 0;
         }
 
+        .landing-sidebar > .landing-dashboard-summary {
+            grid-column: 2;
+        }
+
         .landing-records-panel {
             height: min(78vh, 800px);
             min-height: 540px;
@@ -940,6 +953,10 @@ body {
 
         .landing-sidebar {
             grid-template-columns: 1fr;
+        }
+
+        .landing-sidebar > .landing-dashboard-summary {
+            grid-column: 1;
         }
 
         .landing-records-panel {
