@@ -626,10 +626,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     );
                 }
                 if (addressField) addressField.value = address || '';
-                if (programField) programField.value = program || '';
-                if (lineField) lineField.value = line || '';
+                if (programField) window.setRecordEditSelectValue(programField, program);
+                if (lineField) window.setRecordEditSelectValue(lineField, line);
                 if (causeOfDamageField) causeOfDamageField.value = causeOfDamage || '';
-                if (modeOfPaymentField) modeOfPaymentField.value = modeOfPayment || '';
+                if (modeOfPaymentField) window.setRecordEditSelectValue(modeOfPaymentField, modeOfPayment);
                 if (accountsField) accountsField.value = accounts || '';
                 if (fbPageUrlField) fbPageUrlField.value = fbPageUrl || '';
                 if (dateOccurrenceField) dateOccurrenceField.value = dateOccurrence || '';

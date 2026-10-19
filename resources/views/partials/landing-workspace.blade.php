@@ -145,6 +145,7 @@
                             <th>Municipality</th>
                             <th>Barangay</th>
                             <th>Date received</th>
+                            <th>Date of occurrence</th>
                             <th>Transmittal #</th>
                             <th>Source</th>
                         </tr>
@@ -203,11 +204,12 @@
                                 <td title="{{ $record->municipality }}">{{ $record->municipality }}</td>
                                 <td title="{{ $record->barangay }}">{{ $record->barangay }}</td>
                                 <td>{{ $record->date_received ? $record->date_received->format('M d, Y') : 'N/A' }}</td>
+                                <td>{{ $record->date_occurrence ?: 'N/A' }}</td>
                                 <td>{{ $record->admin_transmittal_number ?? 'N/A' }}</td>
                                 <td>{{ $record->source ?: 'Unspecified' }}</td>
                             </tr>
                         @empty
-                            <tr><td colspan="8" class="landing-empty">No records match the selected filters.</td></tr>
+                            <tr><td colspan="9" class="landing-empty">No records match the selected filters.</td></tr>
                         @endforelse
                     </tbody>
                 </table>

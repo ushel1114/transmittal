@@ -481,6 +481,7 @@ test('landing page filters records by farmer name and address and displays a sum
         'farmerName' => 'Juan Dela Cruz',
         'address' => 'San Vicente, Gapan, Nueva Ecija',
         'source' => 'Email',
+        'date_occurrence' => '2025-01-15',
     ]);
     Record::create([
         ...encoderNoticeImageUpdateData(),
@@ -508,6 +509,7 @@ test('landing page filters records by farmer name and address and displays a sum
         ->assertSee('View full records')
         ->assertSee('Matching records')
         ->assertSee('Juan Dela Cruz')
+        ->assertSee('2025-01-15')
         ->assertSee('class="landing-record-action view-btn"', false)
         ->assertDontSee('Maria Santos')
         ->assertSee('Total NLs')

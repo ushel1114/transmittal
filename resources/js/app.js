@@ -2211,6 +2211,17 @@ Santa Lucia,Victoria,Tarlac`;
         }
     }
 
+    function setRecordEditSelectValue(selectEl, rawValue) {
+        if (!selectEl) {
+            return;
+        }
+
+        selectEl.value = '';
+        setSelectValueOrAddOption(selectEl, rawValue);
+    }
+
+    window.setRecordEditSelectValue = setRecordEditSelectValue;
+
     window.setRecordEditLocations = function (provinceSelect, municipalitySelect, barangaySelect, province, municipality, barangay) {
         if (!provinceSelect || !municipalitySelect || !barangaySelect) {
             console.error('Unable to initialize record location fields.');
@@ -2307,10 +2318,7 @@ Santa Lucia,Victoria,Tarlac`;
 
         const programSelect = formRoot.querySelector('select[name="program"]');
         if (programSelect) {
-            programSelect.value = program;
-            if (program && programSelect.value !== program) {
-                setSelectValueOrAddOption(programSelect, program);
-            }
+            setRecordEditSelectValue(programSelect, program);
         }
 
         const sourceField = formRoot.querySelector('[name="source"]');
@@ -2318,10 +2326,7 @@ Santa Lucia,Victoria,Tarlac`;
 
         const lineSelect = formRoot.querySelector('select[name="line"]');
         if (lineSelect) {
-            lineSelect.value = line;
-            if (line && lineSelect.value !== line) {
-                setSelectValueOrAddOption(lineSelect, line);
-            }
+            setRecordEditSelectValue(lineSelect, line);
         }
 
         const causeInput = formRoot.querySelector('input[name="causeOfDamage"]');
@@ -2329,7 +2334,7 @@ Santa Lucia,Victoria,Tarlac`;
 
         const modeOfPaymentSelect = formRoot.querySelector('select[name="modeOfPayment"]');
         if (modeOfPaymentSelect) {
-            modeOfPaymentSelect.value = modeOfPayment;
+            setRecordEditSelectValue(modeOfPaymentSelect, modeOfPayment);
         }
 
         const remarksInput = formRoot.querySelector('input[name="remarks"]');
@@ -2349,6 +2354,9 @@ Santa Lucia,Victoria,Tarlac`;
 
         const transmittalInput = formRoot.querySelector('input[name="transmittal_number"]');
         if (transmittalInput) transmittalInput.value = transmittalNumber;
+
+        const controlNumberInput = formRoot.querySelector('input[name="control_number"]');
+        if (controlNumberInput) controlNumberInput.value = ds.controlNumber || '';
 
         const adminTransmittalInput = formRoot.querySelector('input[name="admin_transmittal_number"]');
         if (adminTransmittalInput) adminTransmittalInput.value = adminTransmittalNumber;
