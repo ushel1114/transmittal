@@ -2,10 +2,6 @@
 
 @section('title', 'Admin')
 
-@push('styles')
-@vite('resources/css/pages/admin.css')
-@endpush
-
 @section('content')
     <div class="admin-shell public-workspace-shell">
         @include('partials.public-workspace-nav', ['adminNavigation' => true])

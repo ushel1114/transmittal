@@ -19,6 +19,9 @@
             $manifest = json_decode(file_get_contents($manifestPath), true);
             $builtAssets['css'] = $manifest['resources/css/app.css']['file'] ?? null;
             $builtAssets['js'] = $manifest['resources/js/app.js']['file'] ?? null;
+            $builtAssets['adminCss'] = request()->routeIs('admin')
+                ? ($manifest['resources/css/pages/admin.css']['file'] ?? null)
+                : null;
         }
     @endphp
 
@@ -26,11 +29,18 @@
         @if(!empty($builtAssets['css']))
             <link rel="stylesheet" href="{{ asset('build/' . $builtAssets['css']) }}">
         @endif
+        @if(!empty($builtAssets['adminCss']))
+            <link rel="stylesheet" href="{{ asset('build/' . $builtAssets['adminCss']) }}">
+        @endif
         @if(!empty($builtAssets['js']))
             <script type="module" src="{{ asset('build/' . $builtAssets['js']) }}"></script>
         @endif
     @else
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @if(request()->routeIs('admin'))
+            @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/css/pages/admin.css'])
+        @else
+            @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @endif
     @endif
     @yield('page-styles')
     @stack('styles')
