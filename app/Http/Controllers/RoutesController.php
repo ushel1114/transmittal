@@ -19,16 +19,74 @@ class RoutesController extends Controller
 {
     public function showWelcome(Request $request): View
     {
-        $query = Record::with('attachments');
+        $landingLocationData = Record::query()
+            ->whereNotNull('province')
+            ->where('province', '!=', '')
+            ->whereNotNull('municipality')
+            ->where('municipality', '!=', '')
+            ->select('province', 'municipality', 'barangay')
+            ->distinct()
+            ->orderBy('province')
+            ->orderBy('municipality')
+            ->orderBy('barangay')
+            ->get()
+            ->reduce(function (array $locations, Record $record): array {
+                $province = trim((string) $record->province);
+                $municipality = trim((string) $record->municipality);
+                $barangay = trim((string) $record->barangay);
 
-        foreach (['province', 'municipality', 'barangay'] as $filter) {
-            if ($request->filled($filter)) {
-                $query->whereRaw('UPPER(TRIM(`'.$filter.'`)) = ?', [mb_strtoupper(trim((string) $request->input($filter)), 'UTF-8')]);
+                $locations[$province][$municipality] ??= [];
+
+                if ($barangay !== '' && ! in_array($barangay, $locations[$province][$municipality], true)) {
+                    $locations[$province][$municipality][] = $barangay;
+                }
+
+                return $locations;
+            }, []);
+
+        $province = $request->query('province', 'Nueva Ecija');
+        $municipality = $request->query('municipality');
+
+        if (! $request->query->has('municipality')) {
+            $municipality = '';
+
+            if (strcasecmp(trim((string) $province), 'Nueva Ecija') === 0) {
+                foreach (['Cabanatuan City', 'City of Cabanatuan'] as $defaultMunicipality) {
+                    foreach ($landingLocationData as $locationProvince => $municipalities) {
+                        if (strcasecmp($locationProvince, 'Nueva Ecija') !== 0) {
+                            continue;
+                        }
+
+                        foreach (array_keys($municipalities) as $locationMunicipality) {
+                            if (strcasecmp($locationMunicipality, $defaultMunicipality) === 0) {
+                                $municipality = $locationMunicipality;
+                                break 3;
+                            }
+                        }
+                    }
+                }
+
+                $municipality = $municipality ?: 'Cabanatuan City';
             }
         }
 
-        if ($request->filled('name')) {
-            $query->whereRaw('UPPER(`farmerName`) LIKE ?', ['%'.mb_strtoupper(trim((string) $request->input('name')), 'UTF-8').'%']);
+        $filters = [
+            ...$request->only('name'),
+            'province' => $province,
+            'municipality' => $municipality,
+            'barangay' => $request->query('barangay', ''),
+        ];
+
+        $query = Record::with('attachments');
+
+        foreach (['province', 'municipality', 'barangay'] as $filter) {
+            if (filled($filters[$filter])) {
+                $query->whereRaw('UPPER(TRIM(`'.$filter.'`)) = ?', [mb_strtoupper(trim((string) $filters[$filter]), 'UTF-8')]);
+            }
+        }
+
+        if (filled($filters['name'] ?? null)) {
+            $query->whereRaw('UPPER(`farmerName`) LIKE ?', ['%'.mb_strtoupper(trim((string) $filters['name']), 'UTF-8').'%']);
         }
 
         $records = (clone $query)
@@ -54,15 +112,16 @@ class RoutesController extends Controller
                 ->groupBy('source')
                 ->orderByRaw('count(*) desc')
                 ->pluck('count', 'source'),
-            'landingFilters' => $request->only('name', 'province', 'municipality', 'barangay'),
+            'landingFilters' => $filters,
+            'landingLocationData' => $landingLocationData,
             'landingProvinces' => Record::query()->whereNotNull('province')->where('province', '!=', '')->distinct()->orderBy('province')->pluck('province'),
-            'landingMunicipalities' => Record::query()->whereNotNull('municipality')->where('municipality', '!=', '')->when($request->filled('province'), function ($locations) use ($request) {
-                $locations->whereRaw('UPPER(TRIM(`province`)) = ?', [mb_strtoupper(trim((string) $request->input('province')), 'UTF-8')]);
+            'landingMunicipalities' => Record::query()->whereNotNull('municipality')->where('municipality', '!=', '')->when(filled($province), function ($locations) use ($province) {
+                $locations->whereRaw('UPPER(TRIM(`province`)) = ?', [mb_strtoupper(trim((string) $province), 'UTF-8')]);
             })->distinct()->orderBy('municipality')->pluck('municipality'),
-            'landingBarangays' => Record::query()->whereNotNull('barangay')->where('barangay', '!=', '')->when($request->filled('province'), function ($locations) use ($request) {
-                $locations->whereRaw('UPPER(TRIM(`province`)) = ?', [mb_strtoupper(trim((string) $request->input('province')), 'UTF-8')]);
-            })->when($request->filled('municipality'), function ($locations) use ($request) {
-                $locations->whereRaw('UPPER(TRIM(`municipality`)) = ?', [mb_strtoupper(trim((string) $request->input('municipality')), 'UTF-8')]);
+            'landingBarangays' => Record::query()->whereNotNull('barangay')->where('barangay', '!=', '')->when(filled($province), function ($locations) use ($province) {
+                $locations->whereRaw('UPPER(TRIM(`province`)) = ?', [mb_strtoupper(trim((string) $province), 'UTF-8')]);
+            })->when(filled($municipality), function ($locations) use ($municipality) {
+                $locations->whereRaw('UPPER(TRIM(`municipality`)) = ?', [mb_strtoupper(trim((string) $municipality), 'UTF-8')]);
             })->distinct()->orderBy('barangay')->pluck('barangay'),
         ]);
     }

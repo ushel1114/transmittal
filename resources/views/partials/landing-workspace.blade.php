@@ -96,7 +96,7 @@
 
             <p data-landing-filter-error role="alert" hidden style="margin: 12px 0; color: #b42318;"></p>
 
-            <form class="landing-record-filters" method="GET" action="{{ route('welcome') }}">
+            <form class="landing-record-filters" method="GET" action="{{ route('welcome') }}" data-location-options="{{ json_encode($landingLocationData, JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_TAG) }}">
                 <label>Farmer name
                     <input type="search" name="name" value="{{ $landingFilters['name'] ?? '' }}" placeholder="Search farmer">
                 </label>
@@ -104,7 +104,7 @@
                     <select name="province">
                         <option value="">All provinces</option>
                         @foreach($landingProvinces as $province)
-                            <option value="{{ $province }}" @selected(($landingFilters['province'] ?? '') === $province)>{{ $province }}</option>
+                            <option value="{{ $province }}" @selected(strcasecmp(trim((string) ($landingFilters['province'] ?? '')), trim($province)) === 0)>{{ $province }}</option>
                         @endforeach
                     </select>
                 </label>
@@ -112,7 +112,7 @@
                     <select name="municipality">
                         <option value="">All municipalities</option>
                         @foreach($landingMunicipalities as $municipality)
-                            <option value="{{ $municipality }}" @selected(($landingFilters['municipality'] ?? '') === $municipality)>{{ $municipality }}</option>
+                            <option value="{{ $municipality }}" @selected(strcasecmp(trim((string) ($landingFilters['municipality'] ?? '')), trim($municipality)) === 0)>{{ $municipality }}</option>
                         @endforeach
                     </select>
                 </label>
@@ -120,13 +120,13 @@
                     <select name="barangay">
                         <option value="">All barangays</option>
                         @foreach($landingBarangays as $barangay)
-                            <option value="{{ $barangay }}" @selected(($landingFilters['barangay'] ?? '') === $barangay)>{{ $barangay }}</option>
+                            <option value="{{ $barangay }}" @selected(strcasecmp(trim((string) ($landingFilters['barangay'] ?? '')), trim($barangay)) === 0)>{{ $barangay }}</option>
                         @endforeach
                     </select>
                 </label>
                 <div class="landing-filter-actions">
                     <button type="submit">Apply filters</button>
-                    <a href="{{ route('welcome') }}">Clear</a>
+                    <a href="{{ route('welcome', ['province' => '', 'municipality' => '', 'barangay' => '']) }}">Clear</a>
                 </div>
             </form>
 
@@ -240,6 +240,96 @@
 <script>
     (function () {
         let requestSequence = 0;
+        const defaultProvince = 'Nueva Ecija';
+        const defaultMunicipalityNames = ['Cabanatuan City', 'City of Cabanatuan'];
+
+        function parseLocationOptions(form) {
+            try {
+                return JSON.parse(form.dataset.locationOptions || '{}');
+            } catch (error) {
+                console.error('Unable to read landing-page location options.', error);
+                return {};
+            }
+        }
+
+        function locationMatches(first, second) {
+            return first.trim().toLocaleLowerCase() === second.trim().toLocaleLowerCase();
+        }
+
+        function findLocationKey(locations, value) {
+            return Object.keys(locations).find(location => locationMatches(location, value)) || '';
+        }
+
+        function uniqueOptions(options) {
+            const unique = new Map();
+            options.forEach(option => {
+                const normalizedOption = option.trim().toLocaleLowerCase();
+                if (!unique.has(normalizedOption)) {
+                    unique.set(normalizedOption, option);
+                }
+            });
+
+            return Array.from(unique.values()).sort((first, second) => first.localeCompare(second, 'en', { sensitivity: 'base' }));
+        }
+
+        function populateLocationSelect(select, options, placeholder, selectedValue = '') {
+            select.replaceChildren(new Option(placeholder, ''));
+
+            uniqueOptions(options).forEach(option => {
+                select.add(new Option(option, option));
+            });
+
+            const selectedOption = Array.from(select.options).find(option => locationMatches(option.value, selectedValue));
+            select.value = selectedOption?.value || '';
+        }
+
+        function getMunicipalityOptions(locations, province) {
+            if (province) {
+                const provinceKey = findLocationKey(locations, province);
+                return Object.keys(locations[provinceKey] || {});
+            }
+
+            return Object.values(locations).flatMap(municipalities => Object.keys(municipalities));
+        }
+
+        function getBarangayOptions(locations, province, municipality) {
+            if (province) {
+                const provinceKey = findLocationKey(locations, province);
+                const municipalities = locations[provinceKey] || {};
+                const municipalityKey = findLocationKey(municipalities, municipality);
+
+                return municipalities[municipalityKey] || [];
+            }
+
+            return Object.values(locations).flatMap(municipalities => {
+                const municipalityKey = findLocationKey(municipalities, municipality);
+                return municipalities[municipalityKey] || [];
+            });
+        }
+
+        function resetDependentLocationOptions(form, changedSelect) {
+            const provinceSelect = form.elements.namedItem('province');
+            const municipalitySelect = form.elements.namedItem('municipality');
+            const barangaySelect = form.elements.namedItem('barangay');
+            const locations = parseLocationOptions(form);
+
+            if (changedSelect === provinceSelect) {
+                const municipalityOptions = getMunicipalityOptions(locations, provinceSelect.value);
+                populateLocationSelect(municipalitySelect, municipalityOptions, 'All municipalities');
+
+                if (locationMatches(provinceSelect.value, defaultProvince)) {
+                    const defaultMunicipality = defaultMunicipalityNames
+                        .map(name => municipalityOptions.find(option => locationMatches(option, name)))
+                        .find(Boolean);
+                    municipalitySelect.value = defaultMunicipality || '';
+                }
+            }
+
+            const barangayOptions = municipalitySelect.value
+                ? getBarangayOptions(locations, provinceSelect.value, municipalitySelect.value)
+                : [];
+            populateLocationSelect(barangaySelect, barangayOptions, 'All barangays');
+        }
 
         async function updateLandingRecords(url, updateHistory) {
             const requestId = ++requestSequence;
@@ -297,12 +387,25 @@
 
             const url = new URL(form.action, window.location.href);
             for (const [key, value] of new FormData(form)) {
-                if (String(value).trim() !== '') {
-                    url.searchParams.append(key, String(value));
+                if (['province', 'municipality', 'barangay'].includes(key) || String(value).trim() !== '') {
+                    url.searchParams.set(key, String(value));
                 }
             }
 
             updateLandingRecords(url.toString(), true);
+        });
+
+        document.addEventListener('change', function (event) {
+            if (!(event.target instanceof HTMLSelectElement)) {
+                return;
+            }
+
+            const form = event.target.closest('.landing-record-filters');
+            if (!form || !['province', 'municipality'].includes(event.target.name)) {
+                return;
+            }
+
+            resetDependentLocationOptions(form, event.target);
         });
 
         document.addEventListener('click', function (event) {

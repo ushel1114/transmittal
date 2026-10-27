@@ -161,8 +161,8 @@ body {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 16px;
-        padding: 17px 19px 13px;
+        gap: 24px;
+        padding: 20px 24px 16px;
     }
 
     .landing-eyebrow {
@@ -222,8 +222,44 @@ body {
     .landing-open-full,
     .landing-filter-actions button {
         border-color: #166534;
-        background: #166534;
+        background: linear-gradient(135deg, #15803d, #166534);
         color: #fff;
+    }
+
+    .landing-open-full {
+        min-height: 42px;
+        flex: 0 0 auto;
+        gap: 10px;
+        margin-left: auto;
+        padding: 0 16px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgb(22 101 52 / 18%);
+        font-size: 11px;
+        transition: transform .16s ease, box-shadow .16s ease, background .16s ease;
+    }
+
+    .landing-open-full > span {
+        display: grid;
+        width: 23px;
+        height: 23px;
+        flex: 0 0 23px;
+        place-items: center;
+        border: 1px solid rgb(255 255 255 / 28%);
+        border-radius: 7px;
+        background: rgb(255 255 255 / 14%);
+        font-size: 15px;
+        line-height: 1;
+    }
+
+    .landing-open-full:hover {
+        transform: translateY(-1px);
+        background: linear-gradient(135deg, #166534, #14532d);
+        box-shadow: 0 7px 16px rgb(22 101 52 / 24%);
+    }
+
+    .landing-open-full:focus-visible {
+        outline: 3px solid rgb(34 197 94 / 35%);
+        outline-offset: 3px;
     }
 
     .landing-record-filters {

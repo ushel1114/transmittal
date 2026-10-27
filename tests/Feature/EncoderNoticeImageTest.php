@@ -230,7 +230,7 @@ test('all-records viewers can view photo and PDF attachments inline', function (
         ->assertDontSee(route('all-records.attachments.show', [$record, $photo]), false)
         ->assertDontSee(route('all-records.attachments.show', [$record, $pdf]), false);
 
-    $this->get(route('welcome'))
+    $this->get(route('welcome', ['province' => '', 'municipality' => '']))
         ->assertOk()
         ->assertSee('class="landing-record-action view-btn"', false)
         ->assertSee('View / Print photos')
@@ -256,6 +256,42 @@ test('all-records viewers can view photo and PDF attachments inline', function (
         ->assertOk()
         ->assertHeader('Content-Type', 'application/pdf')
         ->assertHeader('Content-Disposition', 'inline; filename=claim.pdf');
+});
+
+test('landing record filters default to Nueva Ecija and Cabanatuan City', function () {
+    Record::create([
+        ...encoderNoticeImageUpdateData(),
+        'farmerName' => 'Cabanatuan Farmer',
+        'address' => 'Bangad, Cabanatuan City, Nueva Ecija',
+        'municipality' => 'Cabanatuan City',
+        'barangay' => 'Bangad',
+    ]);
+
+    Record::create([
+        ...encoderNoticeImageUpdateData(),
+        'farmerName' => 'Guimba Farmer',
+        'address' => 'Agcano, Guimba, Nueva Ecija',
+        'municipality' => 'Guimba',
+        'barangay' => 'Agcano',
+    ]);
+
+    $this->get(route('welcome'))
+        ->assertOk()
+        ->assertSee('value="NUEVA ECIJA" selected', false)
+        ->assertSee('value="CABANATUAN CITY" selected', false)
+        ->assertSee('Cabanatuan Farmer')
+        ->assertDontSee('Guimba Farmer')
+        ->assertSee('data-location-options=', false)
+        ->assertSee('resetDependentLocationOptions(form, event.target)', false);
+
+    $this->get(route('welcome', [
+        'province' => 'Nueva Ecija',
+        'municipality' => 'Guimba',
+        'barangay' => '',
+    ]))
+        ->assertOk()
+        ->assertSee('Guimba Farmer')
+        ->assertDontSee('Cabanatuan Farmer');
 });
 
 test('email record accepts an image larger than five megabytes within the thirty megabyte limit', function () {
