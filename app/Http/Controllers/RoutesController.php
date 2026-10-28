@@ -44,31 +44,8 @@ class RoutesController extends Controller
                 return $locations;
             }, []);
 
-        $province = $request->query('province', 'Nueva Ecija');
-        $municipality = $request->query('municipality');
-
-        if (! $request->query->has('municipality')) {
-            $municipality = '';
-
-            if (strcasecmp(trim((string) $province), 'Nueva Ecija') === 0) {
-                foreach (['Cabanatuan City', 'City of Cabanatuan'] as $defaultMunicipality) {
-                    foreach ($landingLocationData as $locationProvince => $municipalities) {
-                        if (strcasecmp($locationProvince, 'Nueva Ecija') !== 0) {
-                            continue;
-                        }
-
-                        foreach (array_keys($municipalities) as $locationMunicipality) {
-                            if (strcasecmp($locationMunicipality, $defaultMunicipality) === 0) {
-                                $municipality = $locationMunicipality;
-                                break 3;
-                            }
-                        }
-                    }
-                }
-
-                $municipality = $municipality ?: 'Cabanatuan City';
-            }
-        }
+        $province = $request->query('province', '');
+        $municipality = $request->query('municipality', '');
 
         $filters = [
             ...$request->only('name'),

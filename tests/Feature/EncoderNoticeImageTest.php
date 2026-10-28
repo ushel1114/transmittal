@@ -258,7 +258,7 @@ test('all-records viewers can view photo and PDF attachments inline', function (
         ->assertHeader('Content-Disposition', 'inline; filename=claim.pdf');
 });
 
-test('landing record filters default to Nueva Ecija and Cabanatuan City', function () {
+test('landing record filters default to all provinces and municipalities', function () {
     Record::create([
         ...encoderNoticeImageUpdateData(),
         'farmerName' => 'Cabanatuan Farmer',
@@ -277,10 +277,11 @@ test('landing record filters default to Nueva Ecija and Cabanatuan City', functi
 
     $this->get(route('welcome'))
         ->assertOk()
-        ->assertSee('value="NUEVA ECIJA" selected', false)
-        ->assertSee('value="CABANATUAN CITY" selected', false)
+        ->assertSee('<option value="">All provinces</option>', false)
+        ->assertSee('<option value="">All municipalities</option>', false)
+        ->assertSee('<option value="">All barangays</option>', false)
         ->assertSee('Cabanatuan Farmer')
-        ->assertDontSee('Guimba Farmer')
+        ->assertSee('Guimba Farmer')
         ->assertSee('data-location-options=', false)
         ->assertSee('resetDependentLocationOptions(form, event.target)', false);
 

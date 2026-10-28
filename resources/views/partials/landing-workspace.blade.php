@@ -126,7 +126,7 @@
                 </label>
                 <div class="landing-filter-actions">
                     <button type="submit">Apply filters</button>
-                    <a href="{{ route('welcome', ['province' => '', 'municipality' => '', 'barangay' => '']) }}">Clear</a>
+                    <a href="{{ route('welcome') }}">Clear</a>
                 </div>
             </form>
 
@@ -240,9 +240,6 @@
 <script>
     (function () {
         let requestSequence = 0;
-        const defaultProvince = 'Nueva Ecija';
-        const defaultMunicipalityNames = ['Cabanatuan City', 'City of Cabanatuan'];
-
         function parseLocationOptions(form) {
             try {
                 return JSON.parse(form.dataset.locationOptions || '{}');
@@ -317,12 +314,6 @@
                 const municipalityOptions = getMunicipalityOptions(locations, provinceSelect.value);
                 populateLocationSelect(municipalitySelect, municipalityOptions, 'All municipalities');
 
-                if (locationMatches(provinceSelect.value, defaultProvince)) {
-                    const defaultMunicipality = defaultMunicipalityNames
-                        .map(name => municipalityOptions.find(option => locationMatches(option, name)))
-                        .find(Boolean);
-                    municipalitySelect.value = defaultMunicipality || '';
-                }
             }
 
             const barangayOptions = municipalitySelect.value
